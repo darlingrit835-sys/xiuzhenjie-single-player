@@ -18,7 +18,7 @@ public class HandlerRegistry {
         GameServer.register(1002014, new GuideInfoSkipHandler());
         GameServer.register(1016002, new ReceiveAwardHandler());
 
-        // 修练 / 洞府 / 功法
+        // 修炼 / 洞府 / 功法
         GameServer.register(1001005, new UnderstandMethodHandler());
         GameServer.register(1001007, new ChangeRunLocationHandler());
         GameServer.register(1001008, new BreakthroughAskHandler());
@@ -36,11 +36,19 @@ public class HandlerRegistry {
         GameServer.register(1004008, new GoodsBookAchievementDetailHandler());
         GameServer.register(1004018, new AttackEquipmentDetailHandler());
         GameServer.register(1004019, new DefenseEquipmentDetailHandler());
+        GameServer.register(1004014, new DefenseFaQiDetailHandler());
         GameServer.register(1004023, new GoodsBindingHandler());
         GameServer.register(1004024, new GoodsUseHandler());
         GameServer.register(1004026, new PickUpGoodsHandler());
         GameServer.register(1004032, new UsedElixirHandler());
+        GameServer.register(1004033, new EnterXuanTianLouHandler());
+        GameServer.register(1004035, new BuyXuanTianLouGoodsHandler());
         GameServer.register(1005001, new EnterHomeHandler());
+        GameServer.register(1005002, new UpgradeHomeHandler());
+        GameServer.register(1005003, new BuildLiveTypeHandler());
+        GameServer.register(1005004, new RebuildLiveTypeHandler());
+        GameServer.register(1013001, new EnterPlantHandler());
+        GameServer.register(1013003, new KaiKenLandHandler());
         GameServer.register(1007001, new SibingsMapHandler());
         GameServer.register(1007003, new MapChildrenHandler());
         GameServer.register(1007005, new ParentMapIdHandler());
