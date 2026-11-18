@@ -27,7 +27,11 @@ namespace XiuZhenJie
 			["CanWuIcon"] = "Book",
 			["TitleDaoYouIcon"] = "Chat",
 			["HuoBanIcon"] = "FoldedMap",
-			["GongLueIcon"] = "Scroll"
+			["GongLueIcon"] = "Scroll",
+			["youjian"] = "Letter",
+			["laba"] = "Bell",
+			["LingYuIcon"] = "JadePendant",
+			["LingShiDiaoLuo"] = "SilverIngot"
 		};
 
 		internal static Sprite Get(string name)
@@ -118,6 +122,48 @@ namespace XiuZhenJie
 			StyleBuilding(panel.XuanTianLouBtn, "Pavilion");
 			StyleBuilding(panel.ChuanSongDaZhenBtn, "Compass");
 			StyleBuilding(panel.XuShenJieBtn, "Lotus");
+			Transform actions = panel.transform.Find("CeTitle");
+			if (actions != null)
+			{
+				Set(actions.GetComponent<Image>(), "Paper", false);
+				StyleQuickAction(actions.Find("QianDao"), "AttendanceSeal");
+				StyleQuickAction(actions.Find("Rank"), "Ranking");
+				StyleQuickAction(actions.Find("GongLue"), "Scroll");
+				StyleQuickAction(actions.Find("TianDaoLing"), "Dispatch");
+				StyleQuickAction(actions.Find("XuanTianLing"), "JadePendant");
+				Set(actions.Find("GuangGao")?.GetComponent<Image>(), "Gift");
+				Set(actions.Find("HuoDong/HuoDongBtn")?.GetComponent<Image>(), "Gift");
+				foreach (Text label in actions.GetComponentsInChildren<Text>(true))
+				{
+					label.color = Ink;
+				}
+			}
+		}
+
+		private static void StyleQuickAction(Transform action, string icon)
+		{
+			if (action == null || Get(icon) == null)
+			{
+				return;
+			}
+			Image previous = action.GetComponent<Image>();
+			if (previous != null)
+			{
+				previous.color = Color.clear;
+			}
+
+			var art = new GameObject("InkActionIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+			art.layer = action.gameObject.layer;
+			var rect = (RectTransform)art.transform;
+			rect.SetParent(action, false);
+			rect.anchorMin = new Vector2(0.21f, 0.38f);
+			rect.anchorMax = new Vector2(0.79f, 0.97f);
+			rect.offsetMin = Vector2.zero;
+			rect.offsetMax = Vector2.zero;
+
+			Image image = art.GetComponent<Image>();
+			Set(image, icon);
+			image.raycastTarget = false;
 		}
 
 		private static void StyleBuilding(Button button, string icon)
