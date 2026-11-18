@@ -1,0 +1,15 @@
+# 运行产物
+*.class
+server/out/
+data/roles.json
+data/users.json
+data/server.log
+
+# 二进制
+*.apk
+*.zip
+*.p12
+*.jar
+
+Thumbs.db
+.DS_Store
