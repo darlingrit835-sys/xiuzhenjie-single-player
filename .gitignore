@@ -1,15 +1,11 @@
-# 运行产物
-*.class
-server/out/
-data/roles.json
-data/users.json
-data/server.log
+# 运行时产物：日志与存档备份不进版本库（存档本体 roles.json 保留基线）
+server/data/console.log
+server/data/console.err.log
+server/data/server.log
+server/data/roles.json.bak
+server/data/roles.json.corrupt-*
+server/data/roles.json.truncated-*
+server/data/*.tmp
 
-# 二进制
-*.apk
-*.zip
-*.p12
-*.jar
-
-Thumbs.db
-.DS_Store
+# 编译输出由 build.bat 生成，这里仍跟踪 out 以便开箱即用
+*.log
