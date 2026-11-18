@@ -21,13 +21,19 @@ if (-not (Test-Path -LiteralPath $java)) { Write-Host '[错误] 找不到内置 
 if (-not (Test-Path -LiteralPath $apk))  { Write-Host '[错误] 找不到客户端 APK：' $apk -ForegroundColor Red; Read-Host '按回车退出' | Out-Null; exit 1 }
 if (-not (Test-Path -LiteralPath $adb))  { Write-Host '[错误] 找不到 adb：' $adb -ForegroundColor Red; Read-Host '按回车退出' | Out-Null; exit 1 }
 
+# ---------- 1. 服务端 ----------
 Write-Host ''
 Write-Host '[1/5] 本地服务端' -ForegroundColor Yellow
 if (Test-Port 9443) {
   Write-Host '      已在运行，直接复用' -ForegroundColor Green
 } else {
   Write-Host '      正在启动（会弹出一个“修真界服务端”窗口，关掉它就等于停服）...'
-  Start-Process -FilePath $java -ArgumentList '-cp','out;lib/*','server.Main' -WorkingDirectory $srv | Out-Null
+  $log = Join-Path $srv 'data\console.log'
+  $err = Join-Path $srv 'data\console.err.log'
+  Remove-Item $log,$err -ErrorAction SilentlyContinue
+  # 服务端输出写进 server\data\console.log，出问题好排查
+  Start-Process -FilePath $java -ArgumentList '-cp','out;lib/*','server.Main' -WorkingDirectory $srv `
+    -RedirectStandardOutput $log -RedirectStandardError $err -WindowStyle Minimized | Out-Null
   $ok = $false
   for ($i = 0; $i -lt 30; $i++) {
     Start-Sleep -Seconds 1
@@ -37,11 +43,12 @@ if (Test-Port 9443) {
   else { Write-Host '      服务端已就绪（账号服 9443 / 游戏服 17666 / 战斗服 17667）' -ForegroundColor Green }
 }
 
+# ---------- 2. 设备 ----------
 Write-Host ''
 Write-Host '[2/5] 等待手机连接（请插 USB，并在手机上允许 USB 调试）' -ForegroundColor Yellow
 $dev = $null
 for ($i = 0; $i -lt 60; $i++) {
-  $lines = & $adb devices | Where-Object { $_ -match "`tdevice" }
+  $lines = & $adb devices | Where-Object { $_ -match '\tdevice' }
   if ($lines) { $dev = ($lines -split "`t")[0].Trim(); break }
   Start-Sleep -Seconds 1
 }
@@ -54,6 +61,7 @@ if (-not $dev) {
 }
 Write-Host ("      已连接：{0}" -f $dev) -ForegroundColor Green
 
+# ---------- 3. 端口映射 ----------
 Write-Host ''
 Write-Host '[3/5] 建立端口映射（USB 反向代理）' -ForegroundColor Yellow
 & $adb reverse tcp:9443  tcp:9443  | Out-Null
@@ -61,6 +69,7 @@ Write-Host '[3/5] 建立端口映射（USB 反向代理）' -ForegroundColor Yel
 & $adb reverse tcp:17667 tcp:17667 | Out-Null
 Write-Host '      已完成：手机的 127.0.0.1 已指向电脑上的服务端' -ForegroundColor Green
 
+# ---------- 4. 客户端 ----------
 Write-Host ''
 Write-Host '[4/5] 客户端' -ForegroundColor Yellow
 $installed = (& $adb shell pm path $pkg 2>$null) -join ''
@@ -71,6 +80,7 @@ if ([string]::IsNullOrWhiteSpace($installed)) {
   Write-Host '      已安装，跳过（要重装请运行“重装客户端.bat”）' -ForegroundColor Green
 }
 
+# ---------- 5. 启动 ----------
 Write-Host ''
 Write-Host '[5/5] 启动游戏' -ForegroundColor Yellow
 & $adb shell am force-stop $pkg | Out-Null
