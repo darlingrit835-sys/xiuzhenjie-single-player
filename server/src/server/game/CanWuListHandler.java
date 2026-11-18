@@ -27,10 +27,21 @@ public class CanWuListHandler implements MsgHandler {
         // 入门功法（启灵经）默认已领悟
         s.add("gf_3_1");
         // 之后参悟成功的功法记在这里，避免重进又变回“可参悟”
-        for (String id : RoleUtil.stringList(r, "CanWuKnown")) {
+        for (String id : knownIds(r)) {
             if (!id.isEmpty()) s.add(id);
         }
         return s;
+    }
+
+    /** 读取存档里的 CanWuKnown 列表。 */
+    @SuppressWarnings("unchecked")
+    private static java.util.List<String> knownIds(Map<String, Object> r) {
+        Object o = r.get("CanWuKnown");
+        java.util.List<String> out = new java.util.ArrayList<>();
+        if (o instanceof java.util.List) {
+            for (Object x : (java.util.List<Object>) o) if (x != null) out.add(String.valueOf(x));
+        }
+        return out;
     }
 
     @Override
@@ -45,8 +56,8 @@ public class CanWuListHandler implements MsgHandler {
             for (GameData.GongFaDef g : GameData.gongFaAll()) {
                 boolean isLearned = known.contains(g.id);
                 if (isLearned) n++;
-                Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1001012.Builder o =
-                        Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1001012.newBuilder();
+                Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1010012.Builder o =
+                        Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1010012.newBuilder();
                 o.setId(g.id)
                         .setName(g.name)
                         .setFiveElement(g.fiveElement)

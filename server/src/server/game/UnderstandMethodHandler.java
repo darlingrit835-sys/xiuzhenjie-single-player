@@ -2,6 +2,8 @@ package server.game;
 
 import xzj.Xzj;
 
+import java.util.Map;
+
 /**
  * 1001005 参悟功法/法术/丹方等。这里实现功法（Type=2）。
  */
@@ -19,7 +21,7 @@ public class UnderstandMethodHandler implements MsgHandler {
                 if (g != null) {
                     RoleUtil.addOwned(session.role, g.id);
                     // 记下“已参悟”，否则重进参悟列表时又会变回可参悟
-                    RoleUtil.addToStringList(session.role, "CanWuKnown", g.id);
+                    markKnown(session.role, g.id);
                     questDone = QuestService.onGongFa(session.role, g.rank);
                     RoleUtil.save(session.role);
                     b.setIsSuccess(true).setCode(4048);
@@ -35,5 +37,20 @@ public class UnderstandMethodHandler implements MsgHandler {
         session.send(1001005, msg.getMsid(), b.build());
         System.out.println(log);
         if (questDone) GameServer.notifyTaskComplete(session);
+    }
+
+    /** 把已参悟的功法 id 记到 CanWuKnown，动作与读盘都在这里，免得动 RoleUtil。 */
+    @SuppressWarnings("unchecked")
+    private static void markKnown(Map<String, Object> r, String id) {
+        if (id == null || id.isEmpty()) return;
+        Object o = r.get("CanWuKnown");
+        java.util.List<String> list = new java.util.ArrayList<>();
+        if (o instanceof java.util.List) {
+            for (Object x : (java.util.List<Object>) o) if (x != null) list.add(String.valueOf(x));
+        }
+        if (!list.contains(id)) {
+            list.add(id);
+            r.put("CanWuKnown", list);
+        }
     }
 }
