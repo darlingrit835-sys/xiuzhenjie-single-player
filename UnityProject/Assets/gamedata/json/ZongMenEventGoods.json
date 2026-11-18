@@ -1,0 +1,364 @@
+[
+  {
+    "Id": 1,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 5,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 2,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,练气", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 3,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 100,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 4,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 5,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 20,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 6,
+    "Name": "神术",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 41,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,练气", "作用,提升法术灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 7,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 50,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 8,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,筑基", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+
+
+
+  {
+    "Id": 9,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 5,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 10,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,筑基", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 11,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 100,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 12,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 13,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 20,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 14,
+    "Name": "神术",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 41,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,筑基", "作用,提升法术灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 15,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 50,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 16,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,筑基", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+
+
+
+
+  {
+    "Id": 17,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 5,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 18,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,结丹", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 19,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 100,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 20,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 21,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 20,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 22,
+    "Name": "神术",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 41,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,结丹", "作用,提升法术灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 23,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 50,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 24,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,结丹", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+
+
+
+  {
+    "Id": 25,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 5,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 26,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,元婴", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 27,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 100,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 28,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 29,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 20,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 30,
+    "Name": "神术",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 41,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,元婴", "作用,提升法术灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 31,
+    "Name": "宗门贡献",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 50,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 1000,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 32,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 4,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,元婴", "作用,提升法器灵衍值（0.05~0.12）" ]
+  }
+]

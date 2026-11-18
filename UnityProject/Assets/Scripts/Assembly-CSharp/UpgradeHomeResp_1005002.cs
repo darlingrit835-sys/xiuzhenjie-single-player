@@ -1,0 +1,334 @@
+using System;
+using System.Diagnostics;
+using Google.Protobuf;
+using Google.Protobuf.Reflection;
+
+public sealed class UpgradeHomeResp_1005002 : IMessage<UpgradeHomeResp_1005002>, IMessage, IEquatable<UpgradeHomeResp_1005002>, IDeepCloneable<UpgradeHomeResp_1005002>
+{
+	private static readonly MessageParser<UpgradeHomeResp_1005002> _parser = new MessageParser<UpgradeHomeResp_1005002>(() => new UpgradeHomeResp_1005002());
+
+	private UnknownFieldSet _unknownFields;
+
+	public const int CodeFieldNumber = 1;
+
+	private int code_;
+
+	public const int IsSuccessFieldNumber = 2;
+
+	private bool isSuccess_;
+
+	public const int ShinyStoneFieldNumber = 3;
+
+	private long shinyStone_;
+
+	public const int NameFieldNumber = 4;
+
+	private string name_ = "";
+
+	public const int RankFieldNumber = 5;
+
+	private int rank_;
+
+	[DebuggerNonUserCode]
+	public static MessageParser<UpgradeHomeResp_1005002> Parser => _parser;
+
+	[DebuggerNonUserCode]
+	public static MessageDescriptor Descriptor => HomeProtoReflection.Descriptor.MessageTypes[1];
+
+	[DebuggerNonUserCode]
+	MessageDescriptor IMessage.Descriptor => pb_003A_003AGoogle_002EProtobuf_002EIMessage_002Eget_Descriptor();
+
+	[DebuggerNonUserCode]
+	public int Code
+	{
+		get
+		{
+			return code_;
+		}
+		set
+		{
+			code_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public bool IsSuccess
+	{
+		get
+		{
+			return isSuccess_;
+		}
+		set
+		{
+			isSuccess_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public long ShinyStone
+	{
+		get
+		{
+			return shinyStone_;
+		}
+		set
+		{
+			shinyStone_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public string Name
+	{
+		get
+		{
+			return name_;
+		}
+		set
+		{
+			name_ = ProtoPreconditions.CheckNotNull(value, "value");
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public int Rank
+	{
+		get
+		{
+			return rank_;
+		}
+		set
+		{
+			rank_ = value;
+		}
+	}
+
+	private MessageDescriptor pb_003A_003AGoogle_002EProtobuf_002EIMessage_002Eget_Descriptor()
+	{
+		return Descriptor;
+	}
+
+	[DebuggerNonUserCode]
+	public UpgradeHomeResp_1005002()
+	{
+	}
+
+	[DebuggerNonUserCode]
+	public UpgradeHomeResp_1005002(UpgradeHomeResp_1005002 other)
+		: this()
+	{
+		code_ = other.code_;
+		isSuccess_ = other.isSuccess_;
+		shinyStone_ = other.shinyStone_;
+		name_ = other.name_;
+		rank_ = other.rank_;
+		_unknownFields = UnknownFieldSet.Clone(other._unknownFields);
+	}
+
+	[DebuggerNonUserCode]
+	public UpgradeHomeResp_1005002 Clone()
+	{
+		return new UpgradeHomeResp_1005002(this);
+	}
+
+	[DebuggerNonUserCode]
+	public override bool Equals(object other)
+	{
+		return Equals(other as UpgradeHomeResp_1005002);
+	}
+
+	[DebuggerNonUserCode]
+	public bool Equals(UpgradeHomeResp_1005002 other)
+	{
+		if (other == null)
+		{
+			return false;
+		}
+		if (other == this)
+		{
+			return true;
+		}
+		if (Code != other.Code)
+		{
+			return false;
+		}
+		if (IsSuccess != other.IsSuccess)
+		{
+			return false;
+		}
+		if (ShinyStone != other.ShinyStone)
+		{
+			return false;
+		}
+		if (Name != other.Name)
+		{
+			return false;
+		}
+		if (Rank != other.Rank)
+		{
+			return false;
+		}
+		return object.Equals(_unknownFields, other._unknownFields);
+	}
+
+	[DebuggerNonUserCode]
+	public override int GetHashCode()
+	{
+		int num = 1;
+		if (Code != 0)
+		{
+			num ^= Code.GetHashCode();
+		}
+		if (IsSuccess)
+		{
+			num ^= IsSuccess.GetHashCode();
+		}
+		if (ShinyStone != 0L)
+		{
+			num ^= ShinyStone.GetHashCode();
+		}
+		if (Name.Length != 0)
+		{
+			num ^= Name.GetHashCode();
+		}
+		if (Rank != 0)
+		{
+			num ^= Rank.GetHashCode();
+		}
+		if (_unknownFields != null)
+		{
+			num ^= _unknownFields.GetHashCode();
+		}
+		return num;
+	}
+
+	[DebuggerNonUserCode]
+	public override string ToString()
+	{
+		return JsonFormatter.ToDiagnosticString(this);
+	}
+
+	[DebuggerNonUserCode]
+	public void WriteTo(CodedOutputStream output)
+	{
+		if (Code != 0)
+		{
+			output.WriteRawTag(8);
+			output.WriteInt32(Code);
+		}
+		if (IsSuccess)
+		{
+			output.WriteRawTag(16);
+			output.WriteBool(IsSuccess);
+		}
+		if (ShinyStone != 0L)
+		{
+			output.WriteRawTag(24);
+			output.WriteInt64(ShinyStone);
+		}
+		if (Name.Length != 0)
+		{
+			output.WriteRawTag(34);
+			output.WriteString(Name);
+		}
+		if (Rank != 0)
+		{
+			output.WriteRawTag(40);
+			output.WriteInt32(Rank);
+		}
+		if (_unknownFields != null)
+		{
+			_unknownFields.WriteTo(output);
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public int CalculateSize()
+	{
+		int num = 0;
+		if (Code != 0)
+		{
+			num += 1 + CodedOutputStream.ComputeInt32Size(Code);
+		}
+		if (IsSuccess)
+		{
+			num += 2;
+		}
+		if (ShinyStone != 0L)
+		{
+			num += 1 + CodedOutputStream.ComputeInt64Size(ShinyStone);
+		}
+		if (Name.Length != 0)
+		{
+			num += 1 + CodedOutputStream.ComputeStringSize(Name);
+		}
+		if (Rank != 0)
+		{
+			num += 1 + CodedOutputStream.ComputeInt32Size(Rank);
+		}
+		if (_unknownFields != null)
+		{
+			num += _unknownFields.CalculateSize();
+		}
+		return num;
+	}
+
+	[DebuggerNonUserCode]
+	public void MergeFrom(UpgradeHomeResp_1005002 other)
+	{
+		if (other != null)
+		{
+			if (other.Code != 0)
+			{
+				Code = other.Code;
+			}
+			if (other.IsSuccess)
+			{
+				IsSuccess = other.IsSuccess;
+			}
+			if (other.ShinyStone != 0L)
+			{
+				ShinyStone = other.ShinyStone;
+			}
+			if (other.Name.Length != 0)
+			{
+				Name = other.Name;
+			}
+			if (other.Rank != 0)
+			{
+				Rank = other.Rank;
+			}
+			_unknownFields = UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public void MergeFrom(CodedInputStream input)
+	{
+		uint num;
+		while ((num = input.ReadTag()) != 0)
+		{
+			switch (num)
+			{
+			default:
+				_unknownFields = UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+				break;
+			case 8u:
+				Code = input.ReadInt32();
+				break;
+			case 16u:
+				IsSuccess = input.ReadBool();
+				break;
+			case 24u:
+				ShinyStone = input.ReadInt64();
+				break;
+			case 34u:
+				Name = input.ReadString();
+				break;
+			case 40u:
+				Rank = input.ReadInt32();
+				break;
+			}
+		}
+	}
+}

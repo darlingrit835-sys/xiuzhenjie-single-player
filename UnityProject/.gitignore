@@ -1,0 +1,15 @@
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/Obj/
+/Build/
+/Builds/
+/MemoryCaptures/
+.vs/
+.idea/
+*.csproj
+*.sln
+*.apk
+*.aab
+.DS_Store

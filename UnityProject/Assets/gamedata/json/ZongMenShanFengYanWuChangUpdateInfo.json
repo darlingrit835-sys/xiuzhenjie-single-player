@@ -1,0 +1,86 @@
+[
+  {
+    "Stage": 3,
+    "MaxPeople": 300,
+    "OneYield": 3,
+    "HourYield": 900,
+    "DayYield": 21600,
+    "ShinyStoneCast": 0,
+    "MaterialCast": 0,
+    "TimeCast": 0,
+    "ShinyJadeSpeedUp": 0,
+    "AllShinyJadeSpeedUp": 0
+  },
+  {
+    "Stage": 4,
+    "MaxPeople": 500,
+    "OneYield": 5,
+    "HourYield": 2500,
+    "DayYield": 60000,
+    "ShinyStoneCast": 10000,
+    "MaterialCast": 10000,
+    "TimeCast": 14400,
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 240
+  },
+  {
+    "Stage": 5,
+    "MaxPeople": 900,
+    "OneYield": 12,
+    "HourYield": 10800,
+    "DayYield": 259200,
+    "ShinyStoneCast": 100000,
+    "MaterialCast": 100000,
+    "TimeCast": 28800,
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 480
+  },
+  {
+    "Stage": 6,
+    "MaxPeople": 1300,
+    "OneYield": 50,
+    "HourYield": 65000,
+    "DayYield": 1560000,
+    "ShinyStoneCast": 1000000,
+    "MaterialCast": 1000000,
+    "TimeCast": 57600,
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 960
+  },
+  {
+    "Stage": 7,
+    "MaxPeople": 1700,
+    "OneYield": 180,
+    "HourYield": 306000,
+    "DayYield": 7344000,
+    "ShinyStoneCast": 10000000,
+    "MaterialCast": 10000000,
+    "TimeCast": 115200,
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 1920
+  },
+  {
+    "Stage": 8,
+    "MaxPeople": 2100,
+    "OneYield": 700,
+    "HourYield": 1470000,
+    "DayYield": 35280000,
+    "ShinyStoneCast": 100000000,
+    "MaterialCast": 100000000,
+    "TimeCast": 230400,
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 3840
+  },
+  {
+    "Stage": 9,
+    "MaxPeople": 2500,
+    "OneYield": 1000,
+    "HourYield": 2500000,
+    "DayYield": 60000000,
+    "ShinyStoneCast": 1000000000,
+    "MaterialCast": 1000000000,
+    "TimeCast": 460800,
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 7680
+  }
+]

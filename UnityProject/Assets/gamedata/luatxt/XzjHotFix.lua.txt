@@ -1,0 +1,562 @@
+local util = require 'util'
+
+
+
+
+
+--外务殿
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_WaiWuDianWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_WaiWuDianWnd,'JieSuanPanDuan_1',function(self,status)   
+		    self.m_Panel.YuJiTime_2Image.gameObject:SetActive(false)
+            self.m_Panel.YiWanCheng_2Text.gameObject:SetActive(false)
+            self.m_Panel.JieSuan_2Button.gameObject:SetActive(false)
+            self.m_Panel.DenDai_2Button.gameObject:SetActive(false)
+			if(status == 2)
+			then
+			return
+			end
+
+			if(status == 0)
+			then
+			    self.m_Panel.YuJiTime_2Image.gameObject:SetActive(true)
+                self.m_Panel.DenDai_2Button.gameObject:SetActive(true)
+		    else
+			   self.m_Panel.YiWanCheng_2Text.gameObject:SetActive(true)
+               self.m_Panel.JieSuan_2Button.gameObject:SetActive(true)
+               self:AddButtonClickListener(self.m_Panel.JieSuan_2Button,function()    
+			   self:JiSuan2()
+			   end)
+			end
+
+end) 
+
+
+
+local m_Time_1 = 1000
+
+local m_Time_2 = 1000
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_WaiWuDianWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMen_WaiWuDianWnd,'HuoQuZhangLaoXingXi',function(self)
+   CS.XiuZhenJie.NetManager.Instance:SendMsg(CS.XiuZhenJie.MsgType.INTOWAIWU,nil,function(_obj)
+   CS.XiuZhenJie.GameStart.Instance:HideWaitReauestWnd()
+   self.m_IntoWaiWuResp1015038 = CS.IntoWaiWuResp_1015038()
+	  local byteStr = _obj:CreateCodedInput()
+	  self.m_IntoWaiWuResp1015038:MergeFrom(byteStr)
+	  if(self.m_IntoWaiWuResp1015038.IsSuccess)
+	  then
+	    self.m_YiWanCheng1 = false
+	    self.m_YiWanCheng2 = false
+		if(self.m_IntoWaiWuResp1015038.ZhangLaoInfo~=nil)
+		then
+		 self.m_PanDuanXiuGai = CS.XiuZhenJie.RoleManager.Instance.Role_Entity.Id == self.m_IntoWaiWuResp1015038.ZhangLaoInfo.RoleId
+         self.m_Panel.ZhangLaoWuImage.gameObject:SetActive(false)                         
+		 self:ZhangLaoFuZhi(self.m_IntoWaiWuResp1015038.ZhangLaoInfo)
+		else
+		  self.m_Panel.ZhangLaoWuImage.gameObject:SetActive(true)
+		end
+		self:CurrentContribution(self.m_IntoWaiWuResp1015038.CurrentContribution)
+		if(self.m_IntoWaiWuResp1015038.XuanShangInfo.Count > 0)
+		then
+		        m_Time_1 = self.m_IntoWaiWuResp1015038.XuanShangInfo[0].ShengYuTime /1000
+                self.m_Id1 = self.m_IntoWaiWuResp1015038.XuanShangInfo[0].Id
+                self:XuanShangInfo(self.m_IntoWaiWuResp1015038.XuanShangInfo[0])
+                self.m_Panel.ForTheTaskImage.gameObject:SetActive(true)
+		else
+		     
+			    self.m_Panel.ForTheTaskImage.gameObject:SetActive(false);
+		end
+
+		if(self.m_IntoWaiWuResp1015038.XuanShangInfo.Count > 1)
+		then
+		        m_Time_2 = self.m_IntoWaiWuResp1015038.XuanShangInfo[1].ShengYuTime /1000
+                self.m_Id2 = self.m_IntoWaiWuResp1015038.XuanShangInfo[1].Id
+                self:XuanShangInfo_1(self.m_IntoWaiWuResp1015038.XuanShangInfo[1])
+                self.m_Panel.ForTheTask_2Image.gameObject:SetActive(true)
+		else
+		     
+			    self.m_Panel.ForTheTask_2Image.gameObject:SetActive(false);
+		end
+	  else
+	    local content = CS.XiuZhenJie.GameStart.Instance:GetHintMsgByCode(intoWaiWuResp_1015038.Code)
+		CS.XiuZhenJie.GameStart.Instance:PopUpAttention(content)
+	  end
+  end,true)
+	 if(self.m_IntoWaiWuResp1015038.XuanShangInfo.Count > 0)
+	 then
+	  m_Time_1 = self.m_IntoWaiWuResp1015038.XuanShangInfo[0].ShengYuTime /1000
+	 end
+
+	 if(self.m_IntoWaiWuResp1015038.XuanShangInfo.Count > 1)
+	 then
+	  m_Time_2 = self.m_IntoWaiWuResp1015038.XuanShangInfo[1].ShengYuTime /1000
+	 end
+end)
+
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_WaiWuDianWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_WaiWuDianWnd,'OnFixUpdate',function(self)   
+			if(m_Time_1 > 0)
+			then
+			m_Time_1=m_Time_1 - CS.UnityEngine.Time.fixedDeltaTime
+			self.m_Panel.YuJiTimeText.text =CS.System.String.Format("{0}分钟",math.floor( m_Time_1 / 60))
+			elseif(self.m_YiWanCheng1 == false)
+			then
+			 self.m_YiWanCheng1 = true
+			 self:JieSuanPanDuan(1)
+			end
+
+			if(m_Time_2 > 0)
+			then
+			 m_Time_2 = m_Time_2 -  CS.UnityEngine.Time.fixedDeltaTime
+			 self.m_Panel.YuJiTime_2Text.text = CS.System.String.Format("{0}分钟", math.floor(m_Time_2 / 60))
+			elseif(self.m_YiWanCheng2 == false)
+			then
+			 self.m_YiWanCheng2 = true
+			 self:JieSuanPanDuan(1)
+			end
+end) 
+
+
+
+
+
+--内门
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMen_NeiMenWnd,'CloseJuanZengPanel',function(self)   
+		    
+			self.m_NaJieBox:GetAllGoods(function()
+			self.m_NaJieGoodsDic:Clear()
+			for k,v in pairs(self.m_NaJieBox.GoodsList)
+     	    do
+	            if(self.m_NaJieGoodsDic:ContainsKey(v.GoodsId) == false)
+				then
+				  local dataGoods = v:Copy()
+				  self.m_NaJieGoodsDic:Add(v.GoodsId, dataGoods)
+				end
+	        end
+			end)
+			self:CloseJuanZengPanel()
+			self.m_NaJieGoodsItemDic:Clear()
+			self.m_ChooseGoodsItemDic:Clear()
+			self.m_ChooseGoodsDic:Clear()
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.UI_GoodsItem)
+xlua.hotfix(CS.XiuZhenJie.UI_GoodsItem,'ResetNum',function(self,num)  
+            if(num<=0)
+			then
+			 return
+			end
+			self.NumText.text = num..""
+			if(num <= 1)
+			then
+			 self.NumImg.gameObject:SetActive(false)
+			else
+			 self.NumImg.gameObject:SetActive(true)
+			end
+end) 
+
+
+--内门
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'CreateNaJieData',function(self,baseNaJieGoods)   	    
+	 for i,v in pairs(baseNaJieGoods)
+	 do
+	  if(self.m_NaJieGoodsItemDic:ContainsKey(v.GoodsId) == false)
+	  then
+	   local najieClickItem = self:CreateObjItem(v,self.Panel.JuanZengNaJieContent,function(obj,gameObj,data)
+	       self:NaJieGoodsClick(obj,gameObj,data)
+	   end)
+	   self.m_NaJieGoodsItemDic:Add(v.GoodsId,najieClickItem)
+	   end
+	  end
+	  local gridLayoutGroup = self.Panel.JuanZengNaJieContent.gameObject:GetComponent("GridLayoutGroup");
+	  cast(gridLayoutGroup,typeof(CS.UnityEngine.UI.GridLayoutGroup))
+	  self:SetGrticalListContentHight(baseNaJieGoods.Count,self.Panel.JuanZengNaJieContent,gridLayoutGroup)
+end) 
+
+
+
+--内门
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'NaJieGoodsChoosed',function(self,num,gameObj,data)   	    
+	local item = gameObj:GetComponent("UI_GoodsItem")
+	cast(item,typeof(CS.XiuZhenJie.UI_GoodsItem))
+	local residual = data.GoodsNum - num
+	if(residual<=0)
+	then
+	 num = data.GoodsNum
+	 CS.UnityEngine.GameObject.Destroy(gameObj)
+	end
+	if(self.m_ChooseGoodsDic:ContainsKey(data.GoodsId) and self.m_ChooseGoodsItemDic:ContainsKey(data.GoodsId))
+	then
+	 local goodNum = 1
+	 for k,v in pairs(self.m_ChooseGoodsDic)
+	 do
+	  if(k == data.GoodsId)
+	  then
+	  goodNum =v.GoodsNum + num
+	  v.GoodsNum = goodNum
+	  break
+	  end
+	 end
+	 for k,v in pairs(self.m_ChooseGoodsItemDic)
+	 do
+	  if(k == data.GoodsId)
+	  then
+	  v:ResetNum(goodNum)
+	  break
+	  end
+	 end
+	else
+	local baseNaJieGoodEntity = data:Copy()
+	baseNaJieGoodEntity.GoodsNum = num
+	local uI_GoodsItem = self:CreateObjItem(baseNaJieGoodEntity, self.Panel.JuanZengChooseContent,function(obj,gameObj,aa)
+    self:ChooseContentGoodsClick(obj,gameObj,aa) 
+	end)
+	self.m_ChooseGoodsDic:Add(baseNaJieGoodEntity.GoodsId, baseNaJieGoodEntity)				
+	self.m_ChooseGoodsItemDic:Add(baseNaJieGoodEntity.GoodsId, uI_GoodsItem)
+	end
+	self:RemoveNaJieDic(data.GoodsId, num)
+    self:SetContentHight()
+end) 
+
+
+--内门
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'ChooseContentGoodsChoosed',function(self,num,gameObj,data)   	    
+	local item = gameObj:GetComponent("UI_GoodsItem")
+	cast(item,typeof(CS.XiuZhenJie.UI_GoodsItem))
+	local residual = data.GoodsNum - num
+	if(residual<=0)
+	then
+	 num = data.GoodsNum
+	 CS.UnityEngine.GameObject.Destroy(gameObj)
+	end
+	if(self.m_NaJieGoodsDic:ContainsKey(data.GoodsId) and self.m_NaJieGoodsItemDic:ContainsKey(data.GoodsId))
+	then
+	 local goodNum = 1
+	 for k,v in pairs(self.m_NaJieGoodsDic)
+	 do
+	  if(k == data.GoodsId)
+	  then
+	  goodNum =v.GoodsNum + num
+	  v.GoodsNum = goodNum
+	  break
+	  end
+	 end
+	 for k,v in pairs(self.m_NaJieGoodsItemDic)
+	 do
+	  if(k == data.GoodsId)
+	  then
+	  v:ResetNum(goodNum)
+	  break
+	  end
+	 end
+	else
+	local baseNaJieGoodEntity = data:Copy()
+	baseNaJieGoodEntity.GoodsNum = num
+	local uI_GoodsItem = self:CreateObjItem(baseNaJieGoodEntity, self.Panel.JuanZengNaJieContent,function(obj,gameObj,aa)
+    self:NaJieGoodsClick(obj,gameObj,aa) 
+	end)
+	self.m_NaJieGoodsDic:Add(baseNaJieGoodEntity.GoodsId, baseNaJieGoodEntity)				
+	self.m_NaJieGoodsItemDic:Add(baseNaJieGoodEntity.GoodsId, uI_GoodsItem)
+	end
+	self:RemoveChooseDic(data.GoodsId, num)
+    self:SetContentHight()
+end) 
+
+
+--内门
+xlua.private_accessible(CS.XiuZhenJie.ZongMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMenWnd,'ZhuFeng',function(self)   	    
+	
+	  CS.XiuZhenJie.NetManager.Instance:SendMsg(CS.XiuZhenJie.MsgType.GUILD_DENTER,nil,function(_obj) 
+	    CS.XiuZhenJie.GameStart.Instance:HideWaitReauestWnd()
+		local guildEnterResp_1015005 = CS.GuildEnterResp_1015005()
+	    local byteStr = _obj:CreateCodedInput()
+	    guildEnterResp_1015005:MergeFrom(byteStr)
+	    if (guildEnterResp_1015005.IsSuccess)
+		then
+		    self.m_DataSource = guildEnterResp_1015005
+			self.m_ZhuFenShenJiTime = self.m_DataSource.UpgradeGuildShengYuTime
+			CS.XiuZhenJie.UIManager.Instance:PopUpWnd(CS.XiuZhenJie.Constants.ZONGMEN_ZHUFENG_WINDOW, true, self.m_IntoDaDianResp1015020, self.m_ZhuFenName,
+                self.m_ZhuFenShenJiTime, self.m_IsGuildMaster);
+		else
+		  local content = CS.XiuZhenJie.GameStart.Instance:GetHintMsgByCode(guildEnterResp_1015005.Code)
+          CS.XiuZhenJie.GameStart.Instance:PopUpAttention(content)
+		end
+	 end,true)
+
+end) 
+
+
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMenZhuFengWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMenZhuFengWnd,'ShenJiXiaoHao',function(self)   
+			self:ShenJiXiaoHao()
+		    local str=string.gsub(self.Panel.ShenJiXiaoHaoLingKuangMaiText.text, "植", "材") 
+			self.Panel.ShenJiXiaoHaoLingKuangMaiText.text = str
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.AH_MainSceneWndl)
+xlua.hotfix(CS.XiuZhenJie.AH_MainSceneWndl,'PanDuanJingRu',function(self,lingYu)   
+            local currentStage = CS.XiuZhenJie.RoleManager.Instance:GetRoleStage()
+			if(self.m_Stage <= currentStage+1)
+			then
+			    if(lingYu <= CS.XiuZhenJie.RoleManager.Instance.Role_Entity.ShinyJade)
+				then
+				   local stageNum = self.m_Stage
+				   CS.XiuZhenJie.UIManager.Instance:PopUpWnd(CS.XiuZhenJie.Constants.AH_PAIMAIHU_WINDOW,true,stageNum)
+				else 
+				   self.m_Content = "灵玉不足，禁止进入！"
+                   CS.XiuZhenJie.GameStart.Instance:PopUpAttention(self.m_Content)
+				end
+			else
+			    self.m_Content = "等级不足，禁止进入！"
+                CS.XiuZhenJie.GameStart.Instance:PopUpAttention(self.m_Content);
+			end
+end) 
+
+
+
+
+
+xlua.private_accessible(CS.XiuZhenJie.AH_PaiMaiHuWnd)
+xlua.hotfix(CS.XiuZhenJie.AH_PaiMaiHuWnd,'Awake',function(self,paralist) 
+            local panel = self.GameObject:GetComponent("AH_PaiMaiHuPanel")
+			cast(panel,typeof(CS.XiuZhenJie.AH_PaiMaiHuPanel))
+			self.m_Panel = panel
+            local testGenericFunc=xlua.get_generic_method(CS.ResourceManager,"LoadResource")  
+			local realFunc=testGenericFunc(typeof(CS.UnityEngine.GameObject))
+		    local aa = realFunc(CS.ResourceManager.Instance,CS.XiuZhenJie.Constants.Chat_DanMu_Item)
+			cast(aa,typeof(CS.UnityEngine.GameObject))
+			self.m_ChatDanMuItem = aa
+			local List_Que = CS.System.Collections.Generic.Queue(CS.XiuZhenJie.DanMuItem)
+            local lque = List_Que()
+			self.m_CanUseDanMuQue = lque
+			local stage = paralist
+			cast(stage,typeof(CS.System.Int16))
+			self.m_Stage = stage
+			self.m_PaiMaiPing = CS.XiuZhenJie.PaiMaiPing()
+			self:AddButtonClickListener(self.m_Panel.PaiMaiListBtn,function() self:PaiMaiListBtn()  end)
+			self:AddButtonClickListener(self.m_Panel.ExitBtn,function() self:ExitBtn()  end)
+			self:AddButtonClickListener(self.m_Panel.SendBtn,function() self:SendCheck()  end)
+			self:AddButtonClickListener(self.m_Panel.JiaJiaBtn,function() self:ChuJiaBut()  end)
+            self:ResourceLoad()
+            self:EnterTreasure()
+end) 
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'JuanZengFaShu',function(self)  
+           if(self.m_ChooseGoodsDic.Count<=0)
+		   then
+		   return
+		   end
+           local paramsData = CS.JuanZengFaShuReq_1015135()
+		    for k,v in pairs(self.m_ChooseGoodsDic)
+	        do
+			local data = CS.JuanZengFaShuReq_1015135.Types.GoodsReq_1015152()
+			data.Count = v.GoodsNum
+			data.GoodsId = k
+			paramsData.Goods:Add(data)
+			end 
+			CS.XiuZhenJie.NetManager.Instance:SendMsg(CS.XiuZhenJie.MsgType.GUILD_JuanZengFaShu,paramsData,function(_obj) 
+			CS.XiuZhenJie.GameStart.Instance:HideWaitReauestWnd()
+            local juanZengFaShuResp_1015135 = CS.JuanZengFaShuResp_1015135()
+	        local byteStr = _obj:CreateCodedInput()
+	        juanZengFaShuResp_1015135:MergeFrom(byteStr)
+			if(juanZengFaShuResp_1015135.IsSuccess == true)
+			then
+			self.m_DataSource.FaShuStock = juanZengFaShuResp_1015135.KuCun
+			self:CloseJuanZengPanel()
+            self:SetDataSource()
+			local contentText = "成功捐献法术"..juanZengFaShuResp_1015135.SuccessCount.."本,捐献失败"..juanZengFaShuResp_1015135.FailedCount.."本"
+            CS.XiuZhenJie.GameStart.Instance:PopUpAttention(contentText)
+			else
+			local content = CS.XiuZhenJie.GameStart.Instance:GetHintMsgByCode(juanZengFaShuResp_1015135.Code)
+            CS.XiuZhenJie.GameStart.Instance:PopUpAttention(content)
+			end
+			end,true)
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMen_NeiMenWnd,'JuanZengGongFa',function(self)   
+            if(self.m_ChooseGoodsDic.Count<=0)
+		    then
+		    return
+		    end
+			self:JuanZengGongFa()
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMen_NeiMenWnd,'JuanZengFaQi',function(self)   
+            if(self.m_ChooseGoodsDic.Count<=0)
+		    then
+		    return
+		    end
+			self:JuanZengFaQi()
+end) 
+
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'SureUpdateFaShuBtnClick',function(self)  
+		   CS.XiuZhenJie.NetManager.Instance:SendMsg(CS.XiuZhenJie.MsgType.GUILD_PeiFaFaShu,paramsData,function(_obj) 
+		    CS.XiuZhenJie.GameStart.Instance:HideWaitReauestWnd()
+            local peiFaFaShuResp_1015140 = CS.PeiFaFaShuResp_1015140()
+	        local byteStr = _obj:CreateCodedInput()
+	        peiFaFaShuResp_1015140:MergeFrom(byteStr)
+			if(peiFaFaShuResp_1015140.IsSuccess == true)
+			then
+			local percentNum = peiFaFaShuResp_1015140.ShengYuTime / 1000
+			cast(percentNum,typeof(CS.System.Int16))
+			self:FaShuFuZhiStartUpgrade(percentNum)
+			self.Panel.UpdateFaShuPanel.gameObject:SetActive(false)
+			else
+			local content = CS.XiuZhenJie.GameStart.Instance:GetHintMsgByCode(peiFaFaShuResp_1015140.Code)
+            CS.XiuZhenJie.GameStart.Instance:PopUpAttention(content)
+			end
+		   end,true)
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMen_NeiMenWnd,'SetDataSource',function(self)   
+			self:SetDataSource()
+			local faqiTime = math.modf(self.m_DataSource.PeiFaFaQiDanShengYuTime / 1000)
+			local fashuTime = math.modf(self.m_DataSource.PeiFaFaShuShengYuTime / 1000)
+			local gongfaTime = math.modf(self.m_DataSource.PeiFaGongFaShengYuTime / 1000)
+			self:FaShuFuZhiStartUpgrade(fashuTime)
+			self:GongFaFuZhiStartUpgrade(gongfaTime)
+			self:FaQiFuZhiStartUpgrade(faqiTime)
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'FaShuFuZhiStartUpgrade',function(self,UpgradeSecond)  
+			if(UpgradeSecond > 0)
+			then
+			 self.Panel.SpeedUpPeiFaFaShuBtn.gameObject:SetActive(true)
+			 self.m_FaShuSendTimeRemaining = UpgradeSecond
+			 self.Panel.PeiFaFaShuShengYuText.gameObject:SetActive(false)
+			else
+			 self.Panel.SpeedUpPeiFaFaShuBtn.gameObject:SetActive(false)
+			 self.Panel.PeiFaFaShuShengYuText.gameObject:SetActive(true)
+			end
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'FaQiFuZhiStartUpgrade',function(self,UpgradeSecond)  
+			if(UpgradeSecond > 0)
+			then
+			 self.Panel.SpeedUpPeiFaFaQiBtn.gameObject:SetActive(true)
+			 self.m_FaQiSendTimeRemaining = UpgradeSecond
+			 self.Panel.PeiFaFaQiShengYuText.gameObject:SetActive(false)
+			else
+			 self.Panel.SpeedUpPeiFaFaQiBtn.gameObject:SetActive(false)
+			 self.Panel.PeiFaFaQiShengYuText.gameObject:SetActive(true)
+			end
+end) 
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'GongFaFuZhiStartUpgrade',function(self,UpgradeSecond)  
+			if(UpgradeSecond > 0)
+			then
+			 self.Panel.SpeedUpPeiFaGongFaBtn.gameObject:SetActive(true)
+			 self.m_GongFaSendTimeRemaining = UpgradeSecond
+			 self.Panel.PeiFaGongFaShengYuText.gameObject:SetActive(false)
+			else
+			 self.Panel.SpeedUpPeiFaGongFaBtn.gameObject:SetActive(false)
+			 self.Panel.PeiFaGongFaShengYuText.gameObject:SetActive(true)
+			end
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMen_NeiMenWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMen_NeiMenWnd,'GongFaUpdating',function(self)  
+			if(self.m_GongFaSendTimeRemaining > 0)
+			then
+			 self.m_GongFaSendTimeRemaining= self.m_GongFaSendTimeRemaining - 1 
+			 local timeStr = CS.CommonMethod.SecondToHour(self.m_GongFaSendTimeRemaining)
+			 self.Panel.PeiFaGongFaOtherTimeText.text = timeStr
+			 if(self.m_GongFaSendTimeRemaining<=0)
+			 then
+			  self.m_GongFaSendTimeRemaining = 0
+			  self:ReflashPanel()
+			 end
+			end
+end) 
+
+
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMenShouChaoWnd)
+xlua.hotfix(CS.XiuZhenJie.ZongMenShouChaoWnd,'ShouChaoFinish',function(self,byteStr) 
+            local guildMonsterFinishedResp_1018004 = CS.GuildMonsterFinishedResp_1018004()
+			local byteStr_1 = byteStr:CreateCodedInput()
+			guildMonsterFinishedResp_1018004:MergeFrom(byteStr_1)
+			self.Panel.Li_MonsterContent:FinishShouChao()
+            self.Panel.Kun_MonsterContent:FinishShouChao()
+            self.Panel.Dui_MonsterContent:FinishShouChao()
+            self.Panel.Qian_MonsterContent:FinishShouChao()
+            self.Panel.Kan_MonsterContent:FinishShouChao()
+            self.Panel.Gen_MonsterContent:FinishShouChao()
+            self.Panel.Zhen_MonsterContent:FinishShouChao()
+            self.Panel.Xun_MonsterContent:FinishShouChao()
+            self.m_IsFinish = true
+			self.Panel.ZhenFaStatus.text = self.m_TotalDefence .. "%"
+            self.Panel.ShangWangDiZiValue.text = guildMonsterFinishedResp_1018004.DeathCount .. "名"
+            self.Panel.JiShaYaoShouValue.text = guildMonsterFinishedResp_1018004.KillCount .. "只"
+            self.Panel.ShinyStoneValue.text = guildMonsterFinishedResp_1018004.StoneCount .. ""
+            self.Panel.ShinyJadeValue.text = guildMonsterFinishedResp_1018004.JadeCount .. ""
+            self.Panel.LingZhiValue.text = guildMonsterFinishedResp_1018004.LingZhiCount .. ""
+            self.Panel.LingKuangValue.text = guildMonsterFinishedResp_1018004.LingKuangCount .. ""
+            self.Panel.YuanCaiValue.text = guildMonsterFinishedResp_1018004.LingCaiCount .. ""
+            self.Panel.GongXianDianValue.text = guildMonsterFinishedResp_1018004.ChouJiangCishu .. ""
+            self.Panel.ShouChaoFinishPanel.gameObject:SetActive(true)
+end) 
+
+
+xlua.private_accessible(CS.XiuZhenJie.ZongMenShouChaoWnd)
+util.hotfix_ex(CS.XiuZhenJie.ZongMenShouChaoWnd,'Awake',function(self,paralist)   
+			self:Awake(paralist)
+			self:AddButtonClickListener(self.Panel.QueRenBtn,function() 
+			    self.Panel.ShouChaoFinishPanel.gameObject:SetActive(false)
+				self:CloseWindow()
+			end)
+end) 
+
+
+
+
+xlua.private_accessible(CS.XiuZhenJie.CreateRoleWnd)
+util.hotfix_ex(CS.XiuZhenJie.CreateRoleWnd,'Init',function(self)   
+			self:Init()
+            local XieYiPanel = self._panel.transform:Find("XieYiPanel")
+
+            local YongHuXieYiBtn = XieYiPanel.transform:Find("Image").transform:Find("YongHuXieYiBtn"):GetComponent("Button")
+			local JuJueBtn = XieYiPanel.transform:Find("Image"):Find("JuJueBtn"):GetComponent("Button")
+            local TongYiBtn = XieYiPanel.transform:Find("Image"):Find("TongYiBtn"):GetComponent("Button")
+
+			self:AddButtonClickListener(JuJueBtn, function() CS.XiuZhenJie.GameRoot.Instance:ExitApplication() end)
+			self:AddButtonClickListener(TongYiBtn, function() XieYiPanel.gameObject:SetActive(false) end)
+            self:AddButtonClickListener(YongHuXieYiBtn, function()
+			CS.XiuZhenJie.UIManager.Instance:PopUpWnd(CS.XiuZhenJie.Constants.COMMON_WEB_WINDOW, true, "https://adplatform.lc2game.com/agreement/protocol/18")
+			end)
+
+			
+end) 
+
+
+
+
