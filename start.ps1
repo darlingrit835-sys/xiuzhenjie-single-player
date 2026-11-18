@@ -32,7 +32,7 @@ if (Test-Port 9443) {
   $err = Join-Path $srv 'data\console.err.log'
   Remove-Item $log,$err -ErrorAction SilentlyContinue
   # 服务端输出写进 server\data\console.log，出问题好排查
-  Start-Process -FilePath $java -ArgumentList '-cp','out;lib/*','server.Main' -WorkingDirectory $srv `
+  Start-Process -FilePath $java -ArgumentList '-Dfile.encoding=UTF-8','-cp','out;lib/*','server.Main' -WorkingDirectory $srv `
     -RedirectStandardOutput $log -RedirectStandardError $err -WindowStyle Minimized | Out-Null
   $ok = $false
   for ($i = 0; $i -lt 30; $i++) {
