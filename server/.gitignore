@@ -1,0 +1,6 @@
+/out/
+/data/server.p12
+/data/users.json
+/data/roles.json
+/data/*.backup.json
+/data/*.log

@@ -1,0 +1,11 @@
+{
+  "cultivationSpeed": 1.0,
+  "publicIp": "127.0.0.1",
+  "offlineCapHours": 12,
+  "battlePort": 17667,
+  "battleDurationSeconds": 600,
+  "monsterCount": 6,
+  "monsterDifficulty": 0.85,
+  "dropMultiplier": 1.0,
+  "completeBattleGuide": true
+}

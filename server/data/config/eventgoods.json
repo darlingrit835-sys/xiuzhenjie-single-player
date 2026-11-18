@@ -1,0 +1,724 @@
+[
+  {
+    "Id": 1,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 2,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,练气", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 3,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 4,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 5,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 6,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 7,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 8,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 1,
+    "Stage": 1,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,练气", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+
+
+
+  {
+    "Id": 9,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 10,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,筑基", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 11,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+
+  {
+    "Id": 12,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 13,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 2,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 14,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 15,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 16,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 11,
+    "Stage": 2,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,筑基", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+
+
+
+  {
+    "Id": 17,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 18,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,结丹", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 19,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+
+  {
+    "Id": 20,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 21,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 3,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 22,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 23,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 24,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 21,
+    "Stage": 3,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,结丹", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+
+
+
+  {
+    "Id": 25,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 26,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,元婴", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 27,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+
+  {
+    "Id": 28,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 29,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 4,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 30,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 31,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 32,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 31,
+    "Stage": 4,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,元婴", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+
+
+  {
+    "Id": 33,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 34,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,分神", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 35,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+
+  {
+    "Id": 36,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 37,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 5,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 38,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 39,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 40,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 41,
+    "Stage": 5,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,分神", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 41,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 42,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,炼虚", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 43,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 44,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 45,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 5,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 46,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 47,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 48,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 51,
+    "Stage": 6,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,炼虚", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 49,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 50,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,炼虚", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 51,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+
+  {
+    "Id": 52,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 53,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 5,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 54,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 55,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 56,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 61,
+    "Stage": 7,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,炼虚", "作用,提升功法灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 57,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 3,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 58,
+    "Name": "仙金",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 40,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,炼虚", "作用,提升法器灵衍值（0.05~0.12）" ]
+  },
+  {
+    "Id": 59,
+    "Name": "陨铁",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 35,
+    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+
+  {
+    "Id": 60,
+    "Name": "天阶功法",
+    "FiveElement": 0,
+    "Rank": 13,
+    "Num": 1,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 1,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 61,
+    "Name": "经脉丹",
+    "FiveElement": 0,
+    "Rank": 12,
+    "Num": 5,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 19,
+    "GoodsDetail": [ "" ]
+  },
+  {
+    "Id": 62,
+    "Name": "悟道石",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 5,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 34,
+    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 63,
+    "Name": "道经残卷",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 33,
+    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,1立方", "回收价格,100灵石" ]
+  },
+  {
+    "Id": 64,
+    "Name": "德经",
+    "FiveElement": 0,
+    "Rank": 16,
+    "Num": 1,
+    "Level": 71,
+    "Stage": 8,
+    "GoodsType": 39,
+    "GoodsDetail": [ "品阶,天阶上品", "等阶,炼虚", "作用,提升功法灵衍值（0.05~0.12）" ]
+  }
+
+]

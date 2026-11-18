@@ -1,0 +1,3522 @@
+syntax = "proto3";
+package xzj;
+
+message ActionBoolResp_1001001 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message ActionNoParamReq_1001001 {
+}
+
+message AcupointDetailResp_1005020 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  double AirValueUp = 3;
+  double AirSpeedUp = 4;
+  double FiveElementAttackUp = 5;
+  double FiveElementDefenseUp = 6;
+  double PhysiqueValueUp = 7;
+  double PerceptionValueUp = 8;
+  double PureBloodValueUp = 9;
+  double PureBloodRecoveryUp = 10;
+  int32 ThreadType1Count = 11;
+  int32 ThreadType2Count = 12;
+  int32 ThreadType3Count = 13;
+  int32 ThreadType4Count = 14;
+  int32 ThreadType5Count = 15;
+  int32 ThreadType6Count = 16;
+  int32 ThreadType7Count = 17;
+  int32 ThreadType8Count = 18;
+  int32 ThreadType1Level = 19;
+  int32 ThreadType2Level = 20;
+  int32 ThreadType3Level = 21;
+  int32 ThreadType4Level = 22;
+  int32 ThreadType5Level = 23;
+  int32 ThreadType6Level = 24;
+  int32 ThreadType7Level = 25;
+  int32 ThreadType8Level = 26;
+}
+
+message AddFriendByNameReq_1014007 {
+  string Name = 1;
+}
+
+message AddFriendByNameResp_1014007 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message AddFriendByRoleIdReq_1014008 {
+  string TargetFriendId = 1;
+}
+
+message AddFriendByRoleIdResp_1014008 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message AddFriendReq_1014006 {
+  string TargetFriendId = 1;
+}
+
+message AddFriendResp_1014006 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message AddTimeControllerMatrixReq_1005024 {
+  int32 Hours = 1;
+}
+
+message AddTimeControllerMatrixResp_1005024 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyStone = 3;
+}
+
+message AddTimeGatherMatrixReq_1005025 {
+  int32 Hours = 1;
+}
+
+message AddTimeGatherMatrixResp_1005025 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyStone = 3;
+}
+
+message AgeUpResp_9001007 {
+  int32 Age = 1;
+  int32 MaxAge = 2;
+}
+
+message AncestorMapResp_1007008 {
+  string Id = 1;
+  string Name = 2;
+  bool IsSuccess = 3;
+  int32 Code = 4;
+}
+
+message AuctionBuyReq_1006010 {
+  string AuctionId = 1;
+}
+
+message AuctionBuyResp_1006010 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyStone = 3;
+}
+
+message AuctionGoodsCancelReq_1006009 {
+  string AuctionId = 1;
+}
+
+message AuctionGoodsCancelResp_1006009 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message BattleBroadcastPosResp_8002001 {
+  repeated ObjectPosionResp_8002002 ObjectPosins = 1;
+  message ObjectPosionResp_8002002 {
+    int32 ObjectIndex = 1;
+    double PosX = 2;
+    double PosY = 3;
+    double Angle = 4;
+  }
+
+}
+
+message BattleEndRingOutGoodsReq_1004036 {
+  string GoodsId = 1;
+}
+
+message BattleEndRingOutGoodsResp_1004036 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 NowCapacity = 3;
+}
+
+message BattleRoleEnterReq_8001001 {
+  string DungeonId = 1;
+  string RoleId = 2;
+}
+
+message BattleRoleEnterResp_8001001 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  double MapMinX = 3;
+  double MapMaxX = 4;
+  double MapMinY = 5;
+  double MapMaxY = 6;
+  double PosX = 7;
+  double PosY = 8;
+  double Angle = 9;
+  repeated ObjectInfoResp_8001002 Objects = 10;
+  repeated DropGoodsInfoResp_8001004 Plants = 11;
+  repeated DropGoodsInfoResp_8001004 Minerals = 12;
+  int32 RoleIndex = 13;
+  DropGoodsInfoResp_8001004 SecretArea = 14;
+  message ObjectInfoResp_8001002 {
+    int32 ObjectIndex = 1;
+    double PosX = 2;
+    double PosY = 3;
+    double Angle = 4;
+    int32 FiveElement = 5;
+    int32 ObjectType = 6;
+    string Name = 7;
+    int32 Level = 8;
+    int64 CurrentPhysiqueDefense = 9;
+    int32 CurrentPureBloodDefense = 10;
+    int64 CurrentSuperAir = 11;
+    int32 CurrentPerception = 12;
+    double CurrentMoveSpeed = 13;
+    int32 Icon = 14;
+    double SuperAirRecoverValue = 15;
+    double DefenseRecoverValue = 16;
+    double SuperAirRecoverValueOnBattle = 17;
+    double DefenseRecoverValueOnBattle = 18;
+    double SuperAirPower = 19;
+    repeated ObjectInfoSkillResp_8001003 Skills = 20;
+    double AttackDistance = 21;
+    int32 UnusualLevel = 22;
+    message ObjectInfoSkillResp_8001003 {
+      int32 Icon = 1;
+      int32 Type = 2;
+      int32 SkillType = 12;
+      string Name = 3;
+      string TemplateId = 4;
+      int32 CastTime = 5;
+      int32 ContinueTime = 6;
+      int32 CoolDown = 7;
+      int32 FiveElement = 8;
+      double ConversionRate = 9;
+      double BaseDamage = 10;
+      int32 UsedPerception = 11;
+      int32 Level = 13;
+      int32 SkillIndex = 14;
+      int64 UsedSuperAir = 15;
+      int32 CanUseCount = 16;
+      int32 Rank = 17;
+      double UnitUsed = 18;
+    }
+
+  }
+
+  message ObjectInfoSkillResp_8001003 {
+    int32 Icon = 1;
+    int32 Type = 2;
+    int32 SkillType = 12;
+    string Name = 3;
+    string TemplateId = 4;
+    int32 CastTime = 5;
+    int32 ContinueTime = 6;
+    int32 CoolDown = 7;
+    int32 FiveElement = 8;
+    double ConversionRate = 9;
+    double BaseDamage = 10;
+    int32 UsedPerception = 11;
+    int32 Level = 13;
+    int32 SkillIndex = 14;
+    int64 UsedSuperAir = 15;
+    int32 CanUseCount = 16;
+    int32 Rank = 17;
+    double UnitUsed = 18;
+  }
+
+  message DropGoodsInfoResp_8001004 {
+    int32 ObjectIndex = 1;
+    double PosX = 2;
+    double PosY = 3;
+    int32 FiveElement = 5;
+    int32 ObjectType = 6;
+    string Name = 7;
+    int32 Level = 8;
+    int32 Rank = 9;
+    string GoodsId = 10;
+  }
+
+}
+
+message BattleRoleMoveReq_8001004 {
+  int32 RoleIndex = 1;
+  double PosX = 2;
+  double PosY = 3;
+  double Angle = 4;
+}
+
+message BattleRoleUseSkillReq_8001005 {
+  int32 RoleIndex = 1;
+  int32 SkillIndex = 2;
+  int32 TargetObjectIndex = 3;
+}
+
+message BattleRoleUseSkillResp_8001005 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 Damage = 3;
+}
+
+message BreakAcupointReq_1005018 {
+  string AcupointId = 1;
+}
+
+message BreakAcupointResp_1005018 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  bool BreakSuccess = 3;
+  int32 BrokenLevel = 4;
+  int32 AcupointValue = 5;
+}
+
+message BroadcastResp_1001014 {
+  string Msg = 1;
+}
+
+message BrokenStateResp_1005012 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 MaxAge = 3;
+  int32 BrokenAge = 4;
+  int64 SuperAir = 5;
+  int64 Perception = 6;
+  int64 Physique = 7;
+  int64 CurrentSuperAir = 8;
+  int64 CurrentPerception = 9;
+  int64 CurrentPhysique = 10;
+  int32 PureBlood = 11;
+  int32 CurrentPureBlood = 12;
+}
+
+message BuildChatResp_1012001 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  string Address = 3;
+  int32 Port = 4;
+}
+
+message BuildDungeonReq_1010001 {
+  string MapId = 1;
+  int32 MapType = 2;
+}
+
+message BuildDungeonResp_1010001 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  string DungeonId = 3;
+  string MapId = 4;
+  string Address = 5;
+  int32 Port = 6;
+  int32 CurrentVigor = 7;
+}
+
+message BuildLiveTypeReq_1005003 {
+  int32 LiveType = 1;
+  int32 Location = 2;
+}
+
+message BuildLiveTypeResp_1005003 {
+  int64 ShinyStone = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message BuyJadeCnyResp_1001017 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentJade = 3;
+}
+
+message BuySpaceBoxResp_1005021 {
+  int64 ShinyStone = 1;
+  int32 ShinyJade = 2;
+  string Name = 3;
+  bool IsSuccess = 4;
+  int32 Code = 5;
+}
+
+message BuyWineReq_1012002 {
+  int32 WineType = 2;
+}
+
+message BuyWineResp_1012002 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 ChatNum = 3;
+  int64 ShinyStone = 4;
+  int64 ShinyJade = 5;
+}
+
+message BuyXuanTianLouGoodsReq_1004035 {
+  string Id = 1;
+}
+
+message BuyXuanTianLouGoodsResp_1004035 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 ShinyStone = 3;
+  int64 ShinyJade = 4;
+}
+
+message BuyYuekaCnyResp_1001016 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentJade = 3;
+  int32 RemainingDay = 4;
+}
+
+message BuyYuekaResp_1001004 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentJade = 3;
+  int32 RemainingDay = 4;
+}
+
+message ChangeAchievementPanelReq_1005009 {
+  int32 AchievementType = 1;
+}
+
+message ChangeAchievementPanelResp_1005009 {
+  AchievementObjectResp_1005010 CurrentAchievement = 1;
+  repeated AchievementObjectResp_1005010 Achievements = 2;
+  bool IsSuccess = 3;
+  int32 Code = 4;
+  message AchievementObjectResp_1005010 {
+    string Id = 1;
+    string Name = 2;
+    double Circle = 3;
+    int32 UpCount = 4;
+    int32 Count = 5;
+    int32 AchievementLevel = 6;
+    int32 Level = 7;
+    int32 Rank = 8;
+    int32 FiveElement = 9;
+  }
+
+}
+
+message ChangeAchievementReq_1005011 {
+  string AchievementId = 1;
+  int32 ScopeType = 2;
+}
+
+message ChangeAchievementResp_1005011 {
+  double AchievementCircleValue = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message ChangeControllerMatrixReq_1001009 {
+  bool GoldIsOpen = 1;
+  bool WoodIsOpen = 2;
+  bool WaterIsOpen = 3;
+  bool FireIsOpen = 4;
+  bool EarthIsOpen = 5;
+}
+
+message ChangeControllerMatrixResp_1001009 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  double CurrentSuperAirRunValue = 3;
+}
+
+message ChangeRunLocationReq_1001007 {
+  int32 NewLocation = 1;
+}
+
+message ChatJoinReq_4001001 {
+  string RoleId = 1;
+  string RoleName = 2;
+  string Title = 3;
+  string ChatId = 4;
+}
+
+message ChatJoinResp_4001001 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 CreditPoints = 6;
+  int32 TimeLag = 7;
+  int64 NextSendTime = 8;
+}
+
+message CheckNameReq_1002005 {
+  string Name = 1;
+}
+
+message CheckNameResp_1002005 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message ChildrenMapReq_1007003 {
+  string MapId = 1;
+}
+
+message ChildrenMapResp_1007003 {
+  repeated MapObjectResp_1007004 Object = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+  message MapObjectResp_1007004 {
+    string Id = 1;
+    string ParentId = 2;
+    string ParentName = 3;
+    string Name = 4;
+    string SibingsId = 5;
+    string ChildrenIds = 6;
+    int32 Type = 7;
+    int32 MinLevel = 8;
+    int32 MaxLevel = 9;
+    int32 Status = 10;
+    string Restrict = 11;
+    double BasedConcentration = 12;
+    int32 FiveElements = 13;
+    int32 Sort = 14;
+    int32 Level = 15;
+  }
+
+}
+
+message ChooseSoilReq_1013006 {
+  int32 LandId = 1;
+  string SoilId = 2;
+}
+
+message ChooseSoilResp_1013006 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 LandStatus = 3;
+}
+
+message CleanMapReq_1010004 {
+  string MapId = 1;
+}
+
+message CleanMapResp_1010004 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  repeated DropGoodsInfoResp_1010005 DropGoods = 3;
+  int32 DropStone = 4;
+  int64 CurrentShinyStone = 5;
+  int32 CurrentVigor = 6;
+  message DropGoodsInfoResp_1010005 {
+    string GoodsId = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 Type = 6;
+    double Volume = 7;
+  }
+
+}
+
+message CleverUpResp_9001002 {
+  int32 CurrentClever = 1;
+}
+
+message CreateMethodElixirRefiningResultReq_1008020 {
+  bool IsSuccess = 1;
+  string MethodElixirId = 2;
+}
+
+message CreateMethodElixirRefiningResultResp_1008020 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentClever = 3;
+  int32 ElixirLevel = 4;
+  int32 EffectType = 5;
+  int64 MinEffectValue = 6;
+  int64 MaxEffectValue = 7;
+  int64 MinSpiritualityValue = 8;
+  int32 MinRank = 9;
+  int32 MaxRank = 10;
+  int32 MinPoisonValue = 11;
+  int32 MaxPoisonValue = 12;
+  repeated MethodElixirStepMaterialResp_1008039 Materials = 13;
+  string CreatedBy = 14;
+  int32 Stage = 15;
+  int32 Rank = 16;
+  int32 FiveElement = 17;
+  int32 LiveLevel = 18;
+  int32 LiveProficiency = 19;
+  message MethodElixirStepMaterialResp_1008039 {
+    string MaterialName = 1;
+  }
+
+}
+
+message CreateMethodSignRefiningResultReq_1008052 {
+  bool IsSuccess = 1;
+  string MethodSignId = 2;
+}
+
+message CreateMethodSignRefiningResultResp_1008052 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentClever = 3;
+  int32 SkillType = 4;
+  int64 SpiritualityValue = 5;
+  double ConversionRate = 6;
+  int32 ContinueTime = 7;
+  int32 CastTime = 8;
+  string CreatedBy = 9;
+  int32 Stage = 10;
+  int32 Rank = 11;
+  int32 FiveElement = 12;
+  int32 LiveLevel = 13;
+  int32 LiveProficiency = 14;
+}
+
+message DeleteFriendReq_1014010 {
+  string TargetFriendId = 1;
+}
+
+message DeleteFriendResp_1014010 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message DeleteLetterReq_1003004 {
+  repeated string Id = 1;
+}
+
+message DeployRingGoodsSelectReq_1013008 {
+  int32 GoodsType = 1;
+}
+
+message DeployRingGoodsSelectResp_1013008 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated GoodsInfoResp_1013009 GoodsInfo = 3;
+  message GoodsInfoResp_1013009 {
+    string GoodsId = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 Type = 6;
+    double ReceiveVal = 7;
+    double ConversionRate = 8;
+  }
+
+}
+
+message DestroyGoodsReq_1004027 {
+  string GoodsId = 1;
+}
+
+message DestroyGoodsResp_1004027 {
+  int32 NowCapacity = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+}
+
+message DiscardSoilReq_1013010 {
+  string SoilId = 1;
+}
+
+message DiscardSoilResp_1013010 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message DiscardWaterReq_1013026 {
+  string WaterId = 1;
+}
+
+message DiscardWaterResp_1013026 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message DressEquipmentReq_1009001 {
+  string EquipmentId = 1;
+}
+
+message DressEquipmentResp_1009001 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 CurrentPhysiqueDefense = 3;
+  int32 CurrentPureBloodDefense = 4;
+  double CurrentMoveSpeed = 5;
+  double SuperAirRecoverValue = 6;
+  double DefenseRecoverValue = 7;
+  double SuperAirRecoverValueOnBattle = 8;
+  double DefenseRecoverValueOnBattle = 9;
+  double CanUsedPhysique = 10;
+}
+
+message ElixirExamineResultReq_1008011 {
+  bool IsSuccess = 1;
+}
+
+message ElixirExamineResultResp_1008011 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message EnterAchievementHallResp_1008029 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message EnterAchievementRegisterReq_1008034 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 RegisterState = 5;
+  int32 PageNum = 6;
+  int32 PageSize = 7;
+}
+
+message EnterAchievementRegisterResp_1008034 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated MethodAchievementObjectResp_1008035 Object = 6;
+  message MethodAchievementObjectResp_1008035 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+  }
+
+}
+
+message EnterAddFriendResp_1014003 {
+  repeated StrangerResp_1014004 Stranger = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+  message StrangerResp_1014004 {
+    string Id = 1;
+    string Name = 2;
+    string HeadPortraitId = 3;
+    int32 Level = 4;
+    repeated int32 LiveType = 5;
+    bool Sex = 6;
+  }
+
+}
+
+message EnterAuctionReq_1006001 {
+  int32 PageNum = 1;
+  int32 PageSize = 2;
+  string Name = 3;
+  int32 GoodsType = 4;
+  int32 Type = 5;
+  int32 FiveElement = 6;
+  int32 Stage = 7;
+  int64 MinFinalPrice = 8;
+  int64 MaxFinalPrice = 9;
+  string FinalPriceSort = 10;
+  string RankSort = 11;
+  int32 ShopType = 12;
+  int32 Rank = 13;
+}
+
+message EnterAuctionResp_1006001 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated AuctionObjectResp_1006002 Object = 6;
+  message AuctionObjectResp_1006002 {
+    string Id = 1;
+    string GoodsId = 2;
+    string Name = 3;
+    int32 GoodsType = 4;
+    int32 FiveElement = 5;
+    int64 FixedPrice = 6;
+    int32 RemainHours = 7;
+    int32 Stage = 8;
+    int32 Rank = 9;
+    int32 Level = 10;
+  }
+
+}
+
+message EnterBattleHomeResp_1005038 {
+  repeated SkillResp_1005039 Skill = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+  message SkillResp_1005039 {
+    string SkillId = 1;
+    string Name = 2;
+    int32 Proficiency = 3;
+    int32 MaxProficiency = 4;
+    int32 Level = 5;
+    int32 Rank = 6;
+    int32 FiveElement = 7;
+    int32 ProficiencyLevel = 8;
+    int32 Type = 9;
+  }
+
+}
+
+message EnterElixirAuthResp_1008007 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated ExamineContentObjectResp_1008008 Object = 3;
+  message ExamineContentObjectResp_1008008 {
+    string Name = 1;
+    int32 Count = 2;
+    string MethodElixirId = 3;
+    int32 Ask = 4;
+  }
+
+}
+
+message EnterElixirRegisterReq_1008015 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Effect = 4;
+  int32 RegisterState = 5;
+  int32 PageNum = 6;
+  int32 PageSize = 7;
+}
+
+message EnterElixirRegisterResp_1008015 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated MethodElixirObjectResp_1008016 Object = 6;
+  message MethodElixirObjectResp_1008016 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+  }
+
+}
+
+message EnterElixirTowerResp_1008006 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message EnterEquipmentReq_1009005 {
+}
+
+message EnterEquipmentResp_1009005 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  repeated EquipmentInfoResp_1009006 DressedEquipments = 3;
+  int64 CurrentPhysiqueDefense = 4;
+  int32 CurrentPureBloodDefense = 5;
+  int32 FullLoadPerception = 6;
+  double CurrentMoveSpeed = 7;
+  double SuperAirRecoverValue = 8;
+  double DefenseRecoverValue = 9;
+  double SuperAirRecoverValueOnBattle = 10;
+  double DefenseRecoverValueOnBattle = 11;
+  double SuperAirPower = 12;
+  int32 CanUsePhysique = 13;
+  message EquipmentInfoResp_1009006 {
+    string GoodsId = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 Type = 6;
+    int32 Icon = 7;
+  }
+
+}
+
+message EnterExerciseRoomResp_1005008 {
+  int32 LocationType = 1;
+  double PhysiqueCircle = 2;
+  double PerceptionCircle = 3;
+  double SuperairCircle = 4;
+  string PhysiqueName = 5;
+  string PerceptionName = 6;
+  string SuperairName = 7;
+  bool IsBrokenAcupoint = 8;
+  int32 BrokenRate = 9;
+  bool IsBrokenBody = 10;
+  int32 GatherMatrixRank = 11;
+  int32 ControllerMatrixRank = 12;
+  int64 GatherMatrixLessTime = 13;
+  int64 ControllerMartixLessTime = 14;
+  int32 RefiningType = 15;
+  int64 RefiningValue = 16;
+  bool IsSuccess = 17;
+  int32 Code = 18;
+  bool IsBreak = 19;
+}
+
+message EnterFriendResp_1014001 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated FriendResp_1014002 Friend = 3;
+  int32 StrangerCount = 4;
+  message FriendResp_1014002 {
+    string Id = 1;
+    string Name = 2;
+    string HeadPortraitId = 3;
+    int32 Level = 4;
+    int32 Intimacy = 5;
+    repeated int32 LiveType = 6;
+    bool Sex = 7;
+  }
+
+}
+
+message EnterHomeResp_1005001 {
+  string Name = 1;
+  int32 Rank = 2;
+  int32 Live1Type = 3;
+  int32 Live2Type = 4;
+  bool IsSuccess = 5;
+  int32 Code = 6;
+}
+
+message EnterIrrigateReq_1013014 {
+  int32 LandId = 1;
+}
+
+message EnterIrrigateResp_1013014 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated WaterInfoResp_1013015 WaterInfo = 3;
+  message WaterInfoResp_1013015 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    double ReceiveVal = 6;
+    double ConversionRate = 7;
+    int64 ReduceTime = 8;
+  }
+
+}
+
+message EnterMethodAchievementExchangeReq_1008030 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 PageNum = 5;
+  int32 PageSize = 6;
+}
+
+message EnterMethodAchievementExchangeResp_1008030 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated ExchangeMethodAchievementObjectResp_1008031 Object = 6;
+  message ExchangeMethodAchievementObjectResp_1008031 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 ExchangeContribution = 6;
+    string Created = 7;
+  }
+
+}
+
+message EnterMethodElixirExchangeReq_1008012 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Effect = 4;
+  int32 PageNum = 5;
+  int32 PageSize = 6;
+}
+
+message EnterMethodElixirExchangeResp_1008012 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated ExchangeMethodElixirObjectResp_1008013 Object = 6;
+  message ExchangeMethodElixirObjectResp_1008013 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 ExchangeContribution = 6;
+    string Created = 7;
+  }
+
+}
+
+message EnterMethodSignExchangeReq_1008044 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 PageNum = 5;
+  int32 PageSize = 6;
+}
+
+message EnterMethodSignExchangeResp_1008044 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated ExchangeMethodSignObjectResp_1008045 Object = 6;
+  message ExchangeMethodSignObjectResp_1008045 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 ExchangeContribution = 6;
+    string Created = 7;
+  }
+
+}
+
+message EnterMethodSkillExchangeReq_1008022 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 PageNum = 5;
+  int32 PageSize = 6;
+}
+
+message EnterMethodSkillExchangeResp_1008022 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated ExchangeMethodSkillObjectResp_1008023 Object = 6;
+  message ExchangeMethodSkillObjectResp_1008023 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 ExchangeContribution = 6;
+    string Created = 7;
+  }
+
+}
+
+message EnterMyAuctionReq_1006003 {
+  int32 Type = 1;
+  int32 PageNum = 2;
+  int32 PageSize = 3;
+}
+
+message EnterMyAuctionResp_1006003 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated MyAuctionObjectResp_1006004 Object = 6;
+  message MyAuctionObjectResp_1006004 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 RemainHours = 4;
+    int32 Stage = 5;
+    int32 Rank = 6;
+    int32 Level = 7;
+    int32 GoodsType = 8;
+    int64 FixedPrice = 9;
+  }
+
+}
+
+message EnterPlantAssociationResp_1008054 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message EnterPlantResp_1013001 {
+  repeated LandResp_1013002 Land = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+  message LandResp_1013002 {
+    int32 Id = 1;
+    int32 Status = 2;
+    int64 TimeRemaining = 3;
+    int64 TotalWasteTime = 4;
+  }
+
+}
+
+message EnterRushTowerAgeRankedReq_1008004 {
+  int32 Stage = 1;
+}
+
+message EnterRushTowerAgeRankedResp_1008004 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 MyRanked = 3;
+  repeated RushTowerRankedObjectResp_1008005 Object = 4;
+  message RushTowerRankedObjectResp_1008005 {
+    string Name = 1;
+    int32 Age = 2;
+    string Faction = 3;
+    int32 TierNum = 4;
+  }
+
+}
+
+message EnterRushTowerTierNumRankedReq_1008002 {
+  int32 Stage = 1;
+}
+
+message EnterRushTowerTierNumRankedResp_1008002 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 MyRanked = 3;
+  repeated RushTowerRankedObjectResp_1008003 Object = 4;
+  message RushTowerRankedObjectResp_1008003 {
+    string Name = 1;
+    int32 Level = 2;
+    string Faction = 3;
+    int32 TierNum = 4;
+  }
+
+}
+
+message EnterSeedResp_1013011 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated SeedInfoResp_1013012 SeedInfo = 3;
+  message SeedInfoResp_1013012 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+  }
+
+}
+
+message EnterSignRegisterReq_1008048 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 RegisterState = 5;
+  int32 PageNum = 6;
+  int32 PageSize = 7;
+}
+
+message EnterSignRegisterResp_1008048 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated MethodSignObjectResp_1008049 Object = 6;
+  message MethodSignObjectResp_1008049 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+  }
+
+}
+
+message EnterSignUnionResp_1008043 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message EnterSkillLoftResp_1008021 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message EnterSkillRegisterReq_1008026 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 RegisterState = 5;
+  int32 PageNum = 6;
+  int32 PageSize = 7;
+}
+
+message EnterSkillRegisterResp_1008026 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated MethodSkillObjectResp_1008027 Object = 6;
+  message MethodSkillObjectResp_1008027 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+  }
+
+}
+
+message EnterSkillResp_1009007 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  repeated SkillInfoResp_1009008 SetableSkills = 3;
+  repeated SkillInfoResp_1009008 CanuseSkills = 4;
+  message SkillInfoResp_1009008 {
+    string GoodsId = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 Type = 6;
+    int32 SettingType = 7;
+    int32 CombatSettingId = 8;
+  }
+
+}
+
+message EnterSoilReq_1013004 {
+  int32 LandId = 1;
+}
+
+message EnterSoilResp_1013004 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  SoilResp_1013005 CurrentSoil = 3;
+  repeated SoilResp_1013005 SoilAll = 4;
+  message SoilResp_1013005 {
+    string Id = 1;
+    int32 FiveElement = 2;
+    int32 Level = 3;
+    string Name = 4;
+    int32 Rank = 5;
+    double ReceiveVal = 6;
+    double ConversionRate = 7;
+  }
+
+}
+
+message EnterSpaceBoxResp_1005005 {
+  repeated string Name = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message EnterTemplatePlantExchangeReq_1008055 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 PageNum = 5;
+  int32 PageSize = 6;
+}
+
+message EnterTemplatePlantExchangeResp_1008055 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated ExchangeTemplatePlantObjectResp_1008056 Object = 6;
+  message ExchangeTemplatePlantObjectResp_1008056 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 ExchangeContribution = 6;
+    string Created = 7;
+  }
+
+}
+
+message EnterTemplatePlantRegisterReq_1008059 {
+  int32 FiveElement = 1;
+  int32 Rank = 2;
+  int32 Stage = 3;
+  int32 Type = 4;
+  int32 RegisterState = 5;
+  int32 PageNum = 6;
+  int32 PageSize = 7;
+}
+
+message EnterTemplatePlantRegisterResp_1008059 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 PageNum = 3;
+  int32 PageSize = 4;
+  int32 Pages = 5;
+  repeated TemplatePlantObjectResp_1008060 Object = 6;
+  message TemplatePlantObjectResp_1008060 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+  }
+
+}
+
+message EnterThunderCalamityReq_1002009 {
+}
+
+message EnterThunderCalamityResp_1002009 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 CurrentPhysiqueDefense = 3;
+  int32 CurrentPureBloodDefense = 4;
+  int64 CurrentSuperAir = 5;
+  int32 CurrentPerception = 6;
+  double DamageReduction = 7;
+  double DodgeCoolDown = 8;
+  repeated BattleSkillResp_1002010 Skills = 9;
+  repeated ThunderDamageResp_1002011 ThunderDamage = 10;
+  message BattleSkillResp_1002010 {
+    int32 Icon = 1;
+    int32 Type = 2;
+    int32 SkillType = 12;
+    string Name = 3;
+    string TemplateId = 4;
+    int32 CastTime = 5;
+    int32 ContinueTime = 6;
+    int32 CoolDown = 7;
+    int32 FiveElement = 8;
+    double ConversionRate = 9;
+    double BaseDamage = 10;
+    int32 UsedPerception = 11;
+    int32 Level = 13;
+    int32 SkillIndex = 14;
+    int64 UsedSuperAir = 15;
+    int32 CanUseCount = 16;
+    int32 Rank = 17;
+    double UnitUsed = 18;
+  }
+
+  message ThunderDamageResp_1002011 {
+    int64 Damage = 1;
+  }
+
+}
+
+message EnterTowerNextLevelReq_8001009 {
+}
+
+message EnterTowerNextLevelResp_8001009 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  double MapMinX = 3;
+  double MapMaxX = 4;
+  double MapMinY = 5;
+  double MapMaxY = 6;
+  double PosX = 7;
+  double PosY = 8;
+  double Angle = 9;
+  repeated ObjectInfoResp_8001010 Objects = 10;
+  int32 RoleIndex = 11;
+  message ObjectInfoResp_8001010 {
+    int32 ObjectIndex = 1;
+    double PosX = 2;
+    double PosY = 3;
+    double Angle = 4;
+    int32 FiveElement = 5;
+    int32 ObjectType = 6;
+    string Name = 7;
+    int32 Level = 8;
+    int64 CurrentPhysiqueDefense = 9;
+    int32 CurrentPureBloodDefense = 10;
+    int64 CurrentSuperAir = 11;
+    int32 CurrentPerception = 12;
+    double CurrentMoveSpeed = 13;
+    int32 Icon = 14;
+    double SuperAirRecoverValue = 15;
+    double DefenseRecoverValue = 16;
+    double SuperAirRecoverValueOnBattle = 17;
+    double DefenseRecoverValueOnBattle = 18;
+    double SuperAirPower = 19;
+    repeated ObjectInfoSkillResp_8001011 Skills = 20;
+    double AttackDistance = 21;
+    int32 UnusualLevel = 22;
+    message ObjectInfoSkillResp_8001011 {
+      int32 Icon = 1;
+      int32 Type = 2;
+      string Name = 3;
+      string TemplateId = 4;
+      int32 CastTime = 5;
+      int32 ContinueTime = 6;
+      int32 CoolDown = 7;
+      int32 FiveElement = 8;
+      double ConversionRate = 9;
+      double BaseDamage = 10;
+      int32 Level = 13;
+      int32 SkillType = 12;
+      int32 UsedPerception = 11;
+      int32 SkillIndex = 14;
+      int64 UsedSuperAir = 15;
+      int32 CanUseCount = 16;
+    }
+
+  }
+
+  message ObjectInfoSkillResp_8001011 {
+    int32 Icon = 1;
+    int32 Type = 2;
+    string Name = 3;
+    string TemplateId = 4;
+    int32 CastTime = 5;
+    int32 ContinueTime = 6;
+    int32 CoolDown = 7;
+    int32 FiveElement = 8;
+    double ConversionRate = 9;
+    double BaseDamage = 10;
+    int32 Level = 13;
+    int32 SkillType = 12;
+    int32 UsedPerception = 11;
+    int32 SkillIndex = 14;
+    int64 UsedSuperAir = 15;
+    int32 CanUseCount = 16;
+  }
+
+}
+
+message EnterUnrealTowerResp_1008001 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 RushTowerNum = 3;
+}
+
+message EnterWuDaoTaiResp_1005041 {
+  string AchievementName = 1;
+  int32 Proficiency = 2;
+  int32 MaxProficiency = 3;
+  int32 Level = 4;
+  bool IsSuccess = 5;
+  int32 Code = 6;
+  int32 MaxLevel = 7;
+}
+
+message EnterXuanTianLouReq_1004033 {
+  int32 Floor = 1;
+}
+
+message EnterXuanTianLouResp_1004033 {
+  repeated GoodsInfoResp_1004034 Goods = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+  message GoodsInfoResp_1004034 {
+    string Id = 1;
+    int32 FiveElement = 2;
+    int32 Rank = 3;
+    int32 Level = 4;
+    int32 SellType = 5;
+    string Name = 6;
+    int32 SystemPrice = 7;
+    string MethodId = 8;
+    int32 Type = 9;
+  }
+
+}
+
+message EntrustAuctionReq_1006008 {
+  string GoodsId = 1;
+  int64 FixedPrice = 2;
+  int32 ShopType = 3;
+}
+
+message EntrustAuctionResp_1006008 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 NowRingCapacity = 3;
+  int64 ShinyStone = 4;
+}
+
+message ExamineElixirStepReq_1008009 {
+  string MethodElixirId = 1;
+}
+
+message ExamineElixirStepResp_1008009 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated ElixirStepObjectResp_1008010 Object = 3;
+  message ElixirStepObjectResp_1008010 {
+    int32 ActionType = 1;
+    int32 TargetType = 2;
+    int32 Order = 3;
+    int32 ContinueTime = 4;
+    int32 BestVal = 5;
+    int32 MinVal = 6;
+    int32 MaxVal = 7;
+    int32 ValType = 8;
+  }
+
+}
+
+message ExchangeMethodAchievementReq_1008032 {
+  string MethodAchievementId = 1;
+}
+
+message ExchangeMethodAchievementResp_1008032 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message ExchangeMethodElixirReq_1008014 {
+  string MethodElixirId = 1;
+}
+
+message ExchangeMethodElixirResp_1008014 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message ExchangeMethodSignReq_1008046 {
+  string MethodSignId = 1;
+}
+
+message ExchangeMethodSignResp_1008046 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message ExchangeMethodSkillReq_1008024 {
+  string MethodSkillId = 1;
+}
+
+message ExchangeMethodSkillResp_1008024 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message ExchangeTemplatePlantReq_1008057 {
+  string TemplatePlantId = 1;
+}
+
+message ExchangeTemplatePlantResp_1008057 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Contribution = 3;
+}
+
+message ForgetSeedReq_1013020 {
+  string SeedId = 1;
+}
+
+message ForgetSeedResp_1013020 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message GatherSeedReq_1013021 {
+  string SeedId = 1;
+}
+
+message GatherSeedResp_1013021 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message GetOutSpaceBoxReq_1005023 {
+  int32 Location = 1;
+  string GoodsId = 2;
+}
+
+message GetOutSpaceBoxResp_1005023 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 NowRingCapacity = 3;
+  int32 NowBoxCapacity = 4;
+}
+
+message GetSignInAwardResp_1002021 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message GoodsArticleDefenseEquipmentReq_1004014 {
+  string Id = 1;
+}
+
+message GoodsArticleDefenseEquipmentResp_1004014 {
+  double ConversionRate = 1;
+  int64 UsedPhysique = 2;
+  int32 ToughTenacity = 3;
+  int32 EffectType1 = 4;
+  int32 EffectValue1 = 5;
+  int32 EffectType2 = 6;
+  int32 EffectValue2 = 7;
+  string CreatedBy = 8;
+  double Volume = 9;
+  int32 Code = 10;
+  bool IsSuccess = 11;
+}
+
+message GoodsArticleElixirChangeReq_1004016 {
+  string Id = 1;
+}
+
+message GoodsArticleElixirChangeResp_1004016 {
+  double EffectValue = 1;
+  int32 EatTime = 2;
+  int32 Effect = 3;
+  int32 Code = 4;
+  bool IsSuccess = 5;
+}
+
+message GoodsArticleElixirReq_1004015 {
+  string Id = 1;
+}
+
+message GoodsArticleElixirResp_1004015 {
+  int32 EffectType = 1;
+  int64 SpiritualityValue = 2;
+  double ConversionRate = 3;
+  int32 PoisonValue = 4;
+  string CreatedBy = 5;
+  double EffectValue = 7;
+  double RealityEffectValue = 8;
+  int32 EatTime = 9;
+  double Volume = 10;
+  int32 Code = 11;
+  bool IsSuccess = 12;
+}
+
+message GoodsArticleSecretAreaReq_1004017 {
+  string Id = 1;
+}
+
+message GoodsArticleSecretAreaResp_1004017 {
+  int32 AreaType = 1;
+  string MapName = 2;
+  int32 MapFiveElement = 3;
+  int32 MinLevel = 4;
+  int32 MaxLevel = 5;
+  double Volume = 6;
+  int32 Code = 7;
+  bool IsSuccess = 8;
+}
+
+message GoodsArticleSetableAttackEquipmentReq_1004018 {
+  string Id = 1;
+}
+
+message GoodsArticleSetableAttackEquipmentResp_1004018 {
+  int64 MinSpiritualityValue = 1;
+  int64 MaxSpiritualityValue = 2;
+  double ConversionRate = 3;
+  int64 UsedPerception = 4;
+  int32 ToughTenacity = 5;
+  int32 EffectType1 = 6;
+  int32 EffectValue1 = 7;
+  int32 EffectType2 = 8;
+  int32 EffectValue2 = 9;
+  string CreatedBy = 10;
+  double Volume = 11;
+  int32 Code = 12;
+  bool IsSuccess = 13;
+}
+
+message GoodsArticleSetableDefenseEquipmentReq_1004019 {
+  string Id = 1;
+}
+
+message GoodsArticleSetableDefenseEquipmentResp_1004019 {
+  int64 MinSpiritualityValue = 1;
+  int64 MaxSpiritualityValue = 2;
+  double ConversionRate = 3;
+  int64 UsedPerception = 4;
+  int32 ToughTenacity = 5;
+  int32 EffectType1 = 6;
+  int32 EffectValue1 = 7;
+  int32 EffectType2 = 8;
+  int32 EffectValue2 = 9;
+  string CreatedBy = 10;
+  double Volume = 11;
+  int32 Code = 12;
+  bool IsSuccess = 13;
+}
+
+message GoodsArticleSignReq_1004020 {
+  string Id = 1;
+}
+
+message GoodsArticleSignResp_1004020 {
+  int32 SkillType = 1;
+  int64 SpiritualityValue = 2;
+  int64 CalSpiritualityValue = 3;
+  int32 ContinueTime = 4;
+  int32 CastTime = 5;
+  double ConversionRate = 6;
+  string CreatedBy = 7;
+  int32 UseTime = 8;
+  double Volume = 9;
+  int32 Code = 10;
+  bool IsSuccess = 11;
+}
+
+message GoodsArticleSignUseTimeReq_1004021 {
+  string Id = 1;
+}
+
+message GoodsArticleSignUseTimeResp_1004021 {
+  int32 UseTime = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+}
+
+message GoodsBindingReq_1004023 {
+  string GoodsId = 1;
+}
+
+message GoodsBindingResp_1004023 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message GoodsBookAchievementDetailReq_1004008 {
+  string Id = 1;
+}
+
+message GoodsBookAchievementDetailResp_1004008 {
+  int32 ActionScope = 1;
+  int32 MinLevel = 2;
+  int32 MaxLevel = 3;
+  double ConversionRate = 4;
+  int32 MaxStep = 5;
+  int32 RunSpeed = 6;
+  string CreatedBy = 7;
+  int32 EffectType1 = 8;
+  int32 EffectValue1 = 9;
+  int32 EffectType2 = 10;
+  int32 EffectValue2 = 11;
+  double Volume = 12;
+  int32 Code = 13;
+  bool IsSuccess = 14;
+}
+
+message GoodsBookElixirDetailReq_1004009 {
+  string Id = 1;
+}
+
+message GoodsBookElixirDetailResp_1004009 {
+  int32 ElixirLevel = 1;
+  int32 EffectType = 2;
+  int64 MinEffectValue = 3;
+  int64 MaxEffectValue = 4;
+  int64 MinSpiritualityValue = 5;
+  int32 MinRank = 6;
+  int32 MaxRank = 7;
+  int32 MinPoisonValue = 8;
+  int32 MaxPoisonValue = 9;
+  int32 StepCount = 10;
+  repeated string MaterialNames = 11;
+  string CreatedBy = 12;
+  double Volume = 13;
+  int32 Code = 14;
+  bool IsSuccess = 15;
+}
+
+message GoodsBookEquipmentDetailReq_1004011 {
+  string Id = 1;
+}
+
+message GoodsBookEquipmentDetailResp_1004011 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message GoodsBookSignDetailReq_1004012 {
+  string Id = 1;
+}
+
+message GoodsBookSignDetailResp_1004012 {
+  int32 SkillType = 1;
+  int64 SpiritualityValue = 2;
+  double ConversionRate = 3;
+  int32 ContinueTime = 4;
+  int32 CastTime = 5;
+  string CreatedBy = 6;
+  double Volume = 7;
+  int32 Code = 8;
+  bool IsSuccess = 9;
+}
+
+message GoodsBookSkillDetailReq_1004013 {
+  string Id = 1;
+}
+
+message GoodsBookSkillDetailResp_1004013 {
+  int32 SkillType = 1;
+  int64 MinSpiritualityValue = 2;
+  int64 MaxSpiritualityValue = 3;
+  int32 ContinueTime = 4;
+  int32 CastTime = 5;
+  double ConversionRate = 6;
+  string CreatedBy = 7;
+  double Volume = 8;
+  int32 Code = 9;
+  bool IsSuccess = 10;
+}
+
+message GoodsBuyReq_1004001 {
+  string ModalGoodsId = 1;
+  int32 GoodsType = 2;
+  string MapId = 3;
+}
+
+message GoodsBuyResp_1004001 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  string GoodsId = 3;
+  int32 FiveElement = 4;
+  int32 Rank = 5;
+  int32 Level = 6;
+}
+
+message GoodsMaterialAnimalDetailReq_1004005 {
+  string Id = 1;
+}
+
+message GoodsMaterialAnimalDetailResp_1004005 {
+  string MapName = 1;
+  double ConversionRate = 5;
+  string FourGas = 6;
+  string FiveFlavour = 7;
+  string ReinforcingDiarrhoea = 8;
+  string AffiliationAcupoint = 9;
+  double Intensity = 10;
+  double Tenacity = 11;
+  double Affinity = 12;
+  double Weight = 13;
+  double Volume = 14;
+  string Unit = 15;
+  int32 Code = 16;
+  bool IsSuccess = 17;
+}
+
+message GoodsMaterialMineralDetailReq_1004006 {
+  string Id = 1;
+}
+
+message GoodsMaterialMineralDetailResp_1004006 {
+  string MapName = 1;
+  double ConversionRate = 5;
+  double Intensity = 6;
+  double Tenacity = 7;
+  double Affinity = 8;
+  double Weight = 9;
+  double Volume = 10;
+  string Unit = 11;
+  int32 Code = 12;
+  bool IsSuccess = 13;
+}
+
+message GoodsMaterialPlantDetailReq_1004007 {
+  string Id = 1;
+}
+
+message GoodsMaterialPlantDetailResp_1004007 {
+  string MapName = 1;
+  double ConversionRate = 4;
+  string FourGas = 5;
+  string FiveFlavour = 6;
+  string ReinforcingDiarrhoea = 7;
+  string AffiliationAcupoint = 8;
+  double Intensity = 9;
+  double Tenacity = 10;
+  double Affinity = 11;
+  double Weight = 12;
+  double Volume = 13;
+  string Unit = 14;
+  int32 Code = 15;
+  bool IsSuccess = 16;
+}
+
+message GoodsSellReq_1004022 {
+  repeated string GoodsId = 1;
+}
+
+message GoodsSellResp_1004022 {
+  int64 ShinyStone = 1;
+  int32 NowCapacity = 2;
+  int32 SuccessCount = 3;
+  int32 FailedCount = 4;
+  int32 AddShinyStone = 5;
+  int32 Code = 6;
+  bool IsSuccess = 7;
+}
+
+message GoodsUseReq_1004024 {
+  string GoodsId = 1;
+}
+
+message GoodsUseResp_1004024 {
+  int32 NowCapacity = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+}
+
+message GradeRingResp_1004025 {
+  int32 MaxCapacity = 1;
+  int32 ShinyJade = 2;
+  int32 Code = 3;
+  bool IsSuccess = 4;
+}
+
+message GuideInfoSkipReq_1002014 {
+  int32 Type = 1;
+}
+
+message GuideInfoSkipResp_1002014 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message GuideInfoUpdateReq_1002013 {
+  int32 Type = 1;
+}
+
+message GuideInfoUpdateResp_1002013 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message HandSealListResp_1008053 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated HandSealResp_1008054 HandSeal = 3;
+  message HandSealResp_1008054 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    string Rage = 4;
+  }
+
+}
+
+message HarvestPlantReq_1013018 {
+  int32 LandId = 1;
+}
+
+message HarvestPlantResp_1013018 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated PlantInfoResp_1013019 PlantInfo = 3;
+  int32 LiveLevel = 4;
+  int32 LiveProficiency = 5;
+  message PlantInfoResp_1013019 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 Type = 6;
+  }
+
+}
+
+message HeartBeatResp_9000000 {
+  int32 HeartBeat = 1;
+}
+
+message KaiKenLandReq_1013003 {
+  int32 LandIndex = 1;
+}
+
+message KaiKenLandResp_1013003 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 LandStatus = 3;
+  int64 TimeRemaining = 4;
+  int64 TotalWasteTime = 5;
+  int32 CurrentVigor = 6;
+}
+
+message LetterNotifyResp_1003007 {
+}
+
+message LetterQueryResp_1003001 {
+  repeated LetterInfoResp_1003002 Letters = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+  message LetterInfoResp_1003002 {
+    string Id = 1;
+    string Content = 2;
+    bool HasAward = 3;
+    bool Status = 4;
+    repeated LetterAwardResp_1003003 Awards = 5;
+    message LetterAwardResp_1003003 {
+      string Id = 1;
+      string GoodsId = 2;
+      string GoodsName = 3;
+      int32 GoodsType = 4;
+      int64 GoodsCount = 5;
+      bool Status = 6;
+    }
+
+  }
+
+  message LetterAwardResp_1003003 {
+    string Id = 1;
+    string GoodsId = 2;
+    string GoodsName = 3;
+    int32 GoodsType = 4;
+    int64 GoodsCount = 5;
+    bool Status = 6;
+  }
+
+}
+
+message LookAdvertisingResp_1001003 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentJade = 3;
+}
+
+message MapCityMigrateReq_1007011 {
+  string MapId = 1;
+}
+
+message MapCityMigrateResp_1007011 {
+  int32 CurrentAge = 1;
+  int32 CurrentVigor = 2;
+  bool IsSuccess = 3;
+  int32 Code = 4;
+}
+
+message MapInfoReq_1007009 {
+  string MapId = 1;
+}
+
+message MapInfoResp_1007009 {
+  string Id = 1;
+  string ParentId = 2;
+  string ParentName = 3;
+  string Name = 4;
+  string SibingsId = 5;
+  string ChildrenIds = 6;
+  int32 Type = 7;
+  int32 MinLevel = 8;
+  int32 MaxLevel = 9;
+  int32 Status = 10;
+  string Restrict = 11;
+  double BasedConcentration = 12;
+  int32 FiveElements = 13;
+  int32 Sort = 14;
+  int32 Level = 15;
+  bool IsSuccess = 16;
+  int32 Code = 17;
+}
+
+message MapTransmitReq_1007010 {
+  string MapId = 1;
+}
+
+message MapTransmitResp_1007010 {
+  int64 ShinyStone = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message MethodAchievementDetailReq_1011004 {
+  string Id = 1;
+}
+
+message MethodAchievementDetailResp_1011004 {
+  int32 ActionScope = 1;
+  int32 MinLevel = 2;
+  int32 MaxLevel = 3;
+  double ConversionRate = 4;
+  int32 MaxStep = 5;
+  int32 RunSpeed = 6;
+  string CreatedBy = 7;
+  int32 EffectType1 = 8;
+  int32 EffectValue1 = 9;
+  int32 EffectType2 = 10;
+  int32 EffectValue2 = 11;
+  int32 Code = 12;
+  bool IsSuccess = 13;
+  int32 Proficiency = 14;
+  int32 MaxProficiency = 15;
+}
+
+message MethodElixirDetailReq_1011005 {
+  string Id = 1;
+}
+
+message MethodElixirDetailResp_1011005 {
+  int32 ElixirLevel = 1;
+  int32 EffectType = 2;
+  int64 MinEffectValue = 3;
+  int64 MaxEffectValue = 4;
+  int64 MinSpiritualityValue = 5;
+  int32 MinRank = 6;
+  int32 MaxRank = 7;
+  int32 MinPoisonValue = 8;
+  int32 MaxPoisonValue = 9;
+  int32 StepCount = 10;
+  repeated string MaterialNames = 11;
+  string CreatedBy = 12;
+  int32 Code = 13;
+  bool IsSuccess = 14;
+}
+
+message MethodEquipmentDetailReq_1011006 {
+  string Id = 1;
+}
+
+message MethodEquipmentDetailResp_1011006 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message MethodMatrixDetailReq_1011007 {
+  string Id = 1;
+}
+
+message MethodMatrixDetailResp_1011007 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message MethodSignDetailReq_1011008 {
+  string Id = 1;
+}
+
+message MethodSignDetailResp_1011008 {
+  int32 SkillType = 1;
+  int64 SpiritualityValue = 2;
+  double ConversionRate = 3;
+  int32 ContinueTime = 4;
+  int32 CastTime = 5;
+  string CreatedBy = 6;
+  int32 Code = 7;
+  bool IsSuccess = 8;
+}
+
+message MethodSkillDetailReq_1011009 {
+  string Id = 1;
+}
+
+message MethodSkillDetailResp_1011009 {
+  int32 SkillType = 1;
+  int64 MinSpiritualityValue = 2;
+  int64 MaxSpiritualityValue = 3;
+  int32 ContinueTime = 4;
+  int32 CastTime = 5;
+  double ConversionRate = 6;
+  string CreatedBy = 7;
+  int32 Code = 8;
+  bool IsSuccess = 9;
+}
+
+message MonsterDeadReq_8002003 {
+  int32 DeadMonsterIndex = 1;
+  double PosX = 2;
+  double PosY = 3;
+}
+
+message MonsterDeadResp_8002003 {
+  int32 DeadMonsterIndex = 1;
+  string GoodsId = 2;
+  double PosX = 3;
+  double PosY = 4;
+  int32 FiveElement = 5;
+  int32 GoodsType = 6;
+  string Name = 7;
+  int32 Level = 8;
+  int32 Rank = 9;
+  int32 ObjectIndex = 10;
+  int32 Count = 11;
+}
+
+message MonsterGetDamageReq_8001006 {
+  int32 MonsterIndex = 1;
+  int32 RoleIndex = 2;
+  int32 SkillIndex = 3;
+  int32 Damage = 4;
+}
+
+message MonsterGetDamageResp_8001006 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message Msg {
+  int32 Cmd = 1;
+  int32 Msid = 2;
+  bytes Data = 3;
+}
+
+message OneKeyBuyMaterialsReq_1004030 {
+  repeated string MaterialId = 1;
+}
+
+message OneKeyBuyMaterialsResp_1004030 {
+  int64 ShinyStone = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+}
+
+message OpenAcupointResp_1005016 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated RoleAcupointResp_1005017 Acupoints = 3;
+  int32 AcupointValue = 4;
+  message RoleAcupointResp_1005017 {
+    string Id = 1;
+    int32 BrokenLevel = 2;
+  }
+
+}
+
+message OpenControllerMatrixResp_1005014 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  bool IsOpenGold = 3;
+  bool IsOpenWood = 4;
+  bool IsOpenWater = 5;
+  bool IsOpenFire = 6;
+  bool IsOpenEarth = 7;
+}
+
+message OpenUnderstandPanelResp_1001011 {
+  repeated UnderstandMethodObjectResp_1001012 Object = 2;
+  bool IsSuccess = 3;
+  int32 Code = 4;
+  message UnderstandMethodObjectResp_1001012 {
+    bool IsUnderstand = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Level = 4;
+    int32 Rank = 5;
+    int32 Type = 6;
+    string Id = 7;
+  }
+
+}
+
+message ParentMapAndOneselfMapReq_1007012 {
+  string MapId = 1;
+}
+
+message ParentMapAndOneselfMapResp_1007012 {
+  repeated string Name = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message ParentMapIdReq_1007005 {
+  string MapId = 1;
+}
+
+message ParentMapIdResp_1007005 {
+  repeated string Id = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message ParentMapReq_1007006 {
+  string MapId = 1;
+}
+
+message ParentMapResp_1007006 {
+  repeated MapObjectResp_1007007 Object = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+  message MapObjectResp_1007007 {
+    string Id = 1;
+    string ParentId = 2;
+    string ParentName = 3;
+    string Name = 4;
+    string SibingsId = 5;
+    string ChildrenIds = 6;
+    int32 Type = 7;
+    int32 MinLevel = 8;
+    int32 MaxLevel = 9;
+    int32 Status = 10;
+    string Restrict = 11;
+    double BasedConcentration = 12;
+    int32 FiveElements = 13;
+    int32 Sort = 14;
+    int32 Level = 15;
+  }
+
+}
+
+message PerceptionUpResp_9001006 {
+  int64 CurrentPerception = 1;
+  int64 Perception = 2;
+  int64 PerceptionRefiningValue = 3;
+}
+
+message PhysiqueUpResp_9001005 {
+  int64 CurrentPhysique = 1;
+  int64 Physique = 2;
+  int32 CurrentPureBlood = 3;
+  int32 PureBlood = 4;
+  int64 PhysiqueRefiningValue = 5;
+}
+
+message PickUpGoodsReq_1004026 {
+  string GoodsId = 1;
+}
+
+message PickUpGoodsResp_1004026 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 NowCapacity = 3;
+}
+
+message PosionDownResp_9001003 {
+  int32 CurrentPosion = 1;
+}
+
+message PracticeAchievementResp_1005042 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Proficiency = 3;
+  int32 MaxProficiency = 4;
+  int32 Level = 5;
+  int32 CurrentVigor = 6;
+  int32 MaxLevel = 7;
+  int32 LiveLevel = 8;
+  int32 LiveProficiency = 9;
+}
+
+message PracticeSkillReq_1005040 {
+  string MethodSkillId = 1;
+  int32 PracticeNum = 2;
+}
+
+message PracticeSkillResp_1005040 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Proficiency = 3;
+  int32 MaxProficiency = 4;
+  int32 Level = 5;
+  int32 CurrentVigor = 6;
+  int32 LiveLevel = 7;
+  int32 LiveProficiency = 8;
+}
+
+message PutInSpaceBoxReq_1005022 {
+  int32 Location = 1;
+  string GoodsId = 2;
+}
+
+message PutInSpaceBoxResp_1005022 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 NowRingCapacity = 3;
+  int32 NowBoxCapacity = 4;
+}
+
+message ReadLetterReq_1003005 {
+  string Id = 1;
+}
+
+message RebuildLiveTypeReq_1005004 {
+  int32 NewLiveType = 1;
+  int32 Location = 2;
+}
+
+message RebuildLiveTypeResp_1005004 {
+  int64 ShinyJade = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message ReceiveLetterReq_1003006 {
+  string Id = 1;
+}
+
+message ReceiveLetterResp_1003006 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyStone = 3;
+  int64 ShinyJade = 4;
+}
+
+message ReceiveMessageResp_4001002 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  string RoleName = 3;
+  string Title = 4;
+  string Msg = 5;
+  string RoleId = 6;
+}
+
+message ReceiveMessageRoleResp_4001008 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  string Msg = 5;
+  string RoleId = 6;
+  int64 MsgTime = 4;
+}
+
+message RefiningElixirReq_1005027 {
+  string MethodElixirId = 1;
+  bool IsRefiningSuccess = 2;
+  repeated StepDetailReq_1005028 StepDetailList = 3;
+  message StepDetailReq_1005028 {
+    string StepId = 1;
+    string GoodsId = 2;
+    double BestTime = 3;
+  }
+
+}
+
+message RefiningElixirResp_1005027 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Count = 3;
+  int32 Rank = 4;
+  int32 CurrentVigor = 5;
+  int32 LiveLevel = 6;
+  int32 LiveProficiency = 7;
+}
+
+message RefiningSignRecordReq_1005043 {
+}
+
+message RefiningSignReq_1005036 {
+  string MethodSignId = 1;
+  bool IsRefiningSuccess = 2;
+}
+
+message RefiningSignResp_1005036 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 Count = 3;
+  int32 Rank = 4;
+  int32 CurrentVigor = 5;
+  int32 LiveLevel = 6;
+  int32 LiveProficiency = 7;
+}
+
+message RefuseFriendReq_1014009 {
+  string TargetFriendId = 1;
+}
+
+message RefuseFriendResp_1014009 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RegisterMethodAchievementReq_1008036 {
+  string MethodAchievementId = 1;
+  string Rename = 2;
+}
+
+message RegisterMethodAchievementResp_1008036 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RegisterMethodElixirReq_1008017 {
+  string MethodElixirId = 1;
+  string Rename = 2;
+}
+
+message RegisterMethodElixirResp_1008017 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RegisterMethodSignReq_1008050 {
+  string MethodSignId = 1;
+}
+
+message RegisterMethodSignResp_1008050 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RegisterMethodSkillReq_1008028 {
+  string MethodSkillId = 1;
+  string Rename = 2;
+}
+
+message RegisterMethodSkillResp_1008028 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RegisterTemplatePlantReq_1008061 {
+  string TemplatePlantId = 1;
+  string Rename = 2;
+}
+
+message RegisterTemplatePlantResp_1008061 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RemoteSendGoodsReq_1014005 {
+  string TargetFriendId = 1;
+  repeated string GoodsId = 2;
+}
+
+message RemoteSendGoodsResp_1014005 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 CurrentShinyStone = 3;
+}
+
+message RemoveSkillReq_1009004 {
+  int32 SkillType = 1;
+  string SkillId = 2;
+}
+
+message RemoveSkillResp_1009004 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 CurrentPerception = 3;
+  int32 FullLoadPerception = 4;
+}
+
+message RenameBoxReq_1005007 {
+  string NewName = 1;
+  int32 Location = 2;
+}
+
+message RenameBoxResp_1005007 {
+  int64 ShinyJade = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message RenameHomeReq_1005006 {
+  string NewName = 1;
+}
+
+message RenameHomeResp_1005006 {
+  int64 ShinyJade = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message RoleBreakAskResp_1001008 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 HasThunder = 3;
+}
+
+message RoleBreakRealmReq_1001010 {
+  bool IsThunderSuccess = 1;
+  int32 FailThunderNum = 2;
+}
+
+message RoleBreakRealmResp_1001010 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 PureBlood = 3;
+  string FlexibleRoot = 4;
+  int64 SuperAir = 5;
+  int64 Perception = 6;
+  int64 Physique = 7;
+  int64 CurrentSuperAir = 8;
+  int64 CurrentPerception = 9;
+  int64 CurrentPhysique = 10;
+  int32 CurrentVigor = 11;
+  int32 CurrentClever = 12;
+  int32 CurrentPoisonVal = 13;
+  int32 CurrentPureBlood = 14;
+  int32 Age = 15;
+}
+
+message RoleCreateReq_1002001 {
+  string UserId = 1;
+  string ClientIp = 2;
+  string ServerId = 3;
+  string MapId = 4;
+  bool Sex = 5;
+  int32 HeadPortraitId = 6;
+  string Name = 7;
+  double Gold = 8;
+  double Wood = 9;
+  double Water = 10;
+  double Fire = 11;
+  double Earth = 12;
+}
+
+message RoleCreateResp_1002001 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  string RoleId = 3;
+}
+
+message RoleGetOfflineReq_1002004 {
+  bool IsGetOffline = 1;
+}
+
+message RoleGetOfflineResp_1002004 {
+  int64 SuperAir = 1;
+  int64 CurrentSuperAir = 2;
+  int32 Perception = 3;
+  int32 CurrentPerception = 4;
+  int32 Physique = 5;
+  int32 CurrentPhysique = 6;
+  int32 Age = 7;
+  int32 Vigor = 8;
+  int32 Clever = 9;
+  int32 PoisonVal = 10;
+  int32 PureBlood = 11;
+  int32 CurrentPureBlood = 12;
+  bool IsSuccess = 13;
+  int32 Code = 14;
+}
+
+message RoleJoinDungeonReq_1010002 {
+  string DungeonId = 1;
+  string MapId = 2;
+}
+
+message RoleJoinDungeonResp_1010002 {
+  string DungeonId = 1;
+  string RoleId = 2;
+  string Name = 3;
+  int64 CurrentPhysiqueDefense = 4;
+  int32 CurrentPureBloodDefense = 5;
+  int64 CurrentSuperAir = 7;
+  int32 CurrentPerception = 8;
+  double CurrentMoveSpeed = 9;
+  int32 Level = 10;
+  int32 PhysiqueFiveElement = 11;
+  int32 SuperAirFiveElement = 12;
+  int32 PerceptionFiveElement = 13;
+  int32 Icon = 14;
+  double SuperAirRecoverValue = 15;
+  double DefenseRecoverValue = 16;
+  double SuperAirRecoverValueOnBattle = 17;
+  double DefenseRecoverValueOnBattle = 18;
+  repeated BattleSkillReq_1010003 Skills = 19;
+  int32 Code = 20;
+  bool IsSuccess = 21;
+  double GoldDamageAvoidance = 22;
+  double WoodDamageAvoidance = 23;
+  double WaterDamageAvoidance = 24;
+  double FireDamageAvoidance = 25;
+  double EarthDamageAvoidance = 26;
+  double AllDamageAvoidance = 27;
+  double AttackDistance = 28;
+  message BattleSkillReq_1010003 {
+    int32 Icon = 1;
+    int32 Type = 2;
+    int32 SkillType = 12;
+    string Name = 3;
+    string TemplateId = 4;
+    int32 CastTime = 5;
+    int32 ContinueTime = 6;
+    int32 CoolDown = 7;
+    int32 FiveElement = 8;
+    double ConversionRate = 9;
+    double BaseDamage = 10;
+    int32 UsedPerception = 11;
+    int32 Level = 13;
+    int32 SkillIndex = 14;
+    int64 UsedSuperAir = 15;
+    int32 CanUseCount = 16;
+    int32 Rank = 17;
+    double UnitUsed = 18;
+  }
+
+}
+
+message RoleLeaveDungeonReq_8001008 {
+  string DungeonId = 1;
+  int32 RoleIndex = 2;
+}
+
+message RoleLeaveDungeonResp_8001008 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message RoleLoginReq_1002002 {
+  string LoginIp = 1;
+  string GameServerIpManageId = 2;
+  string RoleId = 3;
+}
+
+message RoleLoginResp_1002002 {
+  string Id = 1;
+  string MapId = 2;
+  string MapName = 3;
+  int32 Sex = 4;
+  int32 HeadPortraitId = 5;
+  string Name = 6;
+  int32 Level = 7;
+  int32 CurrentAge = 8;
+  int32 MaxAge = 9;
+  int64 ShinyStone = 10;
+  int32 ShinyJade = 11;
+  int32 PureBlood = 12;
+  string FlexibleRoot = 13;
+  int64 SuperAir = 14;
+  int64 Perception = 15;
+  int64 Physique = 16;
+  int64 CurrentSuperAir = 17;
+  int64 CurrentPerception = 18;
+  int64 CurrentPhysique = 19;
+  int32 CurrentVigor = 20;
+  int32 CurrentClever = 21;
+  int32 CurrentPoisonVal = 22;
+  int32 CurrentPureBlood = 23;
+  int32 LiveRelId = 24;
+  int32 Live1Type = 25;
+  int32 Live2Type = 26;
+  int32 Live1Level = 27;
+  int32 Live2Level = 28;
+  int32 Live1Value = 29;
+  int32 Live2Value = 30;
+  int32 YueKaDays = 31;
+  bool IsSuccess = 32;
+  int32 Code = 33;
+  string Title = 34;
+  bool HasWood = 35;
+  bool HasGold = 36;
+  bool HasWater = 37;
+  bool HasFire = 38;
+  bool HasEarth = 39;
+  int32 BattleGuideVal = 40;
+  int32 PracticeGuideVal = 41;
+  bool IsNewLetter = 42;
+  int32 AcupointGuideVal = 43;
+  int32 ShopGuideVal = 44;
+  int32 HunLiVal = 45;
+  int32 SignGuideVal = 46;
+  int32 ElixirGuideVal = 47;
+  bool IsGetSignIn = 48;
+  int32 SignInDay = 49;
+}
+
+message RoleOfflineResp_1002003 {
+  int64 SuperAir = 1;
+  int64 Perception = 2;
+  int64 Physique = 3;
+  double Age = 4;
+  int32 OfflineTime = 5;
+  bool IsSuccess = 6;
+  int32 Code = 7;
+  int32 OfflineVigor = 8;
+  int32 OfflineClever = 9;
+}
+
+message RolePickGoodsReq_8001007 {
+  int32 ObjectIndex = 1;
+}
+
+message RolePickGoodsResp_8001007 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}
+
+message RoleSuicideResp_1002008 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message RushTowerAgeRankedAwardReq_1008038 {
+  int32 Stage = 1;
+}
+
+message RushTowerAgeRankedAwardResp_1008038 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyJade = 3;
+}
+
+message RushTowerTierNumRankedAwardReq_1008037 {
+  int32 Stage = 1;
+}
+
+message RushTowerTierNumRankedAwardResp_1008037 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyJade = 3;
+}
+
+message SearchAnimalMaterialReq_1008041 {
+  string MapId = 1;
+  int32 Stage = 2;
+  int32 FiveElement = 3;
+  int32 SiQi = 4;
+  int32 WuWei = 5;
+  int32 BuXie = 6;
+  int32 GuiJing = 7;
+}
+
+message SearchAnimalMaterialResp_1008041 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated AnimalMaterialResp_1008042 AnimalList = 3;
+  message AnimalMaterialResp_1008042 {
+    string Id = 1;
+    string Name = 2;
+  }
+
+}
+
+message SearchElixirRefiningStepListReq_1005030 {
+  string MethodId = 1;
+}
+
+message SearchElixirRefiningStepListResp_1005030 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated ElixirRefiningStepResp_1005031 Step = 3;
+  int32 MaxRank = 4;
+  message ElixirRefiningStepResp_1005031 {
+    int32 ActionType = 1;
+    int32 TargetType = 2;
+    int32 Order = 3;
+    int32 ContinueTime = 4;
+    int32 BestVal = 5;
+    int32 MinVal = 6;
+    int32 MaxVal = 7;
+    int32 ValType = 8;
+    string StepId = 9;
+    string TargetName = 10;
+    string MapId = 11;
+    string MapName = 12;
+    string TargetId = 13;
+  }
+
+}
+
+message SearchIsOnLineReq_4001005 {
+  repeated string RoleId = 1;
+}
+
+message SearchIsOnLineResp_4001005 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  repeated RoleOnLineResp_4001006 RoleOnLine = 3;
+  message RoleOnLineResp_4001006 {
+    string RoleId = 1;
+    bool IsOnLine = 2;
+  }
+
+}
+
+message SearchIsSettingBattleEquipmentResp_1002015 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  bool IsSettingEquipmentBattle = 3;
+}
+
+message SearchLMStockReq_1004028 {
+  string MethodElixirId = 1;
+}
+
+message SearchLMStockResp_1004028 {
+  repeated MaterialObjReap_1004029 MaterialList = 1;
+  int32 Code = 2;
+  bool IsSuccess = 3;
+  message MaterialObjReap_1004029 {
+    string TemplateId = 1;
+    int32 Price = 2;
+    string GoodsName = 3;
+  }
+
+}
+
+message SearchLingQuanResp_1013029 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated LingQuanResp_1013030 LingQuan = 3;
+  message LingQuanResp_1013030 {
+    int32 Type = 1;
+    string Name = 2;
+    int32 Rank = 3;
+    double ConversionRate = 4;
+    int32 Price = 5;
+  }
+
+}
+
+message SearchPlantMaterialReq_1008039 {
+  string MapId = 1;
+  int32 Stage = 2;
+  int32 FiveElement = 3;
+  int32 SiQi = 4;
+  int32 WuWei = 5;
+  int32 BuXie = 6;
+  int32 GuiJing = 7;
+}
+
+message SearchPlantMaterialResp_1008039 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated PlantMaterialResp_1008040 PlantList = 3;
+  message PlantMaterialResp_1008040 {
+    string Id = 1;
+    string Name = 2;
+  }
+
+}
+
+message SearchShinyStoneRatioResp_1002016 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 ExchangeRatio = 3;
+  int64 ExchangeShinyStoneSum = 4;
+  int64 UpdateAt = 5;
+}
+
+message SearchSignInAwardResp_1002018 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  repeated SignInAwardResp_1002019 SignInAward = 3;
+  message SignInAwardResp_1002019 {
+    int32 SignInDay = 1;
+    repeated AwardResp_1002020 Award = 2;
+    message AwardResp_1002020 {
+      string GoodsName = 1;
+      int32 Num = 2;
+      int32 Type = 3;
+      int32 Rank = 4;
+    }
+
+  }
+
+  message AwardResp_1002020 {
+    string GoodsName = 1;
+    int32 Num = 2;
+    int32 Type = 3;
+    int32 Rank = 4;
+  }
+
+}
+
+message SearchSignRefiningStepListReq_1005034 {
+  string MethodId = 1;
+}
+
+message SearchSignRefiningStepListResp_1005034 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated PointsResp_1005035 Point = 3;
+  message PointsResp_1005035 {
+    double X = 1;
+    double Y = 2;
+  }
+
+}
+
+message SearchSoilAllResp_1013022 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated SoilResp_1013023 SoilAll = 3;
+  message SoilResp_1013023 {
+    string Id = 1;
+    int32 FiveElement = 2;
+    int32 Level = 3;
+    string Name = 4;
+    int32 Rank = 5;
+    double ReceiveVal = 6;
+    double ConversionRate = 7;
+  }
+
+}
+
+message SearchTitleResp_1002006 {
+  repeated string Title = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+}
+
+message SearchUnderstandElixirListReq_1005028 {
+  int32 Stage = 1;
+}
+
+message SearchUnderstandElixirListResp_1005028 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated UnderstandElixirResp_1005029 UnderstandElixir = 3;
+  message UnderstandElixirResp_1005029 {
+    string Id = 1;
+    string Name = 2;
+  }
+
+}
+
+message SearchUnderstandSignListReq_1005032 {
+  int32 Stage = 1;
+}
+
+message SearchUnderstandSignListResp_1005032 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated UnderstandSignResp_1005033 UnderstandSign = 3;
+  message UnderstandSignResp_1005033 {
+    string Id = 1;
+    string Name = 2;
+  }
+
+}
+
+message SearchWaterAllResp_1013024 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated WaterInfoResp_1013025 WaterAll = 3;
+  message WaterInfoResp_1013025 {
+    string Id = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    double ReceiveVal = 6;
+    double ConversionRate = 7;
+  }
+
+}
+
+message SearchXiRangResp_1013027 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated XiRangResp_1013028 XiRang = 3;
+  message XiRangResp_1013028 {
+    int32 Type = 1;
+    string Name = 2;
+    int32 Rank = 3;
+    double ConversionRate = 4;
+    int32 Price = 5;
+  }
+
+}
+
+message SeedChooseReq_1013013 {
+  int32 LandId = 1;
+  string SeedId = 2;
+}
+
+message SeedChooseResp_1013013 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 LandStatus = 3;
+  int64 TimeRemaining = 4;
+  int64 TotalWasteTime = 5;
+}
+
+message SendMessageReq_4001003 {
+  string Msg = 1;
+}
+
+message SendMessageResp_4001003 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 ChatNum = 3;
+  int64 NextSendTime = 4;
+  int32 CreditPoints = 5;
+  int32 TimeLag = 6;
+}
+
+message SendMessageRoleReq_4001007 {
+  string Msg = 1;
+  string RoleId = 2;
+}
+
+message SendMessageRoleResp_4001007 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 MsgTime = 3;
+}
+
+message SetSkillReq_1009003 {
+  int32 SkillType = 1;
+  string SkillId = 2;
+  int32 CombatSettingId = 3;
+}
+
+message SetSkillResp_1009003 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 CurrentPerception = 3;
+  int32 FullLoadPerception = 4;
+}
+
+message ShinyJadeExchangeShinyStoneReq_1002017 {
+  int64 ShinyJade = 1;
+}
+
+message ShinyJadeExchangeShinyStoneResp_1002017 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 ShinyStone = 3;
+  int32 ShinyJade = 4;
+}
+
+message SibingsMapReq_1007001 {
+  string MapId = 1;
+}
+
+message SibingsMapResp_1007001 {
+  repeated MapObjectResp_1007002 Object = 1;
+  bool IsSuccess = 2;
+  int32 Code = 3;
+  message MapObjectResp_1007002 {
+    string Id = 1;
+    string ParentId = 2;
+    string ParentName = 3;
+    string Name = 4;
+    string SibingsId = 5;
+    string ChildrenIds = 6;
+    int32 Type = 7;
+    int32 MinLevel = 8;
+    int32 MaxLevel = 9;
+    int32 Status = 10;
+    string Restrict = 11;
+    double BasedConcentration = 12;
+    int32 FiveElements = 13;
+    int32 Sort = 14;
+    int32 Level = 15;
+  }
+
+}
+
+message SoilDeployReq_1013007 {
+  repeated string GoodsId = 1;
+  int32 XiRangType = 2;
+}
+
+message SoilDeployResp_1013007 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  string SoilId = 3;
+  int32 FiveElement = 4;
+  int32 Level = 5;
+  string Name = 6;
+  int32 Rank = 7;
+  double ReceiveVal = 8;
+  double ConversionRate = 9;
+  int64 CurrentShinyStone = 10;
+}
+
+message SpaceGoodsCheckReq_1004004 {
+  int32 Location = 1;
+}
+
+message SpaceGoodsCheckResp_1004004 {
+  string Md5 = 1;
+  int32 Location = 2;
+  int32 Code = 3;
+  bool IsSuccess = 4;
+}
+
+message SpaceGoodsReq_1004002 {
+  int32 Location = 1;
+}
+
+message SpaceGoodsResp_1004002 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated GoodsInfoResp_1004003 GoodsInfos = 3;
+  int32 NowCapacity = 4;
+  int32 MaxCapacity = 5;
+  int32 Location = 6;
+  message GoodsInfoResp_1004003 {
+    string GoodsId = 1;
+    string Name = 2;
+    int32 FiveElement = 3;
+    int32 Rank = 4;
+    int32 Level = 5;
+    int32 Type = 6;
+    bool IsUsing = 7;
+    bool IsBinding = 8;
+    int32 RecyclePrice = 9;
+    string TemplateId = 10;
+    double ConversionRate = 11;
+    double Volume = 12;
+  }
+
+}
+
+message SuperAirUpResp_9001004 {
+  int64 CurrentSuperAir = 1;
+  int64 SuperAir = 2;
+  bool IsBreak = 3;
+  int64 SuperAirRefiningValue = 4;
+}
+
+message TemplateMaterialAnimalDetailReq_1011001 {
+  string Id = 1;
+}
+
+message TemplateMaterialAnimalDetailResp_1011001 {
+  string MapName = 1;
+  int32 Stage = 2;
+  int32 FiveElement = 3;
+  double FourGas = 4;
+  double FiveFlavour = 5;
+  double ReinforcingDiarrhoea = 6;
+  int32 AffiliationAcupoint = 7;
+  int32 Code = 8;
+  bool IsSuccess = 9;
+}
+
+message TemplateMaterialMineralDetailReq_1011002 {
+  string Id = 1;
+}
+
+message TemplateMaterialMineralDetailResp_1011002 {
+  int32 Code = 5;
+  bool IsSuccess = 6;
+}
+
+message TemplateMaterialPlantDetailReq_1011003 {
+  string Id = 1;
+}
+
+message TemplateMaterialPlantDetailResp_1011003 {
+  string MapName = 1;
+  int32 Stage = 2;
+  int32 FiveElement = 3;
+  double FourGas = 4;
+  double FiveFlavour = 5;
+  double ReinforcingDiarrhoea = 6;
+  int32 AffiliationAcupoint = 7;
+  int32 Code = 8;
+  bool IsSuccess = 9;
+}
+
+message TitleUseReq_1002007 {
+  string Title = 1;
+}
+
+message TitleUseResp_1002007 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message UnderstandMethodForgetReq_1001013 {
+  string Id = 1;
+  int32 Type = 2;
+}
+
+message UnderstandMethodReq_1001005 {
+  string Id = 1;
+  int32 Type = 2;
+}
+
+message UnderstandSkillReq_1001015 {
+  int32 Stage = 1;
+}
+
+message UnderstandSkillResp_1001015 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  repeated SkillObjectResp_1001016 Skills = 3;
+  message SkillObjectResp_1001016 {
+    string Id = 1;
+    string Name = 2;
+  }
+
+}
+
+message UndressEquipmentReq_1009002 {
+  string EquipmentId = 1;
+}
+
+message UndressEquipmentResp_1009002 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int64 CurrentPhysiqueDefense = 3;
+  int32 CurrentPureBloodDefense = 4;
+  double CurrentMoveSpeed = 5;
+  double SuperAirRecoverValue = 6;
+  double DefenseRecoverValue = 7;
+  double SuperAirRecoverValueOnBattle = 8;
+  double DefenseRecoverValueOnBattle = 9;
+  double CanUsedPhysique = 10;
+}
+
+message UpgradeControllerMatrixResp_1005015 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyStone = 3;
+  int32 Rank = 4;
+  string NewName = 5;
+  int64 ControllerMatrixLessTime = 6;
+}
+
+message UpgradeGatherMatrixResp_1005013 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int64 ShinyStone = 3;
+  int32 Rank = 4;
+  string NewName = 5;
+  int64 GatherMatrixLessTime = 6;
+  double AchievementCircleValue = 7;
+}
+
+message UpgradeHomeResp_1005002 {
+  int64 ShinyStone = 1;
+  string Name = 2;
+  int32 Rank = 3;
+  bool IsSuccess = 4;
+  int32 Code = 5;
+}
+
+message UsedElixirReq_1004032 {
+  string GoodsId = 1;
+}
+
+message UsedElixirResp_1004032 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 NowCapacity = 3;
+  int32 PureBlood = 4;
+  string FlexibleRoot = 5;
+  int64 SuperAir = 6;
+  int64 Perception = 7;
+  int64 Physique = 8;
+  int64 CurrentSuperAir = 9;
+  int64 CurrentPerception = 10;
+  int64 CurrentPhysique = 11;
+  int32 CurrentVigor = 12;
+  int32 CurrentClever = 13;
+  int32 CurrentPoisonVal = 14;
+  int32 CurrentPureBlood = 15;
+  bool HasWood = 16;
+  bool HasGold = 17;
+  bool HasWater = 18;
+  bool HasFire = 19;
+  bool HasEarth = 20;
+  int32 HunLiVal = 21;
+}
+
+message UsedSecretReq_1004031 {
+  string GoodsId = 1;
+}
+
+message UsedSecretResp_1004031 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  int32 NowCapacity = 3;
+  string MapId = 4;
+  int32 MapType = 5;
+  int32 FiveElement = 6;
+}
+
+message VerifyCreateMethodAchievementReq_1008033 {
+  int32 Stage = 1;
+  repeated string AcupointId = 2;
+}
+
+message VerifyCreateMethodAchievementResp_1008033 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  bool CreatedIsSuccess = 3;
+  int32 CurrentClever = 4;
+  int32 ActionScope = 5;
+  int32 MinLevel = 6;
+  int32 MaxLevel = 7;
+  double ConversionRate = 8;
+  int32 MaxStep = 9;
+  int32 RunSpeed = 10;
+  string CreatedBy = 11;
+  int32 EffectType1 = 12;
+  int32 EffectValue1 = 13;
+  int32 EffectType2 = 14;
+  int32 EffectValue2 = 15;
+  int32 Stage = 16;
+  int32 Rank = 17;
+  int32 FiveElement = 18;
+  int32 LiveLevel = 19;
+  int32 LiveProficiency = 20;
+}
+
+message VerifyCreateMethodElixirReq_1008018 {
+  int32 Stage = 1;
+  repeated ElixirStepObjectReq_1008019 Object = 2;
+  message ElixirStepObjectReq_1008019 {
+    int32 ActionType = 1;
+    int32 TargetType = 2;
+    string TargetId = 3;
+    int32 Order = 4;
+  }
+
+}
+
+message VerifyCreateMethodElixirResp_1008018 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 CurrentClever = 3;
+  repeated ElixirStepObjectResp_1008019 Object = 4;
+  bool CreatedIsSuccess = 5;
+  string MethodElixirId = 6;
+  int32 MaxRank = 7;
+  message ElixirStepObjectResp_1008019 {
+    int32 ActionType = 1;
+    int32 TargetType = 2;
+    int32 Order = 3;
+    int32 ContinueTime = 4;
+    int32 BestVal = 5;
+    int32 MinVal = 6;
+    int32 MaxVal = 7;
+    int32 ValType = 8;
+  }
+
+}
+
+message VerifyCreateMethodSignReq_1008047 {
+  string MethodSkillId = 1;
+  repeated SignPointReq_1008051 Points = 2;
+  message SignPointReq_1008051 {
+    double X = 1;
+    double Y = 2;
+  }
+
+}
+
+message VerifyCreateMethodSignResp_1008047 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  bool CreatedIsSuccess = 3;
+  string MethodSignId = 4;
+  int32 CurrentClever = 5;
+}
+
+message VerifyCreateMethodSkillReq_1008025 {
+  int32 Stage = 1;
+  repeated string HandSealId = 2;
+}
+
+message VerifyCreateMethodSkillResp_1008025 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  bool CreatedIsSuccess = 3;
+  int32 CurrentClever = 4;
+  int32 SkillType = 5;
+  int64 MinSpiritualityValue = 6;
+  int64 MaxSpiritualityValue = 7;
+  int32 ContinueTime = 8;
+  int32 CastTime = 9;
+  double ConversionRate = 10;
+  int32 Stage = 11;
+  int32 Rank = 12;
+  int32 FiveElement = 13;
+  int32 LiveLevel = 14;
+  int32 LiveProficiency = 15;
+  int32 CreatedBy = 16;
+}
+
+message VerifyCreateTemplatePlantReq_1008058 {
+  int32 Stage = 1;
+  repeated string TemplatePlantIds = 2;
+}
+
+message VerifyCreateTemplatePlantResp_1008058 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  bool CreatedIsSuccess = 3;
+  int32 CurrentClever = 4;
+  double FourGas = 5;
+  double FiveFlavour = 6;
+  double ReinforcingDiarrhoea = 7;
+  int32 AffiliationAcupoint = 8;
+  string MapName = 9;
+  double ConversionRate = 10;
+  int32 Stage = 11;
+  int32 Rank = 12;
+  int32 FiveElement = 13;
+  int32 LiveLevel = 14;
+  int32 LiveProficiency = 15;
+  int32 CreatedBy = 16;
+}
+
+message VerifyIsCanRefiningElixirReq_1005026 {
+  string MethodElixirId = 1;
+}
+
+message VerifyIsCanRefiningElixirResp_1005026 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message VerifyIsCanRefiningSignReq_1005037 {
+  string MethodSignId = 1;
+}
+
+message VerifyIsCanRefiningSignResp_1005037 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+}
+
+message VigorUpResp_9001001 {
+  int32 CurrentVigor = 1;
+}
+
+message WaterChooseReq_1013016 {
+  int32 LandId = 1;
+  string WaterId = 2;
+}
+
+message WaterChooseResp_1013016 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  int32 LandStatus = 3;
+  int64 TimeRemaining = 4;
+  int64 TotalWasteTime = 5;
+}
+
+message WaterDeployReq_1013017 {
+  repeated string GoodsId = 1;
+  int32 WaterMaterialType = 2;
+}
+
+message WaterDeployResp_1013017 {
+  bool IsSuccess = 1;
+  int32 Code = 2;
+  string WaterId = 3;
+  string Name = 4;
+  int32 FiveElement = 5;
+  int32 Rank = 6;
+  int32 Level = 7;
+  double ReceiveVal = 8;
+  double ConversionRate = 9;
+  int64 CurrentShinyStone = 10;
+}
+
+message WineListResp_1012003 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+  repeated WineResp_1012004 Wine = 3;
+  message WineResp_1012004 {
+    int32 ChatNum = 1;
+    int64 ShinyStone = 2;
+    int64 ShinyJade = 3;
+    int32 Id = 4;
+  }
+
+}
+
+message WineOutResp_4001004 {
+  int32 Code = 1;
+  bool IsSuccess = 2;
+}

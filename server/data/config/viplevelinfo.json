@@ -1,0 +1,728 @@
+[
+  {
+    "Id": 0,
+    "Name": "无",
+    "TopPrice": 3,
+    "Effect": [],
+    "LiBao": []
+  },
+  {
+    "Id": 1,
+    "Name": "天命一阶",
+    "TopPrice": 18,
+    "Effect": [ "登录自动签到" ],
+    "LiBao": [
+      {
+        "Name": "灵石",
+        "FiveElement": 0,
+        "Rank": 12,
+        "Num": 2000,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 100,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 2,
+    "Name": "天命二阶",
+    "TopPrice": 30,
+    "Effect": [ "登录自动签到", "一键开垦灵田", "每日地黄丸、补气散、禅悟丹购买次数+3（价格封顶）", "称号：乐天知命(降低维持聚灵阵的费用10%)" ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 3,
+    "Name": "天命三阶",
+    "TopPrice": 68,
+    "Effect": [ "登录自动签到", "一键开垦灵田", "每日地黄丸、补气散、禅悟丹购买次数+4（价格封顶）", "称号：乐天知命(降低维持聚灵阵的费用10%)" ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 2,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 4,
+    "Name": "天命四阶",
+    "TopPrice": 100,
+    "Effect": [ "登录自动签到", "一键开垦灵田", "每日地黄丸、补气散、禅悟丹购买次数+5（价格封顶）", "灵田开辟时间减少5分钟", "称号：乐天知命(降低维持聚灵阵的费用10%)", "称号：乐天安命(升级洞府的费用降低10%)" ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 3,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 5,
+    "Name": "天命五阶",
+    "TopPrice": 200,
+    "Effect": [
+      "登录自动签到",
+      "一键开垦灵田",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+5（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)"
+    ],
+    "LiBao": [
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 6,
+    "Name": "天命六阶",
+    "TopPrice": 500,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "一键开垦灵田",
+      "降低传送阵消耗20%",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+5（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)"
+    ],
+    "LiBao": [
+      {
+        "Name": "经脉丹",
+        "FiveElement": 0,
+        "Rank": 8,
+        "Num": 1,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "悟道石",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 34,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "陨铁",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 35,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 7,
+    "Name": "天命七阶",
+    "TopPrice": 1000,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "一键开垦灵田",
+      "降低传送阵消耗20%",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+6（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)"
+    ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 2,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 2,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 2,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 11,
+        "Stage": 2,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 11,
+        "Stage": 2,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 8,
+    "Name": "天命八阶",
+    "TopPrice": 2000,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "定制版称号框",
+      "一键开垦灵田",
+      "降低传送阵消耗20%",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+7（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)",
+      "称号：天命有归(免费进入奇珍阁)"
+    ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 3,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 3,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 3,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "寿元丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 21,
+        "Stage": 3,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 21,
+        "Stage": 3,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 21,
+        "Stage": 3,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 9,
+    "Name": "天命九阶",
+    "TopPrice": 5000,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "定制版称号框",
+      "一键开垦灵田",
+      "降低传送阵消耗20%",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+8（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)",
+      "称号：天命有归(免费进入奇珍阁)"
+    ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 4,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 4,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 4,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "寿元丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 31,
+        "Stage": 4,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 20,
+        "Level": 31,
+        "Stage": 4,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 31,
+        "Stage": 4,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 10,
+    "Name": "天命十阶",
+    "TopPrice": 10000,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "定制版称号框",
+      "一键开垦灵田",
+      "降低传送阵消耗50%",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+9（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)",
+      "称号：天命有归(免费进入奇珍阁)",
+      "称号：真命天子(降低法器神识消耗10%)"
+    ],
+    "LiBao": [
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 5,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 5,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 5,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "经脉丹",
+        "FiveElement": 0,
+        "Rank": 12,
+        "Num": 5,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "寿元丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 41,
+        "Stage": 5,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 30,
+        "Level": 41,
+        "Stage": 5,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 41,
+        "Stage": 5,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 11,
+    "Name": "天命十一阶",
+    "TopPrice": 20000,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "定制版称号框",
+      "一键开垦灵田",
+      "定制版头像框",
+      "降低传送阵消耗50%",
+      "增加一次充值双倍机会",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+9（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)",
+      "称号：天命有归(免费进入奇珍阁)",
+      "称号：真命天子(降低法器神识消耗10%)"
+    ],
+    "LiBao": [
+      {
+        "Name": "经脉丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "寿元丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 51,
+        "Stage": 6,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 6,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 6,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 6,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 30,
+        "Level": 51,
+        "Stage": 6,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 51,
+        "Stage": 6,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  },
+  {
+    "Id": 12,
+    "Name": "天命十二阶",
+    "TopPrice": -1,
+    "Effect": [
+      "签到奖励*2",
+      "登录自动签到",
+      "定制版称号框",
+      "一键开垦灵田",
+      "定制版头像框",
+      "降低传送阵消耗50%",
+      "增加一次充值双倍机会",
+      "灵玉兑换灵石不限等级",
+      "灵田开辟时间减少5分钟",
+      "每日地黄丸、补气散、禅悟丹购买次数+10（价格封顶）",
+      "称号：乐天知命(降低维持聚灵阵的费用10%)",
+      "称号：乐天安命(升级洞府的费用降低10%)",
+      "称号：应天受命(战斗中移动速度增加10%)",
+      "称号：天命有归(免费进入奇珍阁)",
+      "称号：真命天子(降低法器神识消耗10%)",
+      "称号：逆天改命(提升纳气效率10%)"
+    ],
+    "LiBao": [
+      {
+        "Name": "经脉丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 20,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "寿元丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 1,
+        "Level": 61,
+        "Stage": 7,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "地黄丸",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "补气散",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "禅悟丹",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 10,
+        "Level": 1,
+        "Stage": 1,
+        "GoodsType": 19,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "道经残卷",
+        "FiveElement": 0,
+        "Rank": 16,
+        "Num": 30,
+        "Level": 61,
+        "Stage": 7,
+        "GoodsType": 33,
+        "GoodsDetail": [ "" ]
+      },
+      {
+        "Name": "天阶法器",
+        "FiveElement": 0,
+        "Rank": 13,
+        "Num": 1,
+        "Level": 61,
+        "Stage": 7,
+        "GoodsType": 15,
+        "GoodsDetail": [ "" ]
+      }
+    ]
+  }
+]

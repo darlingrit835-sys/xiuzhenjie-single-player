@@ -1,0 +1,51 @@
+[
+  {
+    "Stage": 3,
+    "FollowerNum": 500,
+    "FaShu": 0,
+    "FaQi": 0,
+    "GongFa": 0
+  },
+  {
+    "Stage": 4,
+    "FollowerNum": 1000,
+    "FaShu": 3000,
+    "FaQi": 3000,
+    "GongFa": 1000
+  },
+  {
+    "Stage": 5,
+    "FollowerNum": 1500,
+    "FaShu": 4500,
+    "FaQi": 4500,
+    "GongFa": 1500
+  },
+  {
+    "Stage": 6,
+    "FollowerNum": 2000,
+    "FaShu": 6000,
+    "FaQi": 6000,
+    "GongFa": 2000
+  },
+  {
+    "Stage": 7,
+    "FollowerNum": 2500,
+    "FaShu": 7500,
+    "FaQi": 7500,
+    "GongFa": 2500
+  },
+  {
+    "Stage": 8,
+    "FollowerNum": 3000,
+    "FaShu": 9000,
+    "FaQi": 9000,
+    "GongFa": 3000
+  },
+  {
+    "Stage": 9,
+    "FollowerNum": 3500,
+    "FaShu": 10500,
+    "FaQi": 10500,
+    "GongFa": 3500
+  }
+]
