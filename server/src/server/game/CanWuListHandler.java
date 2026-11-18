@@ -2,7 +2,6 @@ package server.game;
 
 import xzj.Xzj;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +14,10 @@ import java.util.Set;
  * 这就是“参悟 0、点了没反应”的原因。
  *
  * 这里改成：只有当前正在修行/装备的那几本才算已学会，其余全部放出来给玩家参悟。
+ *
+ * 另外客户端顶部那行“已学习书籍 N 本”是直接拿回包里的条目数算的（客户端写死），
+ * 服务端光改数据改不回来；所以真实已学数放在 Code 字段里带给客户端，
+ * 配合同目录 scripts/patch_canwu_count.ps1 打的客户端补丁一起生效。
  */
 public class CanWuListHandler implements MsgHandler {
 
@@ -56,8 +59,8 @@ public class CanWuListHandler implements MsgHandler {
             for (GameData.GongFaDef g : GameData.gongFaAll()) {
                 boolean isLearned = known.contains(g.id);
                 if (isLearned) n++;
-                Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1010012.Builder o =
-                        Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1010012.newBuilder();
+                Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1001012.Builder o =
+                        Xzj.OpenUnderstandPanelResp_1001011.UnderstandMethodObjectResp_1001012.newBuilder();
                 o.setId(g.id)
                         .setName(g.name)
                         .setFiveElement(g.fiveElement)
@@ -75,7 +78,9 @@ public class CanWuListHandler implements MsgHandler {
                 if (known.contains(g.id) && !owned.contains(g.id)) owned.add(g.id);
             }
             RoleUtil.save(session.role);
-            b.setCode(4263).setIsSuccess(true);
+            // 客户端那行“已学习书籍N本”直接取回包里的条目数，服务端只能改不回来，
+            // 所以这里把真实已学数放在 Code 字段里带给客户端（客户端的取值已同步打补丁）。
+            b.setCode(learned).setIsSuccess(true);
         }
         session.send(1001011, msg.getMsid(), b.build());
         System.out.println("[CanWu] list sent: learned=" + learned + "/" + total
