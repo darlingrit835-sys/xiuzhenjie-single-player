@@ -12,7 +12,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,8 +50,7 @@ public class JsonStore {
                 if (data == null) data = new HashMap<>();
             }
         } catch (Exception e) {
-            System.err.println("[JsonStore] load failed: " + e.getMessage());
-            data = new HashMap<>();
+            throw new IllegalStateException("无法读取存档 " + path, e);
         }
     }
 
@@ -61,19 +63,37 @@ public class JsonStore {
     }
 
     public synchronized void put(String key, Object value) {
-        data.put(key, value);
-        save();
+        Object previous = data.put(key, value);
+        try {
+            save();
+        } catch (RuntimeException error) {
+            if (previous == null) data.remove(key);
+            else data.put(key, previous);
+            throw error;
+        }
     }
 
     public synchronized void save() {
+        Path target = Paths.get(path);
+        Path temp = null;
         try {
-            File f = new File(path);
-            f.getParentFile().mkdirs();
-            try (Writer w = new OutputStreamWriter(new FileOutputStream(f), StandardCharsets.UTF_8)) {
+            Files.createDirectories(target.getParent());
+            temp = Files.createTempFile(target.getParent(), target.getFileName().toString(), ".tmp");
+            try (Writer w = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
                 GSON.toJson(data, w);
             }
-        } catch (Exception e) {
-            System.err.println("[JsonStore] save failed: " + e.getMessage());
+            try {
+                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+            temp = null;
+        } catch (IOException e) {
+            throw new UncheckedIOException("无法写入存档 " + path, e);
+        } finally {
+            if (temp != null) {
+                try { Files.deleteIfExists(temp); } catch (IOException ignored) { }
+            }
         }
     }
 

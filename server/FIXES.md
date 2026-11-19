@@ -62,10 +62,11 @@
 ```bat
 cd server
 build.bat
+set "XZJ_BACKEND=java"
 start.bat
 ```
 
-- 服务端自带 `jdk8` 目录，`build.bat` / `start.bat` 会自动使用它。
+- Java 服务端自带 `jdk8`。以上命令显式选择 Java，日常启动入口默认使用 Go。
 - 端口：
   - 账号服 HTTPS：`9443`
   - 游戏服 TCP：`17666`

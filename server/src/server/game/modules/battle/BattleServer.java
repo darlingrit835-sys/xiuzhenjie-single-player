@@ -7,6 +7,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
+import server.common.Config;
 import server.common.ServerConfig;
 import xzj.Xzj;
 
@@ -43,11 +44,12 @@ public class BattleServer {
                                     .addLast(new Handler());
                         }
                     });
-            ChannelFuture f = b.bind(port).sync();
-            System.out.println("[BattleServer] listening on tcp://0.0.0.0:" + port);
+            java.net.InetSocketAddress address = Config.listenAddress(port);
+            ChannelFuture f = b.bind(address).sync();
+            System.out.println("[BattleServer] listening on tcp://" + address.getHostString() + ":" + address.getPort());
             f.channel().closeFuture().sync();
         } catch (Exception e) {
-            System.err.println("[BattleServer] failed to start on port " + port + ": " + e);
+            throw new IllegalStateException("[BattleServer] failed on port " + port, e);
         } finally {
             boss.shutdownGracefully();
             worker.shutdownGracefully();

@@ -1,0 +1,548 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/JingMaiManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/JingMaiManager.cs
+index 223e863..aa1cea8 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/JingMaiManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/JingMaiManager.cs
+@@ -14,16 +14,18 @@ namespace XiuZhenJie
+ 
+ 		private Dictionary<string, AcupointModel> m_AcupointList;
+ 
+-		private bool m_IsOpen;
+-
++		private readonly List<RaycastResult> m_UIHits = new List<RaycastResult>();
++		private readonly List<Collider2D> m_PointHits = new List<Collider2D>();
+ 		private NeiShiWnd m_NeiShiWnd;
+-
++		private Vector2 m_PointerOrigin;
+ 		private Vector2 lastSingleTouchPosition;
++		private bool m_TrackingPointer;
++		private bool m_Dragged;
+ 
+ 		private void Start()
+ 		{
+-			m_IsOpen = true;
+-			Init();
++			if (m_JingMaiDic == null)
++				Init();
+ 		}
+ 
+ 		private void Init()
+@@ -43,156 +45,113 @@ namespace XiuZhenJie
+ 
+ 		private void Update()
+ 		{
+-			if (m_IsOpen)
++			if (Input.touchCount > 0)
++			{
++				Touch touch = Input.GetTouch(0);
++				if (touch.phase == TouchPhase.Canceled || Input.touchCount != 1)
++				{
++					m_TrackingPointer = false;
++					return;
++				}
++				TrackPointer(touch.position, touch.phase == TouchPhase.Began, touch.phase == TouchPhase.Ended);
++			}
++#if UNITY_EDITOR || UNITY_STANDALONE
++			else if (Input.GetMouseButton(0) || Input.GetMouseButtonUp(0))
+ 			{
+-				FingerJianCe();
++				TrackPointer(Input.mousePosition, Input.GetMouseButtonDown(0), Input.GetMouseButtonUp(0));
+ 			}
++#endif
+ 		}
+ 
+-		private void FingerJianCe()
++		private void TrackPointer(Vector2 position, bool pressed, bool released)
+ 		{
+-			if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
++			if (pressed)
+ 			{
+-				if (!EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+-				{
+-					lastSingleTouchPosition = Input.mousePosition;
+-				}
++				m_TrackingPointer = !IsPointerOverGameObject(position);
++				m_PointerOrigin = lastSingleTouchPosition = position;
++				m_Dragged = false;
++				return;
+ 			}
+-			else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
++			if (!m_TrackingPointer)
++				return;
++			float dragThreshold = EventSystem.current != null ? EventSystem.current.pixelDragThreshold : 8f;
++			m_Dragged |= (position - m_PointerOrigin).sqrMagnitude > dragThreshold * dragThreshold;
++			if (released)
+ 			{
+-				if (!EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+-				{
+-					MoveCamera(Input.mousePosition);
+-				}
++				m_TrackingPointer = false;
++				if (!m_Dragged)
++					SelectAtPosition(position);
+ 			}
+-			else if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
++			else if (m_Dragged && position != lastSingleTouchPosition)
+ 			{
+-				if (!EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+-				{
+-					lastSingleTouchPosition = Input.mousePosition;
+-				}
+-			}
+-			else
+-			{
+-				if (Input.touchCount <= 0 || Input.GetTouch(0).phase != TouchPhase.Stationary || IsPointerOverGameObject(Input.mousePosition))
+-				{
+-					return;
+-				}
+-				RaycastHit2D raycastHit2D = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+-				if (raycastHit2D.collider != null)
+-				{
+-					GameObject gameObject = raycastHit2D.collider.gameObject;
+-					if (gameObject.CompareTag("JingMaiItem"))
+-					{
+-						SheXianJianCe(gameObject);
+-					}
+-				}
++				MoveCamera(position);
+ 			}
+ 		}
+ 
+-		private bool IsPointerOverGameObject(Vector2 mousePosition)
++		private bool IsPointerOverGameObject(Vector2 position)
+ 		{
+-			PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+-			pointerEventData.position = mousePosition;
+-			List<RaycastResult> list = new List<RaycastResult>();
+-			EventSystem.current.RaycastAll(pointerEventData, list);
+-			if (list.Count > 0)
++			var events = EventSystem.current;
++			if (events == null)
++				return false;
++			events.RaycastAll(new PointerEventData(events) { position = position }, m_UIHits);
++			return m_UIHits.Count > 0 && !m_UIHits[0].gameObject.CompareTag("Guide");
++		}
++
++		internal void SelectAtPosition(Vector2 position)
++		{
++			if (IsPointerOverGameObject(position))
++				return;
++			Physics2D.OverlapPoint(SceneCamera.ScreenToWorldPoint(position), new ContactFilter2D().NoFilter(), m_PointHits);
++			foreach (Collider2D hit in m_PointHits)
+ 			{
+-				foreach (RaycastResult item in list)
++				// Decorative colliders can cover the actual node.
++				for (Transform node = hit.transform; node != null && node != PeopleXueWeiBg; node = node.parent)
+ 				{
+-					if (item.gameObject.CompareTag("Guide"))
++					if (node.TryGetComponent(out JingMaiItem item) && !string.IsNullOrEmpty(item.XueWeiId))
+ 					{
+-						return false;
++						ShowAcupoint(item);
++						return;
+ 					}
+ 				}
+-				return true;
+ 			}
+-			return false;
+ 		}
+ 
+-		private void SheXianJianCe(GameObject hitObj)
++		private void ShowAcupoint(JingMaiItem item)
+ 		{
+-			JingMaiItem item = hitObj.GetComponent<JingMaiItem>();
++			if (!m_AcupointList.TryGetValue(item.XueWeiId, out AcupointModel point))
++				return;
+ 			if (m_NeiShiWnd == null)
+-			{
+ 				m_NeiShiWnd = Singleton<UIManager>.Instance.FindWndByName<NeiShiWnd>("NeiShiWnd.prefab");
+-			}
+-			AcupointModel jingMai = null;
+-			if (!m_AcupointList.TryGetValue(item.XueWeiId, out jingMai))
+-			{
++			if (m_NeiShiWnd == null)
+ 				return;
+-			}
+-			if (Singleton<RoleManager>.Instance.Role_Entity.AcupointGuideVal != 100 && Singleton<GuideManager>.Instance.YinDaoJilu1.YinDaoShu == 2)
++
++			var guide = Singleton<GuideManager>.Instance;
++			if (Singleton<RoleManager>.Instance.Role_Entity.AcupointGuideVal != 100 && guide.YinDaoJilu1.YinDaoShu == 2)
+ 			{
+-				if (!(item.XueWeiId == "1"))
+-				{
++				if (item.XueWeiId != "1")
+ 					return;
+-				}
+-				Singleton<GuideManager>.Instance.YinDaoJilu1.YinDaoShu++;
+-				Singleton<GuideManager>.Instance.ShowGuideNew(6);
+-				m_NeiShiWnd.ShowPanel(item, jingMai, () =>
+-				{
+-					JingMaiItem value = null;
+-					if (m_JingMaiDic.TryGetValue(item.XueWeiId, out value))
+-					{
+-						value.ChangeStatus(XueWeiStatus.Used);
+-					}
+-					string h = jingMai.h;
+-					GetChilds(h);
+-				});
++				guide.YinDaoJilu1.YinDaoShu++;
++				guide.ShowGuideNew(6);
+ 			}
+-			else
++			m_NeiShiWnd.ShowPanel(item, point, () =>
+ 			{
+-				if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
+-				{
+-					return;
+-				}
+-				m_NeiShiWnd.ShowPanel(item, jingMai, () =>
+-				{
+-					JingMaiItem value = null;
+-					if (m_JingMaiDic.TryGetValue(item.XueWeiId, out value))
+-					{
+-						value.ChangeStatus(XueWeiStatus.Used);
+-					}
+-					string h = jingMai.h;
+-					GetChilds(h);
+-				});
+-			}
++				item.ChangeStatus(XueWeiStatus.Used);
++				GetChilds(point.h);
++			});
+ 		}
+ 
+ 		public void SetUsedXueWei(List<XueWeiModel> ids)
+ 		{
+-			if (ids == null || ids.Count == 0)
+-			{
+-				JingMaiItem value = null;
+-				if (m_JingMaiDic.TryGetValue("1", out value))
+-				{
+-					value.ChangeStatus(XueWeiStatus.Usable);
+-				}
+-				return;
+-			}
++			if (m_JingMaiDic == null)
++				Init();
++			if (m_JingMaiDic.TryGetValue("1", out JingMaiItem first) && first.CurrentStatus == XueWeiStatus.Disable)
++				first.ChangeStatus(XueWeiStatus.Usable);
+ 			foreach (XueWeiModel id in ids)
+ 			{
+-				JingMaiItem value2 = null;
+-				if (!m_JingMaiDic.TryGetValue(id.a, out value2))
+-				{
+-					continue;
+-				}
+-				value2.ChangeStatus(XueWeiStatus.Used);
+-				AcupointModel value3 = null;
+-				if (!m_AcupointList.TryGetValue(id.a, out value3) || string.IsNullOrEmpty(value3.h))
+-				{
+-					continue;
+-				}
+-				string[] array = value3.h.Split(',');
+-				foreach (string key in array)
+-				{
+-					JingMaiItem value4 = null;
+-					if (m_JingMaiDic.TryGetValue(key, out value4) && value4.CurrentStatus == XueWeiStatus.Disable)
+-					{
+-						value4.ChangeStatus(XueWeiStatus.Usable);
+-					}
+-				}
++				if (m_JingMaiDic.TryGetValue(id.a, out JingMaiItem item))
++					item.ChangeStatus(XueWeiStatus.Used);
++				if (m_AcupointList.TryGetValue(id.a, out AcupointModel point))
++					GetChilds(point.h);
+ 			}
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/NeiShiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/NeiShiWnd.cs
+index b945b22..8da6cc6 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/NeiShiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/NeiShiWnd.cs
+@@ -14,7 +14,8 @@ namespace XiuZhenJie
+ 
+ 		private AcupointModel m_AcupointModel;
+ 
+-		private int m_PointNum;
++		private bool m_AcupointsLoaded;
++		private Timer m_BreakTimer;
+ 
+ 		public override void Awake(params object[] paralist)
+ 		{
+@@ -28,46 +29,47 @@ namespace XiuZhenJie
+ 			AddButtonClickListener(Panel.WenHao, BuQuanWenHaoTogClick);
+ 			m_DataSource = new Dictionary<string, XueWeiModel>();
+ 			Singleton<UIManager>.Instance.FindWndByName<MainTitleWnd>("MainTitleWnd.prefab")?.ShowOrHideBottomBg(isShow: false);
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.OPEN_ACUPOINT, null, (object _obj) =>
++			LoadAcupoints();
++			JingMaiYinDaoPanDuan();
++		}
++
++		private void LoadAcupoints()
++		{
++			m_AcupointsLoaded = false;
++			Singleton<NetManager>.Instance.SendMsg(MsgType.OPEN_ACUPOINT, null, response =>
+ 			{
+ 				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
++				if (GameObject == null || !GameObject.activeInHierarchy || !(response is ByteString bytes))
++					return;
++				var reply = OpenAcupointResp_1005016.Parser.ParseFrom(bytes);
++				if (!reply.IsSuccess)
+ 				{
+-					OpenAcupointResp_1005016 openAcupointResp_ = new OpenAcupointResp_1005016();
+-					openAcupointResp_.MergeFrom(byteString);
+-					if (openAcupointResp_.IsSuccess)
+-					{
+-						ReflashJingMaiPoint(openAcupointResp_.AcupointValue);
+-						List<XueWeiModel> list = new List<XueWeiModel>();
+-						if (openAcupointResp_.Acupoints != null)
+-						{
+-							foreach (OpenAcupointResp_1005016.Types.RoleAcupointResp_1005017 acupoint in openAcupointResp_.Acupoints)
+-							{
+-								XueWeiModel xueWeiModel = new XueWeiModel
+-								{
+-									a = acupoint.Id,
+-									b = acupoint.BrokenLevel
+-								};
+-								list.Add(xueWeiModel);
+-								m_DataSource.Add(xueWeiModel.a, xueWeiModel);
+-							}
+-						}
+-						MonoSingleton<JingMaiManager>.Instance.SetUsedXueWei(list);
+-					}
+-					else
+-					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(openAcupointResp_.Code);
+-						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-					}
++					ShowResult(reply.Code);
++					return;
++				}
++				m_DataSource.Clear();
++				var levels = new List<XueWeiModel>();
++				foreach (var point in reply.Acupoints)
++				{
++					var saved = new XueWeiModel { a = point.Id, b = point.BrokenLevel };
++					m_DataSource[point.Id] = saved;
++					levels.Add(saved);
+ 				}
++				MonoSingleton<JingMaiManager>.Instance.SetUsedXueWei(levels);
++				ReflashJingMaiPoint(reply.AcupointValue);
++				m_AcupointsLoaded = true;
+ 			}, isShowWaitUI: true);
+-			JingMaiYinDaoPanDuan();
++		}
++
++		public override void OnDisable()
++		{
++			Timer.Cancel(m_BreakTimer);
++			m_BreakTimer = null;
++			base.OnDisable();
+ 		}
+ 
+ 		private void ReflashJingMaiPoint(int Point)
+ 		{
+-			m_PointNum = Point;
+ 			Panel.NengLianText.text = $"剩余 {Point} 点经脉点";
+ 		}
+ 
+@@ -89,77 +91,32 @@ namespace XiuZhenJie
+ 
+ 		public void ShowPanel(JingMaiItem JingMaiId, AcupointModel jingMai, UnityAction TongXueAction)
+ 		{
+-			if (JingMaiId == null || jingMai == null)
+-			{
++			if (!m_AcupointsLoaded || m_BreakTimer != null || JingMaiId == null || jingMai == null)
+ 				return;
+-			}
++
+ 			m_AcupointModel = jingMai;
+ 			m_TongXueAction = TongXueAction;
+-			Panel.TiShiPanel.gameObject.SetActive(value: true);
+-			Panel.TiShiPanel_TitleText.text = jingMai.b;
+-			if (JingMaiId.CurrentStatus == XueWeiStatus.Disable)
+-			{
+-				Panel.TiShiPanel_TongXueBtn.interactable = false;
+-			}
+-			else
++			m_DataSource.TryGetValue(jingMai.a, out XueWeiModel saved);
++			int level = saved?.b ?? 0;
++			int cost = level < 3 ? jingMai.i * (2 * level + 1) : 0;
++			int chance = level == 0 ? 100 : 0;
++			if (level == 1 || level == 2)
+ 			{
+-				Panel.TiShiPanel_TongXueBtn.interactable = true;
+-			}
+-			XueWeiModel value = null;
+-			if (m_DataSource.TryGetValue(jingMai.a, out value))
+-			{
+-				Panel.TiShiPanel_DangQianCengShuText.text = value.b + "层";
+-				Panel.TiShiPanel_DangQianXiaoGuoText.text = GetXueWeiMiaoShu(jingMai, value.b);
+-				Panel.TiShiPanel_TuPoHouXiaoGuoText.text = GetXueWeiMiaoShu(jingMai, value.b + 1);
+-				Panel.TiShiPanel_GuiMaiText.text = jingMai.e;
+-				if (value.b == 3)
+-				{
+-					Panel.TiShiPanel_TongXueBtn.interactable = false;
+-					Panel.TiShiPanel_TuPoXiaoHaoText.text = $"<color=#A00200>{0}</color>经脉点";
+-					Panel.TiShiPanel_ChengGongJiLvText.text = $"<color=#A00200>{0}%</color>";
+-					ShowXiaoGuoContent(jingMai, 3);
+-					return;
+-				}
+-				if (value.b == 2)
+-				{
+-					Panel.TiShiPanel_TuPoXiaoHaoText.text = $"<color=#A00200>{jingMai.i * 5}</color>经脉点";
+-				}
+-				else if (value.b == 1)
+-				{
+-					Panel.TiShiPanel_TuPoXiaoHaoText.text = $"<color=#A00200>{jingMai.i * 3}</color>经脉点";
+-				}
+-				else if (value.b == 0)
+-				{
+-					Panel.TiShiPanel_TuPoXiaoHaoText.text = $"<color=#A00200>{jingMai.i}</color>经脉点";
+-				}
+-				if (value.b == 0)
+-				{
+-					Panel.TiShiPanel_ChengGongJiLvText.text = $"<color=#A00200>{100}%</color>";
+-				}
+-				else
+-				{
+-					int num = (10 - (1 + 4 * value.b)) * 10;
+-					if (Singleton<RoleManager>.Instance.Role_Entity.TypeChengHaoDic.ContainsKey(14))
+-					{
+-						ChengHaoInfoEntity chengHaoInfoEntity = Singleton<RoleManager>.Instance.Role_Entity.TypeChengHaoDic[14];
+-						num = ((chengHaoInfoEntity.Id == 801) ? (num + 20) : ((chengHaoInfoEntity.Id != 802) ? (num + 5) : (num + 10)));
+-					}
+-					if (num > 100)
+-					{
+-						num = 100;
+-					}
+-					Panel.TiShiPanel_ChengGongJiLvText.text = $"<color=#A00200>{num}%</color>";
+-				}
+-				ShowXiaoGuoContent(jingMai, value.b + 1);
+-			}
+-			else
+-			{
+-				Panel.TiShiPanel_DangQianCengShuText.text = "<color=#A00200>0</color>层";
+-				Panel.TiShiPanel_GuiMaiText.text = jingMai.e;
+-				Panel.TiShiPanel_TuPoXiaoHaoText.text = $"<color=#A00200>{jingMai.i}</color>经脉点";
+-				Panel.TiShiPanel_ChengGongJiLvText.text = $"<color=#A00200>{100}%</color>";
+-				ShowXiaoGuoContent(jingMai, 1);
++				var titles = Singleton<RoleManager>.Instance.Role_Entity.TypeChengHaoDic;
++				int bonus = titles.TryGetValue(14, out ChengHaoInfoEntity title) ? title.EffectValue : 0;
++				chance = System.Math.Min(100, 90 - 40 * level + bonus);
+ 			}
++
++			Panel.TiShiPanel.gameObject.SetActive(true);
++			Panel.TiShiPanel_TitleText.text = jingMai.b;
++			Panel.TiShiPanel_TongXueBtn.interactable = level < 3 && JingMaiId.CurrentStatus != XueWeiStatus.Disable;
++			Panel.TiShiPanel_DangQianCengShuText.text = level + "层";
++			Panel.TiShiPanel_DangQianXiaoGuoText.text = GetXueWeiMiaoShu(jingMai, level);
++			Panel.TiShiPanel_TuPoHouXiaoGuoText.text = GetXueWeiMiaoShu(jingMai, System.Math.Min(3, level + 1));
++			Panel.TiShiPanel_GuiMaiText.text = jingMai.e;
++			Panel.TiShiPanel_TuPoXiaoHaoText.text = $"<color=#A00200>{cost}</color>经脉点";
++			Panel.TiShiPanel_ChengGongJiLvText.text = $"<color=#A00200>{chance}%</color>";
++			ShowXiaoGuoContent(jingMai, System.Math.Min(3, level + 1));
+ 		}
+ 
+ 		private void ShowXiaoGuoContent(AcupointModel jingMai, int level)
+@@ -346,63 +303,52 @@ namespace XiuZhenJie
+ 			}
+ 		}
+ 
+-		private bool IsCanTongXueMethod(int JianShaoJingMaiDian)
++		private void TiShiPanel_TongXueBtn()
+ 		{
+-			bool result = true;
+-			if (JianShaoJingMaiDian > m_PointNum)
++			if (!m_AcupointsLoaded || m_BreakTimer != null || m_AcupointModel == null || !Panel.TiShiPanel_TongXueBtn.interactable)
++				return;
++			if (!Singleton<NetManager>.Instance.GameServerIsAlive())
+ 			{
+-				return false;
++				MonoSingleton<GameStart>.Instance.PopUpAttention("游戏服连接已断开，重连后可重新查看内视。");
++				return;
+ 			}
+-			return result;
+-		}
+ 
+-		private void TiShiPanel_TongXueBtn()
+-		{
+-			BreakAcupointReq_1005018 data = new BreakAcupointReq_1005018
++			string id = m_AcupointModel.a;
++			UnityAction markUsed = m_TongXueAction;
++			Panel.TiShiPanel_TongXueBtn.interactable = false;
++			var timer = Timer.Register(8f, () =>
+ 			{
+-				AcupointId = m_AcupointModel.a
+-			};
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.BREAK_ACUPOINT, data, (object _obj) =>
++				m_BreakTimer = null;
++				ClosePanel();
++				LoadAcupoints();
++			}, useRealTime: true);
++			m_BreakTimer = timer;
++			var data = new BreakAcupointReq_1005018 { AcupointId = id };
++			Singleton<NetManager>.Instance.SendMsg(MsgType.BREAK_ACUPOINT, data, response =>
+ 			{
+-				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
++				if (m_BreakTimer != timer || !(response is ByteString bytes))
++					return;
++				Timer.Cancel(timer);
++				m_BreakTimer = null;
++				var reply = BreakAcupointResp_1005018.Parser.ParseFrom(bytes);
++				if (reply.IsSuccess)
+ 				{
+-					BreakAcupointResp_1005018 breakAcupointResp_ = new BreakAcupointResp_1005018();
+-					breakAcupointResp_.MergeFrom(byteString);
+-					if (breakAcupointResp_.IsSuccess)
++					ReflashJingMaiPoint(reply.AcupointValue);
++					if (reply.BreakSuccess)
+ 					{
+-						ReflashJingMaiPoint(breakAcupointResp_.AcupointValue);
+-						if (breakAcupointResp_.BreakSuccess)
+-						{
+-							if (m_DataSource.ContainsKey(m_AcupointModel.a))
+-							{
+-								if (m_DataSource[m_AcupointModel.a].b == 3)
+-								{
+-									return;
+-								}
+-								m_DataSource[m_AcupointModel.a].b++;
+-							}
+-							else
+-							{
+-								m_DataSource.Add(m_AcupointModel.a, new XueWeiModel
+-								{
+-									a = m_AcupointModel.a,
+-									b = 1
+-								});
+-							}
+-							if (m_TongXueAction != null)
+-							{
+-								m_TongXueAction();
+-							}
+-						}
++						m_DataSource[id] = new XueWeiModel { a = id, b = reply.BrokenLevel };
++						markUsed?.Invoke();
+ 					}
+-					ClosePanel();
+-					ReFlashData();
+-					string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(breakAcupointResp_.Code);
+-					MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 				}
+-			}, isShowWaitUI: true);
++				ClosePanel();
++				ShowResult(reply.Code);
++			}, false, ServerType.GamesNormalServer, false);
++		}
++
++		private static void ShowResult(int code)
++		{
++			string message = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(code);
++			MonoSingleton<GameStart>.Instance.PopUpAttention(message);
+ 		}
+ 
+ 		private void BuQuanWenHaoTogClick()

@@ -1,6 +1,13 @@
-/out/
-/data/server.p12
+/.local-build/
+
+# Local runtime state. Keep the bundled game configuration.
 /data/users.json
 /data/roles.json
-/data/*.backup.json
-/data/*.log
+/data/users.backup.json
+/data/roles.backup.json
+/data/guilds.json
+/data/chat/
+/data/history/
+/data/logs/
+/data/server.log
+/data/server.p12

@@ -72,11 +72,12 @@ public class GameServer {
                        .addLast(new GameChannelHandler());
                  }
              });
-            ChannelFuture f = b.bind(Config.GAME_PORT).sync();
-            System.out.println("[GameServer] listening on tcp://0.0.0.0:" + Config.GAME_PORT);
+            java.net.InetSocketAddress address = Config.listenAddress(Config.GAME_PORT);
+            ChannelFuture f = b.bind(address).sync();
+            System.out.println("[GameServer] listening on tcp://" + address.getHostString() + ":" + address.getPort());
             f.channel().closeFuture().sync();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalStateException("[GameServer] failed on port " + Config.GAME_PORT, e);
         } finally {
             boss.shutdownGracefully();
             worker.shutdownGracefully();

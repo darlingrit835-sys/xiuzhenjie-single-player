@@ -41,7 +41,8 @@ public class AccountServer {
         SSLContext ssl = SSLContext.getInstance("TLS");
         ssl.init(kmf.getKeyManagers(), null, null);
 
-        http = HttpsServer.create(new InetSocketAddress(Config.ACCOUNT_PORT), 0);
+        InetSocketAddress address = Config.listenAddress(Config.ACCOUNT_PORT);
+        http = HttpsServer.create(address, 0);
         http.setHttpsConfigurator(new HttpsConfigurator(ssl));
         route("/login", this::login, "POST");
         route("/user/register", this::register, "POST");
@@ -57,7 +58,7 @@ public class AccountServer {
         route("/client/update/local/download", this::hotfixDownload, "GET");
         http.setExecutor(Executors.newCachedThreadPool());
         http.start();
-        System.out.println("[AccountServer] listening on https://0.0.0.0:" + Config.ACCOUNT_PORT);
+        System.out.println("[AccountServer] listening on https://" + address.getHostString() + ":" + address.getPort());
     }
 
     private void route(String path, HttpHandler h, String method) {
@@ -243,8 +244,9 @@ public class AccountServer {
             return;
         }
         if (form.containsKey("password")) {
-            user.put("password", form.get("password"));
-            users.save();
+            Map<String, Object> updated = new LinkedHashMap<>(user);
+            updated.put("password", form.get("password"));
+            users.put("u_" + phone, updated);
         }
         respond(ex, 200, ok("true"));
     }

@@ -1,0 +1,2 @@
+# Keep the embedded protobuf descriptor byte-for-byte.
+*.pb binary

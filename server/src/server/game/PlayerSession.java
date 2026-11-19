@@ -15,6 +15,7 @@ public class PlayerSession {
     public String userId;
     public String roleId;
     public final Map<String, Object> role = new HashMap<>();
+    int lastHomeUpgradeMessageId;
     /** 修炼小数累积，避免低等级每 tick 取整后永远加 0。 */
     public double carryNaQi;
     public double carryDuanTi;

@@ -1,4 +1,8 @@
-# 修真界 1.2.6 私服服务端
+# 修真界单机服务端
+
+本目录是 Java 实现。[Go 服务端](../server-go/README.md) 同样使用现有客户端协议和存档目录。
+
+Unity 1.3.5 客户端与当前 Java 源码的对应关系见 [界面与 PB 归档](../docs/interface-pb/README.md)。下方架构示例保留早期记录，现有处理器与 PB 类型见 [Cmd 索引](../docs/interface-pb/commands.md)。
 
 ## 架构
 
@@ -28,7 +32,8 @@
 
 - `src/xzj/Xzj.java` protoc 生成的 468 个协议消息类
 - `src/server/account/` HTTP 账号服
-- `src/server/game/` Netty TCP 游戏服 + handler
+- `src/server/game/` Netty TCP 游戏服、会话和协议分派
+- `src/server/game/modules/` 按功能存放 Java PB 专用处理和业务服务，源文件保持 `server.game` 包名
 - `data/` JSON 持久化 (users.json 账号, roles.json 角色) + server.p12 TLS 证书
 - `lib/` 依赖 (protobuf-java 4.36.2 / netty 4.1.115 / gson)
 
@@ -36,17 +41,21 @@
 
 启动前请通过私有渠道取得 `server.p12`，放入服务端数据目录（默认 `server/data/`），并将该证书的口令设为环境变量 `XZJ_TLS_PASSWORD`。
 
+本仓库启动脚本默认选择 Go。需要启动 Java 版时，先退出正在运行的 Go。macOS / Linux 从仓库根目录运行 `XZJ_BACKEND=java ./server/start-local.sh`。脚本会按需编译并监听 `127.0.0.1` 的 `9443`、`17666`、`17667`。存档保存在 `server/data/`。macOS / Linux 的 Java 入口支持用 `XZJ_DATA_DIR` 指定包含配置和证书的独立目录。
+
 ```bat
 build.bat     :: 编译
-start.bat     :: 启动 (账号服 9443 + 游戏服 17666)
+set "XZJ_BACKEND=java"
+start.bat     :: 启动 Java 账号服、游戏服和战斗服
 ```
 
-## 修改连接地址
+启动脚本默认使用单机轻量档，JVM 初始堆为 32 MiB、最大堆为 256 MiB，启用 Serial GC 并按 2 个逻辑处理器配置默认线程。启动前设置环境变量 `XZJ_JAVA_PROFILE=default` 可恢复 JVM 默认值，已有进程继续使用启动时的参数。
 
-1. 改 APK: `patch_dll.py` 用 Mono.Cecil 改 Assembly-CSharp.dll 的
-   `Constants.LoginServerIP` / `LoginServerPort` (原 60.205.190.135:443)
-2. 重打包: `repack_apk.py` 替换 DLL 并去掉旧签名
-3. zipalign 对齐后，使用私有渠道配置的签名证书和口令完成签名。
+本机隔离对照使用同一份 Java 构建和独立存档，执行两轮登录、建角、查地图、创建副本、进战、施放技能与退出。12 次连续流程后的进程 RSS 从 338–351 MiB 降至 189–198 MiB。结果只覆盖本机单机流程。
+
+## 客户端连接
+
+本仓基线 APK 通过 ADB 反向映射访问本机服务。Unity 工程的位置和本地启动方式见 [仓库说明](../README.md)。云端直连的 HTTPS 与 PB 接入方式见 [Go 服务端说明](../server-go/README.md#云端直连试用)。
 
 ## 当前状态
 

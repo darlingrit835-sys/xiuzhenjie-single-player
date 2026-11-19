@@ -39,6 +39,7 @@ public class HandlerRegistry {
         GameServer.register(1004026, new PickUpGoodsHandler());
         GameServer.register(1004032, new UsedElixirHandler());
         GameServer.register(1005001, new EnterHomeHandler());
+        GameServer.register(1005002, new UpgradeHomeHandler());
         GameServer.register(1007001, new SibingsMapHandler());
         GameServer.register(1007003, new MapChildrenHandler());
         GameServer.register(1007005, new ParentMapIdHandler());
