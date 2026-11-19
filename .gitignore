@@ -7,5 +7,15 @@ server/data/roles.json.corrupt-*
 server/data/roles.json.truncated-*
 server/data/*.tmp
 
-# 编译输出由 build.bat 生成，这里仍跟踪 out 以便开箱即用
+# 调试日志
 *.log
+
+# 本地构建、调试和发布产物
+*.apk
+*.aab
+.DS_Store
+/Builds/
+/RecoveryLogs/
+/server-go/.build/
+/UnityProject/Assets/StreamingAssets/FullUpdate/
+/UnityProject/Assets/StreamingAssets/FullUpdate.meta

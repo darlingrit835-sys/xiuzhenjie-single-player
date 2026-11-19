@@ -1,6 +1,6 @@
 # 修真界
 
-修真界是 Unity 角色扮演游戏项目。仓库提供 Unity 客户端工程、Java 服务端源码、Go 迁移资料，以及本地运行和云端测试的使用说明。
+修真界 Unity 修仙放置 RPG，支持本地单机和 Android 云端测试，提供 Java 服务端、Go 迁移资料、功能状态与协作开发指南。
 
 ## 选择运行方式
 
@@ -20,9 +20,15 @@
 | [server/src/](server/src/) | 本地 Java 服务端源码。 |
 | [server-go/](server-go/) | Go 服务端的分模块设计、协议迁移记录和已同步的实现文件。 |
 | [data/](data/) | 本地服务端配置样例。 |
-| [docs/](docs/) | 云端测试、Android 全量热更新及历史单机改造说明。 |
+| [docs/](docs/) | 功能状态、协议缺口、Android 全量热更新及历史单机改造说明。 |
 | [scripts/](scripts/) 和 [tools/](tools/) | 旧单机包的参悟计数补丁和 APK 改址工具。 |
 | [启动游戏.bat](启动游戏.bat)、[停止服务端.bat](停止服务端.bat)、[重装客户端.bat](重装客户端.bat) | Windows 本地发行目录的启动、停服和重装入口。 |
+
+## 共同开发
+
+- [功能状态与协作待办](docs/功能状态与协作待办.md)
+- [Go 协议缺口清单](docs/Go协议缺口.md)
+- [协作指南](CONTRIBUTING.md)
 
 ## 使用文档
 
