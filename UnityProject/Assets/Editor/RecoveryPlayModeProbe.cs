@@ -11,6 +11,8 @@ internal static class RecoveryPlayModeProbe
     private const string Active = "Xiuzhenjie.RecoveryPlayMode.Active";
     private const string Deadline = "Xiuzhenjie.RecoveryPlayMode.Deadline";
     private const string Entered = "Xiuzhenjie.RecoveryPlayMode.Entered";
+    private const string Seen = "Xiuzhenjie.RecoveryPlayMode.Seen";
+    private const double WindowSeconds = 90d;
 
     static RecoveryPlayModeProbe()
     {
@@ -23,7 +25,8 @@ internal static class RecoveryPlayModeProbe
         EditorSceneManager.OpenScene("Assets/Scenes/StartLoadScene.unity", OpenSceneMode.Single);
         SessionState.SetBool(Active, true);
         SessionState.SetBool(Entered, false);
-        SessionState.SetString(Deadline, DateTime.UtcNow.AddSeconds(20).Ticks.ToString());
+        SessionState.SetBool(Seen, false);
+        SessionState.SetString(Deadline, string.Empty);
         EditorApplication.EnterPlaymode();
     }
 
@@ -34,6 +37,7 @@ internal static class RecoveryPlayModeProbe
         if (state == PlayModeStateChange.EnteredPlayMode)
         {
             SessionState.SetBool(Entered, true);
+            SessionState.SetString(Deadline, DateTime.UtcNow.AddSeconds(WindowSeconds).Ticks.ToString());
             Debug.Log("RECOVERY_PLAY_MODE_ENTERED " + SceneManager.GetActiveScene().name);
             SceneManager.sceneLoaded += (scene, mode) => Debug.Log("RECOVERY_PLAY_SCENE " + scene.name);
         }
@@ -46,20 +50,38 @@ internal static class RecoveryPlayModeProbe
 
     private static void Update()
     {
-        if (!SessionState.GetBool(Active, false) || !long.TryParse(SessionState.GetString(Deadline, ""), out var deadline)
-            || DateTime.UtcNow.Ticks < deadline)
+        if (!SessionState.GetBool(Active, false) || !EditorApplication.isPlaying)
             return;
-        if (!EditorApplication.isPlaying)
+
+        var panels = UnityEngine.Object.FindObjectsOfType<XiuZhenJie.SignInPanel>();
+        bool loginActive = panels.Any(panel => panel.isActiveAndEnabled);
+        if (loginActive && !SessionState.GetBool(Seen, false))
         {
-            Debug.LogError("RECOVERY_PLAY_MODE_TIMEOUT");
-            EditorApplication.Exit(1);
+            SessionState.SetBool(Seen, true);
+            Debug.Log("RECOVERY_PLAY_MODE_LOGIN_UI=True t=" + Time.realtimeSinceStartup.ToString("F1"));
+            Finish();
             return;
         }
+
+        if (!long.TryParse(SessionState.GetString(Deadline, ""), out var deadline) || DateTime.UtcNow.Ticks < deadline)
+            return;
+
+        var loadPanel = UnityEngine.Object.FindObjectsByType<XiuZhenJie.StartLoadScenePanel>(FindObjectsSortMode.None);
+        Debug.Log("RECOVERY_PLAY_MODE_LOGIN_UI=" + loginActive
+            + " panels=" + panels.Length
+            + " loadPanel=" + loadPanel.Length
+            + " t=" + Time.realtimeSinceStartup.ToString("F1")
+            + " activeScene=" + SceneManager.GetActiveScene().name);
+        Finish();
+    }
+
+    private static void Finish()
+    {
         var scene = SceneManager.GetActiveScene();
-        bool loginActive = UnityEngine.Object.FindObjectsOfType<XiuZhenJie.SignInPanel>().Any(panel => panel.isActiveAndEnabled);
-        Debug.Log("RECOVERY_PLAY_MODE_LOGIN_UI=" + loginActive);
-        Debug.Log("RECOVERY_PLAY_MODE_FINAL scene=" + scene.name + " roots=" + string.Join(",", scene.GetRootGameObjects().Select(obj => obj.name)));
+        Debug.Log("RECOVERY_PLAY_MODE_FINAL scene=" + scene.name
+            + " roots=" + string.Join(",", scene.GetRootGameObjects().Select(obj => obj.name)));
         SessionState.EraseString(Deadline);
+        SessionState.EraseBool(Active);
         EditorApplication.ExitPlaymode();
     }
 }

@@ -1,5 +1,44 @@
 # 更新记录
 
+## 2026-11-20
+
+### 新增（炼丹规则引擎 + 1005027 接入草案）
+
+- `internal/affinity/alchemy.go`：把 `alchemy` 规则表编译成运行期索引并校验（`limits`、`potencyByQuality` 必须覆盖 1–3、`ranks` 必须 0–9、`flames` 必须引用已登记炉火、`relations` 必须 6 项齐全、`recipes` 的成品必须是常规品阶丹药模板且主药在用料里）。
+- 结算口径与 `tools/preview_alchemy.py` 逐位一致：主药 75% 权重、其余按份数加权；功法加成按 `methodInfluences.alchemy` 的路径/品阶比例缩放；成丹率、出丹倍率、药效区间按 `炼丹结算` 上下限截断。`ResolveAlchemy` 用「基础粒数等概率 + 余数出多一粒」的票数分布抽取粒数，成功后在同一药效档内取整数基点。
+- `internal/game/h_alchemy.go`：`1005027` 服务端结算——客户端上报的 `IsRefiningSuccess` 不采信，成功与否由服务端用同一套表重算；按组件份数校验工序、扣精力、按成功/失败累计熟练度，回包 `Code/IsSuccess/Count/Rank/CurrentVigor/LiveLevel/LiveProficiency`。
+- 由于本仓库是切片（没有 `gateway`/`store`/`pb` 的具体实现），背包转移与规则目录用 `AlchemyBag`/`AlchemyCatalog` 两个装配钩子留出，完整工程里注入即可。
+- 补 `go.mod`（`module xzjserver`），使 `internal/affinity` 可独立 `go vet` / `go test`。
+
+### 实测记录（Go 1.27.4，Windows）
+
+```
+go test ./internal/affinity/... -v
+--- PASS: TestAlchemyChiyangMatchesPreview        # 7946 bps，13020，2/3/4 粒票数 3960/6980/9060，药效 69–73
+--- PASS: TestAlchemySpringFlameLowesOdds         # 7546 bps，青泉阴焰水克火 −160
+--- PASS: TestAlchemyWeightsSecondaryElements     # 霜脉清毒丹 87/195/68 加权，6997 bps
+--- PASS: TestAlchemyRankZeroRecipe              # 凝露丹零级丹师 8360 bps
+--- PASS: TestAlchemyRejectsImpossibleBatches
+--- PASS: TestAlchemyResolveIsStableAndBounded    # 2000 次抽样成功率 0.77–0.83
+--- PASS: TestAlchemyCatalogValidation
+--- PASS: TestAlchemySettleValidatesClientReport
+--- PASS: TestAlchemyUnitsFeedTheVigorCost
+```
+
+同一入参用 Python 参考实现复核：`--pill dan.chiyang --rank 4 --flame flame.solar --method gf_3_9 --region 1211 --period 7` 得 8021 bps（含紫霞郡地利 +75），与文档的 80.21% 一致。
+
+### 协议契约的实物核对（1.3.5 发布包）
+
+拿 `修真界-完整安装包-1.3.5-32.apk` 里热更加载的 `Assembly-CSharp.dll`（5.3 MB，真托管代码）做交叉验证：字符串表里 `RefiningElixirReq_1005027`/`RefiningElixirResp_1005027`、`StepDetailReq`、`IsRefiningSuccess`、`MethodElixirId`、`BestTime` 全部命中，`VerifyIsCanRefiningElixir`（1005026）、`PuppetRefiningElixir`（1005045）也在。也就是说本次还原的请求/回包字段与线上 1.3.5 一致，不是推测。
+
+同时统计出该 DLL 共 591 个不同命令号、1005 族 61 条——本切片已迁移的仍是个位数。
+
+### 尚未完成
+
+- `1005026`（能否炼丹预检）与 `1005045`（傀儡炼丹）未接。
+- 精力消耗（现按 `2×组件份数`）与熟练度系数是临时值，待平衡表审定后挪进配置。
+- 服用效果、批次入袋的字段落库（`role_bag` 的 uid 与药效快照）依赖完整 `store`。
+
 ## 2026-11-19
 
 ### 修复（Go 服务端，与服务端 Java 版语义对齐）

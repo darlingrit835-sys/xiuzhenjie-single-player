@@ -1,0 +1,592 @@
+﻿cmd,family,messages
+1001001,1001,ActionBoolResp | ActionNoParamReq
+1001002,1001,SkillObjectResp
+1001003,1001,LookAdvertisingResp
+1001004,1001,BuyYuekaResp
+1001005,1001,UnderstandMethodReq
+1001006,1001,UsedAchievementPartReq | UsedAchievementPartResp
+1001007,1001,ChangeRunLocationReq
+1001008,1001,RoleBreakAskResp
+1001009,1001,ChangeControllerMatrixReq | ChangeControllerMatrixResp
+1001010,1001,RoleBreakRealmReq | RoleBreakRealmResp
+1001011,1001,OpenUnderstandPanelResp
+1001012,1001,UnderstandMethodObjectResp
+1001013,1001,UnderstandMethodForgetReq
+1001014,1001,BroadcastResp
+1001015,1001,UnderstandSkillReq | UnderstandSkillResp
+1001016,1001,BuyYuekaCnyResp
+1001017,1001,BuyJadeCnyResp
+1001018,1001,BuyLiBaoReq | BuyLiBaoResp
+1001019,1001,BuyLiBaoCnyResp
+1001020,1001,UpgradeAchievementConversionRateReq | UpgradeAchievementConversionRateResp
+1001021,1001,UpgradeEquipmentConversionRateReq | UpgradeEquipmentConversionRateResp
+1001022,1001,UpgradeSkillConversionRateReq | UpgradeSkillConversionRateResp
+1002001,1002,RoleCreateReq | RoleCreateResp
+1002002,1002,RoleLoginReq | RoleLoginResp
+1002003,1002,RoleOfflineResp
+1002004,1002,RoleGetOfflineReq | RoleGetOfflineResp
+1002005,1002,CheckNameReq | CheckNameResp
+1002006,1002,InformTitleResp
+1002007,1002,TitleUseReq | TitleUseResp
+1002008,1002,RoleSuicideResp
+1002009,1002,EnterThunderCalamityResp
+1002010,1002,BattleSkillResp
+1002011,1002,ThunderDamageResp
+1002013,1002,GuideInfoUpdateReq | GuideInfoUpdateResp
+1002014,1002,GuideInfoSkipReq | GuideInfoSkipResp
+1002015,1002,SearchIsSettingBattleEquipmentResp
+1002016,1002,SearchShinyStoneRatioResp
+1002017,1002,ShinyJadeExchangeShinyStoneReq | ShinyJadeExchangeShinyStoneResp
+1002018,1002,SearchSignInAwardResp | searchSignInAwardResp
+1002019,1002,SignInAwardResp
+1002020,1002,AwardResp
+1002021,1002,GetSignInAwardResp
+1002022,1002,LiBaoBuyInfoResp
+1002023,1002,ShouChongLiBaoGetResp
+1002024,1002,RealmRankedReq | RealmRankedResp | realmRankedResp
+1002025,1002,RealmRankedObjectResp
+1002026,1002,MoBaiReq | MoBaiResp
+1002027,1002,EnterCSLResp
+1002028,1002,GetCSLGoodsReq | GetCSLGoodsResp
+1002029,1002,VipLevelResp | vipLevelReq
+1002030,1002,TitleFrameUseReq | TitleFrameUseResp
+1002031,1002,HeadFrameUseReq | HeadFrameUseResp
+1002032,1002,GetShiKongMiJingResp
+1003001,1003,LetterQueryResp
+1003002,1003,LetterInfoResp
+1003003,1003,LetterAwardResp
+1003004,1003,DeleteLetterReq | deleteLetterReq
+1003005,1003,ReadLetterReq
+1003006,1003,ReceiveLetterReq | ReceiveLetterResp
+1003007,1003,LetterNotifyResp
+1004001,1004,GoodsBuyReq | GoodsBuyResp
+1004002,1004,SpaceGoodsReq | SpaceGoodsResp
+1004003,1004,GoodsInfoResp
+1004004,1004,SpaceGoodsCheckReq | SpaceGoodsCheckResp
+1004005,1004,GoodsMaterialAnimalDetailReq | GoodsMaterialAnimalDetailResp
+1004006,1004,GoodsMaterialMineralDetailReq | GoodsMaterialMineralDetailResp
+1004007,1004,GoodsMaterialPlantDetailReq | GoodsMaterialPlantDetailResp
+1004008,1004,GoodsBookAchievementDetailReq | GoodsBookAchievementDetailResp
+1004009,1004,GoodsBookElixirDetailReq | GoodsBookElixirDetailResp
+1004010,1004,GoodsInfoReq
+1004011,1004,GoodsBookEquipmentDetailReq | GoodsBookEquipmentDetailResp
+1004012,1004,GoodsBookSignDetailReq | GoodsBookSignDetailResp
+1004013,1004,GoodsBookSkillDetailReq | GoodsBookSkillDetailResp
+1004014,1004,GoodsArticleDefenseEquipmentReq | GoodsArticleDefenseEquipmentResp
+1004015,1004,GoodsArticleElixirReq | GoodsArticleElixirResp
+1004016,1004,GoodsArticleElixirChangeReq | GoodsArticleElixirChangeResp
+1004017,1004,GoodsArticleSecretAreaReq | GoodsArticleSecretAreaResp
+1004018,1004,GoodsArticleSetableAttackEquipmentReq | GoodsArticleSetableAttackEquipmentResp
+1004019,1004,GoodsArticleSetableDefenseEquipmentReq | GoodsArticleSetableDefenseEquipmentResp
+1004020,1004,GoodsArticleSignReq | GoodsArticleSignResp
+1004021,1004,GoodsArticleSignUseTimeReq | GoodsArticleSignUseTimeResp
+1004022,1004,GoodsSellReq | GoodsSellResp
+1004023,1004,GoodsBindingReq | GoodsBindingResp
+1004024,1004,GoodsUseReq | GoodsUseResp
+1004025,1004,GradeRingResp
+1004026,1004,PickUpGoodsReq | PickUpGoodsResp
+1004027,1004,DestroyGoodsReq | DestroyGoodsResp
+1004028,1004,SearchLMStockReq | SearchLMStockResp
+1004029,1004,MaterialObjReap
+1004030,1004,OneKeyBuyMaterialsReq | OneKeyBuyMaterialsResp
+1004031,1004,UsedSecretReq | UsedSecretResp
+1004032,1004,UsedElixirReq | UsedElixirResp
+1004033,1004,EnterXuanTianLouResp
+1004034,1004,GoodsInfoResp
+1004035,1004,BuyXuanTianLouGoodsReq | BuyXuanTianLouGoodsResp
+1004036,1004,BattleEndRingOutGoodsReq | BattleEndRingOutGoodsResp
+1004037,1004,BattleEndLeaveReq | BattleEndLeaveResp | battleEndLeaveReq
+1004038,1004,GoodsGuildMapDetailsReap | GoodsGuildMapDetailsReq
+1004039,1004,GoodsLockReq | GoodsLockResp
+1004040,1004,GoodsUnLockReq | GoodsUnLockResp
+1004041,1004,GoodsCompoundReq | GoodsCompoundResp
+1004042,1004,GoodsInfoResp
+1004043,1004,GoodsArticleMatrixReq | GoodsArticleMatrixResp
+1004044,1004,GoodsBookMatrixDetailReq | GoodsBookMatrixDetailResp
+1004045,1004,GoodsMatrixUseReq | GoodsMatrixUseResp
+1005001,1005,EnterHomeResp
+1005002,1005,UpgradeHomeResp
+1005003,1005,BuildLiveTypeReq | BuildLiveTypeResp
+1005004,1005,RebuildLiveTypeReq | RebuildLiveTypeResp
+1005005,1005,EnterSpaceBoxResp
+1005006,1005,RenameHomeReq | RenameHomeResp
+1005007,1005,RenameBoxReq | RenameBoxResp
+1005008,1005,EnterExerciseRoomResp | enterExerciseRoomResp
+1005009,1005,ChangeAchievementPanelReq | ChangeAchievementPanelResp
+1005010,1005,AchievementObjectResp
+1005011,1005,ChangeAchievementReq | ChangeAchievementResp
+1005012,1005,BrokenStateResp | m_BrokenStateResp
+1005013,1005,UpgradeGatherMatrixResp
+1005014,1005,OpenControllerMatrixResp
+1005015,1005,UpgradeControllerMatrixResp
+1005016,1005,OpenAcupointResp
+1005017,1005,RoleAcupointResp
+1005018,1005,BreakAcupointReq | BreakAcupointResp
+1005019,1005,SearchUnderstandElixirListReq | SearchUnderstandElixirListResp
+1005020,1005,AcupointDetailResp
+1005021,1005,BuySpaceBoxResp
+1005022,1005,PutInSpaceBoxReq | PutInSpaceBoxResp
+1005023,1005,GetOutSpaceBoxReq | GetOutSpaceBoxResp
+1005024,1005,AddTimeControllerMatrixReq | AddTimeControllerMatrixResp
+1005025,1005,AddTimeGatherMatrixReq | AddTimeGatherMatrixResp
+1005026,1005,VerifyIsCanRefiningElixirReq | VerifyIsCanRefiningElixirResp
+1005027,1005,RefiningElixirReq | RefiningElixirResp | refiningElixirResp
+1005028,1005,StepDetailReq
+1005029,1005,UnderstandElixirResp
+1005030,1005,SearchElixirRefiningStepListReq | SearchElixirRefiningStepListResp
+1005031,1005,ElixirRefiningStepResp
+1005032,1005,SearchUnderstandSignListReq | SearchUnderstandSignListResp
+1005033,1005,UnderstandSignResp
+1005034,1005,SearchSignRefiningStepListReq | SearchSignRefiningStepListResp
+1005035,1005,PointsResp
+1005036,1005,RefiningSignReq | RefiningSignResp
+1005037,1005,VerifyIsCanRefiningSignReq | VerifyIsCanRefiningSignResp
+1005038,1005,EnterBattleHomeResp
+1005039,1005,SkillResp
+1005040,1005,PracticeSkillReq | PracticeSkillResp
+1005041,1005,EnterWuDaoTaiResp
+1005042,1005,RechooseAchievementEffectReq | RechooseAchievementEffectResp
+1005043,1005,RefiningSignRecordReq
+1005044,1005,RechooseEquipmentEffectReq | RechooseEquipmentEffectResp
+1005045,1005,PuppetRefiningElixirReq | PuppetRefiningElixirResp
+1005046,1005,PuppetRefiningSignReq | PuppetRefiningSignResp
+1005047,1005,ChooseEquipmentReq | ChooseEquipmentResp
+1005048,1005,VerifyIsCanRefiningEquipmentReq | VerifyIsCanRefiningEquipmentResp
+1005049,1005,RefiningEquipmentReq | RefiningEquipmentResp
+1005050,1005,RefiningEquipmentRecordReq
+1005051,1005,SearchUnderstandEquipmentListReq | SearchUnderstandEquipmentListResp
+1005052,1005,UnderstandEquipmentResp
+1005053,1005,SearchEquipmentRefiningStepListReq | SearchEquipmentRefiningStepListResp
+1005054,1005,EquipmentRefiningStepResp
+1005055,1005,PuppetRefiningEquipmentReq | PuppetRefiningEquipmentResp
+1005056,1005,VerifyIsCanRefiningMatrixReq | VerifyIsCanRefiningMatrixResp
+1005057,1005,RefiningMatrixReq | RefiningMatrixResp
+1005058,1005,SearchUnderstandMatrixListReq | SearchUnderstandMatrixListResp
+1005059,1005,UnderstandMatrixResp
+1005060,1005,SearchMatrixRefiningStepListReq | SearchMatrixRefiningStepListResp
+1005061,1005,PuppetRefiningMatrixReq | PuppetRefiningMatrixResp
+1006001,1006,EnterAuctionReq | EnterAuctionResp
+1006002,1006,AuctionObjectResp
+1006003,1006,EnterMyAuctionReq | EnterMyAuctionResp
+1006004,1006,MyAuctionObjectResp
+1006008,1006,EntrustAuctionReq | EntrustAuctionResp
+1006009,1006,AuctionGoodsCancelReq | AuctionGoodsCancelResp
+1006010,1006,AuctionBuyReq | AuctionBuyResp
+1006011,1006,EnterTreasureRoomReq | EnterTreasureRoomResp
+1006012,1006,GoodsListResp
+1006013,1006,OnShelfTreasureReq | OnShelfTreasureResp
+1006014,1006,OnShelfListResp
+1006015,1006,OnShelfGoodsResp
+1006016,1006,TreasureGoodsCancelReq | TreasureGoodsCancelResp
+1006017,1006,EnterTreasureReq | EnterTreasureResp
+1006018,1006,TreasureGoodsListResp
+1006019,1006,GoodsListResp
+1006020,1006,TreasureBuyReq | TreasureBuyResp
+1006021,1006,TreasureCurrentGoodsResp
+1007001,1007,SibingsMapReq | SibingsMapResp
+1007002,1007,MapObjectResp
+1007003,1007,ChildrenMapReq | ChildrenMapResp | childrenMapResp
+1007004,1007,MapObjectResp
+1007005,1007,ParentMapIdReq | ParentMapIdResp
+1007006,1007,ParentMapReq | ParentMapResp
+1007007,1007,MapObjectResp
+1007008,1007,AncestorMapResp
+1007009,1007,MapInfoReq | MapInfoResp
+1007010,1007,MapTransmitReq | MapTransmitResp | mapTransmitResp
+1007011,1007,MapCityMigrateReq | MapCityMigrateResp | mapCityMigrateResp
+1007012,1007,ParentMapAndOneselfMapReq | ParentMapAndOneselfMapResp
+1007013,1007,LiLianChildrenMapReq | LiLianChildrenMapResp
+1007014,1007,LiLianMapObjectResp
+1008001,1008,EnterUnrealTowerResp
+1008002,1008,EnterRushTowerTierNumRankedReq | EnterRushTowerTierNumRankedResp | enterRushTowerTierNumRankedResp
+1008003,1008,RushTowerRankedObjectResp
+1008004,1008,EnterRushTowerAgeRankedReq | EnterRushTowerAgeRankedResp | enterRushTowerAgeRankedResp
+1008005,1008,RushTowerRankedObjectResp
+1008006,1008,EnterElixirTowerResp
+1008007,1008,EnterElixirAuthResp
+1008008,1008,ExamineContentObjectResp
+1008009,1008,ExamineElixirStepReq | ExamineElixirStepResp
+1008010,1008,ElixirStepObjectResp
+1008011,1008,ElixirExamineResultReq | ElixirExamineResultResp
+1008012,1008,EnterMethodElixirExchangeReq | EnterMethodElixirExchangeResp
+1008013,1008,ExchangeMethodElixirObjectResp
+1008014,1008,ExchangeMethodElixirReq | ExchangeMethodElixirResp
+1008015,1008,EnterElixirRegisterReq | EnterElixirRegisterResp
+1008016,1008,MethodElixirObjectResp
+1008017,1008,RegisterMethodElixirReq | RegisterMethodElixirResp | registerMethodElixirResp
+1008018,1008,VerifyCreateMethodElixirReq | VerifyCreateMethodElixirResp | verifyCreateMethodElixirResp
+1008019,1008,ElixirStepObjectResp
+1008020,1008,CreateMethodElixirRefiningResultReq | CreateMethodElixirRefiningResultResp
+1008021,1008,EnterSkillLoftResp
+1008022,1008,EnterMethodSkillExchangeReq | EnterMethodSkillExchangeResp
+1008023,1008,ExchangeMethodSkillObjectResp
+1008024,1008,ExchangeMethodSkillReq | ExchangeMethodSkillResp
+1008025,1008,VerifyCreateMethodSkillReq | VerifyCreateMethodSkillResp
+1008026,1008,EnterSkillRegisterReq | EnterSkillRegisterResp
+1008027,1008,MethodSkillObjectResp
+1008028,1008,RegisterMethodSkillReq | RegisterMethodSkillResp
+1008029,1008,EnterAchievementHallResp
+1008030,1008,EnterMethodAchievementExchangeReq | EnterMethodAchievementExchangeResp
+1008031,1008,ExchangeMethodAchievementObjectResp
+1008032,1008,ExchangeMethodAchievementReq | ExchangeMethodAchievementResp
+1008033,1008,VerifyCreateMethodAchievementReq | VerifyCreateMethodAchievementResp
+1008034,1008,EnterAchievementRegisterReq | EnterAchievementRegisterResp
+1008035,1008,MethodAchievementObjectResp
+1008036,1008,RegisterMethodAchievementReq | RegisterMethodAchievementResp
+1008037,1008,RushTowerTierNumRankedAwardReq | RushTowerTierNumRankedAwardResp
+1008038,1008,RushTowerAgeRankedAwardReq | RushTowerAgeRankedAwardResp
+1008039,1008,SearchPlantMaterialReq | SearchPlantMaterialResp
+1008040,1008,PlantMaterialResp
+1008041,1008,SearchAnimalMaterialReq | SearchAnimalMaterialResp
+1008042,1008,AnimalMaterialResp
+1008043,1008,EnterSignUnionResp
+1008044,1008,EnterMethodSignExchangeReq | EnterMethodSignExchangeResp
+1008045,1008,ExchangeMethodSignObjectResp
+1008046,1008,ExchangeMethodSignReq | ExchangeMethodSignResp
+1008047,1008,VerifyCreateMethodSignReq | VerifyCreateMethodSignResp
+1008048,1008,EnterSignRegisterReq | EnterSignRegisterResp
+1008049,1008,MethodSignObjectResp
+1008050,1008,RegisterMethodSignReq | RegisterMethodSignResp
+1008051,1008,SignPointReq
+1008052,1008,CreateMethodSignRefiningResultReq | CreateMethodSignRefiningResultResp
+1008053,1008,HandSealListResp
+1008054,1008,EnterPlantAssociationResp
+1008055,1008,EnterTemplatePlantExchangeReq | EnterTemplatePlantExchangeResp
+1008056,1008,ExchangeTemplatePlantObjectResp
+1008057,1008,ExchangeTemplatePlantReq | ExchangeTemplatePlantResp
+1008058,1008,VerifyCreateTemplatePlantReq | VerifyCreateTemplatePlantResp
+1008059,1008,EnterTemplatePlantRegisterReq | EnterTemplatePlantRegisterResp
+1008060,1008,TemplatePlantObjectResp
+1008061,1008,RegisterTemplatePlantReq | RegisterTemplatePlantResp
+1008062,1008,ElixirStepObjectReq
+1008063,1008,MethodElixirStepMaterialResp
+1008064,1008,HandSealResp
+1008065,1008,TemplatePlantReq
+1008066,1008,EnterEquipmentAssociationResp
+1008067,1008,EnterMethodEquipmentExchangeReq | EnterMethodEquipmentExchangeResp
+1008068,1008,ExchangeMethodEquipmentObjectResp
+1008069,1008,ExchangeMethodEquipmentReq | ExchangeMethodEquipmentResp
+1008070,1008,EnterEquipmentRegisterReq | EnterEquipmentRegisterResp
+1008071,1008,MethodEquipmentObjectResp
+1008072,1008,RegisterMethodEquipmentReq | RegisterMethodEquipmentResp
+1008073,1008,VerifyCreateMethodEquipmentReq | VerifyCreateMethodEquipmentResp
+1008074,1008,EquipmentStepObjectReq
+1008075,1008,SearchCreateEquipmentPlantMaterialReq | SearchCreateEquipmentPlantMaterialResp
+1008076,1008,PlantMaterialResp
+1008077,1008,SearchCreateEquipmentAnimalMaterialReq | SearchCreateEquipmentAnimalMaterialResp
+1008078,1008,AnimalMaterialResp
+1008079,1008,SearchCreateEquipmentMineralMaterialReq | SearchCreateEquipmentMineralMaterialResp
+1008080,1008,MineralMaterialResp | VerifyCompletionMethodAchievementReq | VerifyCompletionMethodAchievementResp
+1008081,1008,EnterAchievementCompletionReq | EnterAchievementCompletionResp
+1008082,1008,MethodAchievementObjectResp
+1008083,1008,AchievementAcupointReq | AchievementAcupointResp
+1008084,1008,EnterMatrixAssociationResp
+1008085,1008,EnterMethodMatrixExchangeReq | EnterMethodMatrixExchangeResp
+1008086,1008,ExchangeMethodMatrixObjectResp
+1008087,1008,ExchangeMethodMatrixReq | ExchangeMethodMatrixResp
+1008088,1008,VerifyCreateMethodMatrixReq | VerifyCreateMethodMatrixResp
+1008089,1008,DeleteMethodMatrixReq | DeleteMethodMatrixResp | deleteMethodMatrixReq
+1008090,1008,EnterMethodMatrixRegisterReq | EnterMethodMatrixRegisterResp
+1008091,1008,MethodMatrixObjectResp
+1008092,1008,RegisterMethodMatrixReq | RegisterMethodMatrixResp
+1008093,1008,DeleteMethodAchievementReq | DeleteMethodAchievementResp | deleteMethodAchievementReq
+1008094,1008,DeleteMethodElixirReq | DeleteMethodElixirResp | deleteMethodElixirReq
+1008095,1008,DeleteMethodEquipmentReq | DeleteMethodEquipmentResp | deleteMethodEquipmentReq
+1008096,1008,DeleteMethodPlantReq | DeleteMethodPlantResp | deleteMethodPlantReq
+1008097,1008,DeleteMethodSignReq | DeleteMethodSignResp | deleteMethodSignReq
+1008098,1008,DeleteMethodSkillReq | DeleteMethodSkillResp | deleteMethodSkillReq
+1009001,1009,DressEquipmentReq | DressEquipmentResp
+1009002,1009,UndressEquipmentReq | UndressEquipmentResp
+1009003,1009,SetSkillReq | SetSkillResp
+1009004,1009,RemoveSkillReq | RemoveSkillResp | removeSkillResp
+1009005,1009,EnterEquipmentResp | enterEquipmentResp
+1009006,1009,EquipmentInfoResp
+1009007,1009,EnterSkillResp
+1009008,1009,SkillInfoResp
+1010001,1010,BuildDungeonReq | BuildDungeonResp
+1010002,1010,RoleJoinDungeonReq | RoleJoinDungeonResp
+1010003,1010,BattleSkillResp
+1010004,1010,CleanMapReq | CleanMapResp
+1010005,1010,DropGoodsInfoResp
+1011001,1011,TemplateMaterialAnimalDetailReq | TemplateMaterialAnimalDetailResp
+1011002,1011,TemplateMaterialMineralDetailReq | TemplateMaterialMineralDetailResp
+1011003,1011,TemplateMaterialPlantDetailReq | TemplateMaterialPlantDetailResp
+1011004,1011,MethodAchievementDetailReq | MethodAchievementDetailResp
+1011005,1011,MethodElixirDetailReq | MethodElixirDetailResp
+1011006,1011,MethodEquipmentDetailReq | MethodEquipmentDetailResp
+1011007,1011,MethodMatrixDetailReq | MethodMatrixDetailResp
+1011008,1011,MethodSignDetailReq | MethodSignDetailResp
+1011009,1011,MethodSkillDetailReq | MethodSkillDetailResp
+1012001,1012,BuildChatResp
+1012002,1012,BuyWineReq | BuyWineResp
+1012003,1012,WineListResp
+1012004,1012,WineResp
+1012005,1012,ChatInformReq
+1013001,1013,EnterPlantResp
+1013002,1013,LandResp
+1013003,1013,KaiKenLandReq | KaiKenLandResp
+1013004,1013,EnterSoilReq | EnterSoilResp
+1013005,1013,SoilResp
+1013006,1013,ChooseSoilReq | ChooseSoilResp
+1013007,1013,SoilDeployReq | SoilDeployResp
+1013008,1013,DeployRingGoodsSelectReq | DeployRingGoodsSelectResp
+1013009,1013,GoodsInfoResp
+1013010,1013,DiscardSoilReq | DiscardSoilResp
+1013011,1013,EnterSeedResp
+1013012,1013,SeedInfoResp
+1013013,1013,SeedChooseReq | SeedChooseResp
+1013014,1013,EnterIrrigateReq | EnterIrrigateResp
+1013015,1013,WaterInfoResp
+1013016,1013,WaterChooseReq | WaterChooseResp
+1013017,1013,WaterDeployReq | WaterDeployResp
+1013018,1013,HarvestPlantReq | HarvestPlantResp
+1013019,1013,PlantInfoResp
+1013020,1013,ForgetSeedReq | ForgetSeedResp
+1013021,1013,GatherSeedReq | GatherSeedResp
+1013022,1013,SearchSoilAllResp
+1013023,1013,SoilResp
+1013024,1013,SearchWaterAllResp
+1013025,1013,WaterInfoResp
+1013026,1013,DiscardWaterReq | DiscardWaterResp
+1013027,1013,SearchXiRangResp
+1013028,1013,XiRangResp
+1013029,1013,SearchLingQuanResp
+1013030,1013,LingQuanResp
+1014001,1014,EnterFriendResp
+1014002,1014,FriendResp
+1014003,1014,EnterAddFriendResp
+1014004,1014,StrangerResp
+1014005,1014,RemoteSendGoodsReq | RemoteSendGoodsResp
+1014006,1014,AddFriendReq | AddFriendResp
+1014007,1014,AddFriendByNameReq | AddFriendByNameResp
+1014008,1014,AddFriendByRoleIdReq | AddFriendByRoleIdResp
+1014009,1014,RefuseFriendReq | RefuseFriendResp
+1014010,1014,DeleteFriendReq | DeleteFriendResp
+1014011,1014,GoodsReq
+1014012,1014,EnterShiTuResp
+1014013,1014,ShiFuResp
+1014014,1014,TuDiResp
+1014015,1014,QingAnResp
+1014016,1014,TongMaiReq | TongMaiResp
+1014017,1014,ChuanGongReq | ChuanGongResp
+1014018,1014,BaiShiTieResp
+1014019,1014,BaiShiDiZiResp
+1014020,1014,ShouTuReq | ShouTuResp
+1014021,1014,BaiShiReq | BaiShiResp
+1014022,1014,TuoLiShiMenResp
+1014023,1014,BaiShiHuLueReq | BaiShiHuLueResp
+1014024,1014,TongZhiTMCGResp
+1014025,1014,JieShouTMCGResp
+1014026,1014,ZhuChuShiMenReq | ZhuChuShiMenResp
+1014027,1014,ChuShiReq | ChuShiResp
+1015001,1015,GuildListReq | GuildListResp
+1015002,1015,SelfGuildResp
+1015003,1015,GuildDetailReq | GuildDetailResp
+1015004,1015,GuildJoinReq | GuildJoinResp
+1015005,1015,GuildEnterResp
+1015006,1015,GuildHillResp
+1015007,1015,GuildCreateReq | GuildCreateResp
+1015008,1015,GuildRoleListResp
+1015009,1015,GuildRoleInfoResp
+1015010,1015,GuildJoinListResp
+1015011,1015,GuildRoleInfoResp
+1015012,1015,GuildJoinHandleReq | GuildJoinHandleResp
+1015013,1015,GuildExpelReq | GuildExpelResp
+1015014,1015,GuildExitResp
+1015015,1015,GuildInfoResp
+1015016,1015,GuildSimpleNameUpdateReq | GuildSimpleNameUpdateResp
+1015017,1015,GuildNoticeUpdateReq | GuildNoticeUpdateResp
+1015018,1015,GuildInformRoleJoinSuccessResp
+1015019,1015,GuildExpelRoleInformResp
+1015020,1015,GuildResp | IntoDaDianResp
+1015021,1015,ZongZhuInfoResp
+1015022,1015,XieRenReq | XieRenResp
+1015023,1015,EnterRenMingResp
+1015024,1015,HillZhangLaoInfoResp
+1015025,1015,RenMingReq | RenMingResp
+1015026,1015,IntoZhiFaResp
+1015027,1015,ZhangLaoInfoResp
+1015028,1015,SheZhiZhiFaCeLueDiZiNumReq | SheZhiZhiFaCeLueDiZiNumResp
+1015029,1015,GuildUpgradeReq | GuildUpgradeResp
+1015030,1015,IntoYanWuResp | intoYanWuResp
+1015031,1015,YanWuSuoDingJiangLiReq | YanWuSuoDingJiangLiResp
+1015032,1015,CreateYanWuTaiResp
+1015033,1015,UpgradeYanWuMatrixResp
+1015034,1015,IntoNeiWuResp
+1015035,1015,ZhangLaoInfoResp
+1015036,1015,NeiWuJuanZengStoneResp
+1015037,1015,NeiWuJuanZengJadeResp
+1015038,1015,IntoWaiWuResp
+1015039,1015,ZhangLaoInfoResp
+1015040,1015,XuanShangInfoResp
+1015041,1015,WaiWuJieSuanXuanShangReq | WaiWuJieSuanXuanShangResp
+1015042,1015,IntoKuangMaiResp
+1015043,1015,ZhangLaoInfoResp
+1015044,1015,KuangMaiStoneDiZiNumReq | KuangMaiStoneDiZiNumResp
+1015045,1015,KuangMaiJadeDiZiNumReq | KuangMaiJadeDiZiNumResp
+1015046,1015,UpgradeKuangMaiSpaceResp
+1015047,1015,UpgradeKuangMaiFaQiResp
+1015048,1015,IntoHuZongMatrixResp
+1015049,1015,ZhangLaoInfoResp
+1015050,1015,UpgradeHuZongMatrixResp
+1015051,1015,UpgradeHuZongMatrixJadeBuyTimeReq | UpgradeHuZongMatrixJadeBuyTimeResp
+1015052,1015,UpgradeKuangMaiFaQiJadeBuyTimeReq | UpgradeKuangMaiFaQiJadeBuyTimeResp
+1015053,1015,UpgradeKuangMaiSpaceJadeBuyTimeReq | UpgradeKuangMaiSpaceJadeBuyTimeResp
+1015054,1015,UpgradeYanWuMatrixJadeBuyTimeReq | UpgradeYanWuMatrixJadeBuyTimeResp
+1015055,1015,UpgradeYanWuTaiJadeBuyTimeReq | UpgradeYanWuTaiJadeBuyTimeResp
+1015056,1015,CreateYanWuTaiJadeBuyTimeReq | CreateYanWuTaiJadeBuyTimeResp
+1015057,1015,IntoLingTianResp
+1015058,1015,ZhangLaoInfoResp
+1015059,1015,WaiWuFaBuXuanShangReq | WaiWuFaBuXuanShangResp
+1015060,1015,UpgradeLingTianSpaceResp
+1015061,1015,UpgradeLingTianSpaceJadeBuyTimeReq | UpgradeLingTianSpaceJadeBuyTimeResp
+1015062,1015,UpgradeLingTianMatrixResp
+1015063,1015,UpgradeLingTianMatrixJadeBuyTimeReq | UpgradeLingTianMatrixJadeBuyTimeResp
+1015064,1015,UpgradeLingTianResp
+1015065,1015,UpgradeLingTianJadeBuyTimeReq | UpgradeLingTianJadeBuyTimeResp
+1015066,1015,LingTianDiZiNumReq | LingTianDiZiNumResp
+1015067,1015,IntoYeLianResp
+1015068,1015,ZhangLaoInfoResp
+1015069,1015,UpgradeYeLianSpaceResp
+1015070,1015,UpgradeYeLianSpaceJadeBuyTimeReq | UpgradeYeLianSpaceJadeBuyTimeResp
+1015071,1015,UpgradeYeLianMatrixResp
+1015072,1015,UpgradeYeLianMatrixJadeBuyTimeReq | UpgradeYeLianMatrixJadeBuyTimeResp
+1015073,1015,UpgradeYeLianResp
+1015074,1015,UpgradeYeLianJadeBuyTimeReq | UpgradeYeLianJadeBuyTimeResp
+1015075,1015,YeLianDiZiNumReq | YeLianDiZiNumResp
+1015076,1015,IntoElixirResp
+1015077,1015,ZhangLaoInfoResp
+1015078,1015,UpgradeElixirSpaceResp
+1015079,1015,UpgradeElixirSpaceJadeBuyTimeReq | UpgradeElixirSpaceJadeBuyTimeResp
+1015080,1015,UpgradeElixirMatrixResp
+1015081,1015,UpgradeElixirMatrixJadeBuyTimeReq | UpgradeElixirMatrixJadeBuyTimeResp
+1015082,1015,UpgradeElixirResp
+1015083,1015,UpgradeElixirJadeBuyTimeReq | UpgradeElixirJadeBuyTimeResp
+1015084,1015,ElixirDiZiNumReq | ElixirDiZiNumResp
+1015085,1015,IntoEquipmentResp
+1015086,1015,ZhangLaoInfoResp
+1015087,1015,UpgradeEquipmentSpaceResp
+1015088,1015,UpgradeEquipmentSpaceJadeBuyTimeReq | UpgradeEquipmentSpaceJadeBuyTimeResp
+1015089,1015,UpgradeEquipmentMatrixResp
+1015090,1015,UpgradeEquipmentMatrixJadeBuyTimeReq | UpgradeEquipmentMatrixJadeBuyTimeResp
+1015091,1015,UpgradeEquipmentResp
+1015092,1015,UpgradeEquipmentJadeBuyTimeReq | UpgradeEquipmentJadeBuyTimeResp
+1015093,1015,EquipmentDiZiNumReq | EquipmentDiZiNumResp
+1015094,1015,IntoMatrixResp
+1015095,1015,ZhangLaoInfoResp
+1015096,1015,UpgradeMatrixSpaceResp
+1015097,1015,UpgradeMatrixSpaceJadeBuyTimeReq | UpgradeMatrixSpaceJadeBuyTimeResp
+1015098,1015,UpgradeMatrixMatrixResp
+1015099,1015,UpgradeMatrixMatrixJadeBuyTimeReq | UpgradeMatrixMatrixJadeBuyTimeResp
+1015100,1015,UpgradeMatrixResp
+1015101,1015,UpgradeMatrixJadeBuyTimeReq | UpgradeMatrixJadeBuyTimeResp
+1015102,1015,MatrixDiZiNumReq | MatrixDiZiNumResp
+1015103,1015,IntoGongFangResp
+1015104,1015,ZhangLaoInfoResp
+1015105,1015,UpgradeGongFangSpaceResp
+1015106,1015,UpgradeGongFangSpaceJadeBuyTimeReq | UpgradeGongFangSpaceJadeBuyTimeResp
+1015107,1015,UpgradeGongFangFaQiResp
+1015108,1015,UpgradeGongFangFaQiJadeBuyTimeReq | UpgradeGongFangFaQiJadeBuyTimeResp
+1015109,1015,UpgradeGongFangResp
+1015110,1015,UpgradeGongFangJadeBuyTimeReq | UpgradeGongFangJadeBuyTimeResp
+1015111,1015,GongFangDiZiNumReq | GongFangDiZiNumResp
+1015112,1015,IntoSignResp
+1015113,1015,ZhangLaoInfoResp
+1015114,1015,UpgradeFuZhiResp
+1015115,1015,UpgradeFuZhiJadeBuyTimeReq | UpgradeFuZhiJadeBuyTimeResp
+1015116,1015,UpgradeFuBiResp
+1015117,1015,UpgradeFuBiJadeBuyTimeReq | UpgradeFuBiJadeBuyTimeResp
+1015118,1015,UpgradeSignResp
+1015119,1015,UpgradeSignJadeBuyTimeReq | UpgradeSignJadeBuyTimeResp
+1015120,1015,SignDiZiNumReq | SignDiZiNumResp
+1015121,1015,IntoYuShouResp
+1015122,1015,ZhangLaoInfoResp
+1015123,1015,UpgradeLingShouResp
+1015124,1015,UpgradeLingShouJadeBuyTimeReq | UpgradeLingShouJadeBuyTimeResp
+1015125,1015,UpgradeSiLingDanResp
+1015126,1015,UpgradeSiLingDanJadeBuyTimeReq | UpgradeSiLingDanJadeBuyTimeResp
+1015127,1015,UpgradeYuShouResp
+1015128,1015,UpgradeYuShouJadeBuyTimeReq | UpgradeYuShouJadeBuyTimeResp
+1015129,1015,YuShouDiZiNumReq | YuShouDiZiNumResp
+1015130,1015,IntoNeiMenResp
+1015131,1015,ZhangLaoInfoResp
+1015132,1015,NeiMenDiZiNumReq | NeiMenDiZiNumResp
+1015133,1015,JuanZengGongFaReq | JuanZengGongFaResp
+1015134,1015,JuanZengFaQiReq | JuanZengFaQiResp
+1015135,1015,JuanZengFaShuReq | JuanZengFaShuResp
+1015136,1015,PeiFaGongFaResp
+1015137,1015,PeiFaGongFaJadeBuyTimeReq | PeiFaGongFaJadeBuyTimeResp
+1015138,1015,PeiFaFaQiResp
+1015139,1015,PeiFaFaQiJadeBuyTimeReq | PeiFaFaQiJadeBuyTimeResp
+1015140,1015,PeiFaFaShuResp
+1015141,1015,PeiFaFaShuJadeBuyTimeReq | PeiFaFaShuJadeBuyTimeResp
+1015142,1015,UpgradeYanWuTaiResp
+1015143,1015,WaiWuXuanShangGoodsSearchReq | WaiWuXuanShangGoodsSearchResp
+1015144,1015,GoodsInfoResp
+1015145,1015,EnterCangBaoGeResp
+1015146,1015,GouMaiWuPinReq | GouMaiWuPinResp
+1015147,1015,GuildUpgradeJadeBuyTimeReq | GuildUpgradeJadeBuyTimeResp
+1015148,1015,GuildHillUpdateNameReq | GuildHillUpdateNameResp
+1015149,1015,HuZongMatrixUpdateEyeReq | HuZongMatrixUpdateEyeResp
+1015150,1015,GoodsReq
+1015151,1015,GoodsReq
+1015152,1015,GoodsReq
+1015153,1015,NeiWuSalarySettingReq | NeiWuSalarySettingResp
+1015154,1015,EnterShiKongMiJingResp
+1015155,1015,EnterGuildChouJiangChiResp
+1015156,1015,GuildChouJiangReq | GuildChouJiangResp
+1015157,1015,GoodsInfoResp
+1015158,1015,GuildJieSanResp
+1015159,1015,GuildJieSanRoleInformResp
+1016001,1016,InformTaskCompletionResp
+1016002,1016,ReceiveAwardReq | ReceiveAwardResp
+1016003,1016,InformTianShuBeiResp
+1016004,1016,OpenTianShuBeiResp
+1016005,1016,TianShuBeiObjResp
+1016006,1016,TianShuBeiReceiveAwardReq | TianShuBeiReceiveAwardResp
+1017001,1017,EnterChouJiangChiReq | EnterChouJiangChiResp
+1017002,1017,ChouJiangReq | ChouJiangResp
+1017003,1017,GoodsInfoResp
+1017004,1017,EnterJiFenResp
+1017005,1017,JiFenResp
+1017006,1017,GetJiFenReq | GetJiFenResp
+1018001,1018,GuildMonsterFightBeginBroadcastResp
+1018002,1018,GuildMonsterFightingBroadcastReq | GuildMonsterFightingBroadcastResp
+1018003,1018,GuildMonsterFightingRoleHelpReq | GuildMonsterFightingRoleHelpResp
+1018004,1018,GuildMonsterFinishedResp
+1018005,1018,GuildMonsterFightMessageBroadcastResp
+4001001,4001,ChatJoinReq | ChatJoinResp
+4001002,4001,ReceiveMessageResp
+4001003,4001,SendMessageReq | SendMessageResp
+4001004,4001,WineOutReq | WineOutResp
+4001005,4001,SearchIsOnLineReq | SearchIsOnLineResp
+4001006,4001,RoleOnLineResp
+4001007,4001,SendMessageRoleReq | SendMessageRoleResp
+4001008,4001,ReceiveMessageRoleResp
+8001001,8001,BattleRoleEnterReq | BattleRoleEnterResp
+8001002,8001,ObjectInfoResp
+8001003,8001,ObjectInfoSkillResp
+8001004,8001,BattleRoleMoveReq
+8001005,8001,BattleRoleUseSkillReq | BattleRoleUseSkillResp
+8001006,8001,MonsterGetDamageReq | MonsterGetDamageResp
+8001007,8001,RolePickGoodsReq | RolePickGoodsResp
+8001008,8001,RoleLeaveDungeonReq | RoleLeaveDungeonResp
+8001009,8001,EnterTowerNextLevelReq | EnterTowerNextLevelResp
+8001010,8001,ObjectInfoResp
+8001011,8001,ReviveReq | ReviveResp
+8001012,8001,ObjectInfoSkillResp
+8001013,8001,DropGoodsInfoResp
+8001014,8001,RoleGetDamageReq
+8002001,8002,BattleBroadcastPosResp
+8002002,8002,ObjectPosionResp
+8002003,8002,MonsterDeadReq | MonsterDeadResp
+9000000,9000,HeartBeatResp
+9001001,9001,VigorUpResp
+9001002,9001,CleverUpResp
+9001003,9001,PosionDownResp
+9001004,9001,SuperAirUpResp
+9001005,9001,PhysiqueUpResp
+9001006,9001,PerceptionUpResp
+9001007,9001,AgeUpResp
+9001008,9001,PowerUpResp
+9001009,9001,HaoYunFuResp

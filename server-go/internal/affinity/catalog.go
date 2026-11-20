@@ -61,6 +61,7 @@ type Catalog struct {
 	inputs     recipeIndex
 	outputs    recipeIndex
 	forging    *forgeIndex
+	alchemy    *alchemyIndex
 	methods    map[string]map[int]map[int][]int
 }
 
@@ -77,6 +78,7 @@ func Load(r io.Reader) (*Catalog, error) {
 		Inputs         map[string]map[string]int        `json:"creationInputs"`
 		Systems        map[string]struct{}              `json:"systems"`
 		Methods        map[string]map[int]map[int][]int `json:"methodInfluences"`
+		Alchemy        *alchemyTables                   `json:"alchemy"`
 	}
 	decoder := json.NewDecoder(r)
 	if err := decoder.Decode(&data); err != nil {
@@ -138,6 +140,13 @@ func Load(r io.Reader) (*Catalog, error) {
 	catalog.forging, err = compileForge(catalog, data.forgeTables)
 	if err != nil {
 		return nil, fmt.Errorf("affinity catalog: %w", err)
+	}
+	// Older exports predate the alchemy sheets; they simply have no rules.
+	if data.Alchemy != nil {
+		catalog.alchemy, err = compileAlchemy(catalog, *data.Alchemy)
+		if err != nil {
+			return nil, fmt.Errorf("affinity catalog: %w", err)
+		}
 	}
 	return catalog, nil
 }

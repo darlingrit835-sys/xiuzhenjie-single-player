@@ -18,6 +18,7 @@ func registerPlay() {
 	gateway.Register(1001010, onBreakRealm)
 	gateway.Register(1007001, onSibingsMap)
 	gateway.Register(1007003, onMapChildren)
+	registerAlchemy()
 }
 
 // ------------------------------------------------ 1001007 切换修炼方式
