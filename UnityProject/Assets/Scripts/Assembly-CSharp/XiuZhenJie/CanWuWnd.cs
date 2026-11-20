@@ -242,7 +242,7 @@ namespace XiuZhenJie
 			int levelByRank = WorldSetting.GetLevelByRank(canWuEntity.Rank);
 			Sprite value3 = null;
 			m_RankBgSprite.TryGetValue(levelByRank, out value3);
-			component2.SetItem(null, canWuEntity.Name, canWuEntity.FiveElement, canWuEntity.Level, value3, value2, (object _obj, GameObject gameObj) =>
+			component2.SetItem(null, canWuEntity.Name, canWuEntity.FiveElement, canWuEntity.Level, value3, MethodBookIcon.Resolve(canWuEntity, value2), (object _obj, GameObject gameObj) =>
 			{
 				UnityAction<object> unityAction = (object obj) =>
 				{
@@ -306,7 +306,7 @@ namespace XiuZhenJie
 			int levelByRank = WorldSetting.GetLevelByRank(canWuEntity.Rank);
 			Sprite value3 = null;
 			m_RankBgSprite.TryGetValue(levelByRank, out value3);
-			component2.SetItem(null, canWuEntity.Name, canWuEntity.FiveElement, canWuEntity.Level, value3, value2, (object _obj, GameObject gameObj) =>
+			component2.SetItem(null, canWuEntity.Name, canWuEntity.FiveElement, canWuEntity.Level, value3, MethodBookIcon.Resolve(canWuEntity, value2), (object _obj, GameObject gameObj) =>
 			{
 				UnityAction<object> unityAction = (object obj) =>
 				{

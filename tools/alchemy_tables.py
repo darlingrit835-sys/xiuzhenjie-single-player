@@ -1,13 +1,11 @@
 """校验丹方与已有材料、炉火、功法和产地的引用。"""
 
-from collections import defaultdict
-from functools import lru_cache
 import re
 
 if __package__:
-    from .geography_tables import integer
+    from .crafting_tables import RELATIONS, limited_value, modifiers, regional_source_check, requirements_by_product, write_row
 else:
-    from geography_tables import integer
+    from crafting_tables import RELATIONS, limited_value, modifiers, regional_source_check, requirements_by_product, write_row
 
 
 SHEETS = {
@@ -26,28 +24,9 @@ SHEETS = {
     "炼丹结算": ("limits", "设置键 基点 说明", "id bps note"),
 }
 
-RELATIONS = {"same", "generates", "generatedBy", "overcomes", "overcomeBy", "neutral"}
 LIMIT_KEYS = {
     "successMinBps", "successMaxBps", "yieldMultiplierMinBps", "yieldMultiplierMaxBps", "primaryWeightBps",
 }
-MODIFIER_FIELDS = ("successBps", "yieldBps", "potencyBps")
-
-
-def limited_value(row, field, location, low, high):
-    value = integer(row, field, location)
-    if not low <= value <= high:
-        raise ValueError(f"{location}「{field}」须在 {low}～{high} 之间")
-    return value
-
-
-def modifiers(row, location):
-    return {field: limited_value(row, field, location, -10000, 10000) for field in MODIFIER_FIELDS}
-
-
-def write_row(table, key, value, location):
-    if key in table:
-        raise ValueError(f"{location} 规则键 {key} 重复")
-    table[key] = value
 
 
 def compile_controls(config, sheets):
@@ -120,18 +99,8 @@ def compile_alchemy(config, sheets, world):
     templates = {row["id"]: row for row in config["itemTemplates"]}
     profiles = {row["id"]: row for row in config["profiles"]}
     grades = {row["id"] for row in config["grades"]}
-    ingredients = defaultdict(set)
-    for row in config["creationInputs"]:
-        ingredients[row["outputId"]].add(row["inputId"])
-
-    @lru_cache(maxsize=None)
-    def has_region_source(item):
-        source = world["resourceSources"].get(item, {})
-        if "gather" in source or "drop" in source:
-            return True
-        # 造物用料已完成无环校验。加工料的原料都必须可追到地区。
-        inputs = ingredients.get(item)
-        return bool(inputs) and all(has_region_source(component) for component in inputs)
+    ingredients = requirements_by_product(config)
+    has_region_source = regional_source_check(ingredients, world["resourceSources"])
 
     for location, row in sheets["丹方表"]:
         key, output, primary, effect = (row[field] for field in ("id", "outputId", "primaryId", "effectId"))

@@ -46,7 +46,7 @@ namespace XiuZhenJie
 			GoodsName.text = name;
 			GoodsFiveElement.text = WorldSetting.GetSignleWuXingName((WuXing)fiveElement);
 			GoodsLevel.text = level.ToString();
-			GoodsIcon.sprite = iconSpr;
+			GoodsIcon.sprite = MethodBookIcon.Resolve(dataSource, iconSpr);
 			RankImg.sprite = rankSpr;
 			m_ClickAction = ClickAction;
 			if (group != null)

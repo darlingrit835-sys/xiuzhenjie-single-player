@@ -51,7 +51,7 @@ namespace XiuZhenJie
 			string signleWuXingName = WorldSetting.GetSignleWuXingName((WuXing)fiveElement);
 			GoodsFiveElement.text = signleWuXingName;
 			GoodsLevel.text = level.ToString();
-			GoodsIcon.sprite = iconSpr;
+			GoodsIcon.sprite = MethodBookIcon.Resolve(dataSource, iconSpr);
 			RankImg.sprite = rankSpr;
 			ClickBtn.onClick.RemoveAllListeners();
 			if (ClickAction != null)

@@ -8,6 +8,11 @@ import math
 from pathlib import Path
 import re
 
+if __package__:
+    from .cultivation_methods import resolve_method
+else:
+    from cultivation_methods import resolve_method
+
 
 CONFIG = Path(__file__).resolve().parents[1] / "server/data/config/cultivation_affinities.json"
 
@@ -69,11 +74,17 @@ def element_relation(elements, source, target):
     return "neutral"
 
 
-def role_element(role):
-    # buildGameMethods assigns the equipped method's element by rank offset.
-    match = re.fullmatch(r"gf_3_([1-9]|1[0-6])", str(role.get("GongFaNaQi", "")))
-    if match:
-        return (int(match[1]) - 1) % 5 + 1
+def role_element(role, catalog=None):
+    equipped = role.get("GongFaNaQi", "")
+    if catalog and "methods" in catalog:
+        method = resolve_method(catalog, equipped)
+        if method and method["pathId"] == 3:
+            return catalog["profiles"][method["profileId"]]["primaryElementId"]
+    else:
+        # Older exports lack a method directory. Their original IDs encode the element.
+        match = re.fullmatch(r"gf_3_([1-9]|1[0-6])", str(equipped))
+        if match:
+            return (int(match[1]) - 1) % 5 + 1
     strongest, chosen = 0, 0
     for element, key in enumerate(("Gold", "Wood", "Water", "Fire", "Earth"), 1):
         try:
@@ -111,6 +122,14 @@ def map_region(regions, map_id):
     return None
 
 
+def catalog_region(config, map_id):
+    """新增战区先查显式绑定，老地图按既有市镇、设施和林地编号回退。"""
+    zone = config.get("encounterMapIds", {}).get(str(map_id))
+    if zone is not None:
+        return str(config["encounterMaps"][str(zone)]["regionId"])
+    return map_region(config["regions"], map_id)
+
+
 def period_offset(period, region, effect, target, bound):
     # Include the resolved region so neighbouring districts may differ within the same period.
     digest = hashlib.sha256(f"{period}|{region}|{effect}|{target}".encode("utf-8")).digest()
@@ -123,18 +142,18 @@ def preview_region(config, locale, region_id, roles=None, period=0):
     if type(period) is not int or period < 0:
         raise ValueError("周期编号须为非负整数")
     regions = config["regions"]
-    region = map_region(regions, region_id)
+    region = catalog_region(config, region_id)
     if region is None:
         raise ValueError(f"未登记的地域或地图 ID {region_id}")
     path = region_path(regions, region)
     within = {None: False}
     counts = Counter()
     for role in snapshot_roles(roles if roles is not None else {}):
-        place = map_region(regions, role.get("MapId"))
+        place = catalog_region(config, role.get("MapId"))
         if place not in within:
             within[place] = regions[place]["level"] == 3 and region in region_path(regions, place)
         if within[place]:
-            counts[role_element(role)] += 1
+            counts[role_element(role, config)] += 1
 
     # The nearest ancestor defining the same effect AND target takes precedence.
     inherited = {}
@@ -178,7 +197,7 @@ def preview_region(config, locale, region_id, roles=None, period=0):
 
 def demo_snapshot(config, region_id):
     regions = config["regions"]
-    region = map_region(regions, region_id)
+    region = catalog_region(config, region_id)
     if region is None:
         raise ValueError(f"未登记的地域或地图 ID {region_id}")
     # For a province preview, place the demo residents in a real county below it.
@@ -233,17 +252,23 @@ def main():
         config = read_json(args.config)
         locale = read_json(args.locale or args.config.with_name(args.config.stem + ".zh-CN.json"))
         roles = read_json(args.roles, legacy=True) if args.roles else {}
+        area = config.get("encounterMapIds", {}).get(args.region)
         if args.demo:
             roles = demo_snapshot(config, args.region)
         result = preview_region(config, locale, args.region, roles, args.period)
         if args.ecology:
             if __package__:
+                from .bestiary_tables import map_ecology_summary
                 from .region_ecology import format_ecology, region_ecology_summary
             else:
+                from bestiary_tables import map_ecology_summary
                 from region_ecology import format_ecology, region_ecology_summary
             if config["regions"][str(result["regionId"])]["level"] != 3:
                 raise ValueError("生态预览请选择郡或郡下地图 ID")
-            result["ecology"] = region_ecology_summary(config, locale, result["regionId"], args.tier)
+            if area is not None:
+                result["ecology"] = map_ecology_summary(config, locale, args.region, args.tier)
+            else:
+                result["ecology"] = region_ecology_summary(config, locale, result["regionId"], args.tier)
         if args.json:
             print(json.dumps(result, ensure_ascii=False, indent=2))
         else:

@@ -15,14 +15,30 @@ from zipfile import BadZipFile, ZipFile
 
 if __package__:
     from .affinity_runtime import compile_catalog
-    from . import alchemy_tables, ecology_tables, geography_tables, region_ecology
+    from . import alchemy_tables, ecology_tables, geography_tables, inscription_tables, region_ecology
 else:
     from affinity_runtime import compile_catalog
     import alchemy_tables
     import ecology_tables
     import geography_tables
+    import inscription_tables
     import region_ecology
 
+
+if __package__:
+    from . import bestiary_tables, character_tables, content_affixes, creation_catalog, cultivation_methods, history_projection, monster_stats, world_systems
+else:
+    import bestiary_tables
+    import character_tables
+    import content_affixes
+    import history_projection
+    import monster_stats
+    import creation_catalog
+    import cultivation_methods
+    import world_systems
+
+CONTENT_MODULES = (bestiary_tables, cultivation_methods, monster_stats, world_systems, character_tables, history_projection, creation_catalog, content_affixes)
+CONTENT_SHEETS = {name: schema for module in CONTENT_MODULES for name, schema in module.SHEETS.items()}
 
 DATA = Path(__file__).resolve().parents[1] / "server/data"
 SHEETS = {
@@ -59,6 +75,9 @@ SHEETS = {
     **ecology_tables.SHEETS,
     **region_ecology.SHEETS,
     **alchemy_tables.SHEETS,
+    **inscription_tables.SHEETS,
+    **CONTENT_SHEETS,
+    creation_catalog.UI_POOL_SHEET: creation_catalog.UI_POOL_SCHEMA,
 }
 OPTIONAL = {
     "对象属性": {"阴阳", "主五行", "辅五行", "主气", "辅气", "原对象键"},
@@ -67,6 +86,8 @@ OPTIONAL = {
     "炼器工艺": {"品阶ID", "五行"},
     **geography_tables.OPTIONAL,
     **ecology_tables.OPTIONAL,
+    **inscription_tables.OPTIONAL,
+    **{name: labels for module in CONTENT_MODULES for name, labels in getattr(module, "OPTIONAL", {}).items()},
 }
 # 外键均由对应的主键校验。本表只列可直接产生程序标识的列。
 PROGRAM_KEYS = {
@@ -105,7 +126,19 @@ def read_sheets(path):
                 shared = [rich_text(si) for si in strings]
                 break
         result = {}
+        has_inscription = bool(inscription_tables.SHEETS.keys() & paths.keys())
+        has_content = bool(CONTENT_SHEETS.keys() & paths.keys())
+        if creation_catalog.UI_POOL_SHEET in paths and not has_content:
+            raise ValueError("界面图池需要创作目录")
+        if has_content and not has_inscription:
+            raise ValueError("创作目录需要画符表组")
         for sheet, (_, header, fields) in SHEETS.items():
+            if sheet == creation_catalog.UI_POOL_SHEET and sheet not in paths:
+                continue
+            if not has_content and sheet in CONTENT_SHEETS:
+                continue
+            if not has_inscription and sheet in inscription_tables.SHEETS:
+                continue
             if sheet not in paths:
                 raise ValueError(f"缺少工作表「{sheet}」")
             worksheet = ET.fromstring(archive.read(paths[sheet]))
@@ -639,11 +672,22 @@ def build_config(sheets):
     config["worldRules"] = {**regions, **ecology, **region_ecology.source_indexes(ecology), "ecologyAffinity": habitat}
     config["worldText"] = {**region_text, **ecology_text, "ecologyAffinity": habitat_text}
     config["alchemyRules"], config["alchemyText"] = alchemy_tables.compile_alchemy(config, sheets, config["worldRules"])
+    if "符方表" in sheets:
+        config["inscriptionRules"], config["inscriptionText"] = inscription_tables.compile_inscription(config, sheets)
+    if "创作门类" in sheets:
+        bestiary, bestiary_text = bestiary_tables.compile_bestiary(sheets, ecology, regions)
+        config["worldRules"].update(bestiary)
+        config["worldText"].update(bestiary_text)
+        config["methodRules"], config["methodText"] = cultivation_methods.compile_methods(config, sheets)
+        config["worldSystemRules"], config["worldSystemText"] = world_systems.compile_world(config, sheets)
+        config["monsterStatRules"], config["monsterStatText"] = monster_stats.compile_stats(config, sheets)
+        config["characterRules"], config["characterText"] = character_tables.compile_characters(config, sheets)
+        config["projectionRules"], config["projectionText"] = history_projection.compile_projection(config, sheets)
+        config["creationSheets"] = sheets
     return config
 
 
-def write_pair(outputs):
-    # 两份文件先在各自的目录落盘，再发布中文包，最后切换运行包。
+def write_outputs(outputs):
     def stage(path, data, cleanup):
         with NamedTemporaryFile(dir=path.parent, delete=False) as stream:
             pending = Path(stream.name)
@@ -652,19 +696,21 @@ def write_pair(outputs):
         pending.chmod(path.stat().st_mode if path.exists() else 0o644)
         return pending
 
-    (locale_path, locale_data), (runtime_path, runtime_data) = outputs
+    # 所有文件先落临时目录项，按列表顺序切换；切换失败时回滚已覆盖的文件。
     with ExitStack() as cleanup:
-        locale = stage(locale_path, locale_data, cleanup)
-        runtime = stage(runtime_path, runtime_data, cleanup)
-        backup = stage(locale_path, locale_path.read_bytes(), cleanup) if locale_path.exists() else None
-        locale.replace(locale_path)
+        pending = [(path, stage(path, data, cleanup)) for path, data in outputs]
+        backups = {path: stage(path, path.read_bytes(), cleanup) if path.exists() else None for path, _ in pending}
+        published = []
         try:
-            runtime.replace(runtime_path)
+            for path, staged in pending:
+                staged.replace(path)
+                published.append(path)
         except OSError:
-            if backup is None:
-                locale_path.unlink(missing_ok=True)
-            else:
-                backup.replace(locale_path)
+            for path in reversed(published):
+                if backups[path] is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    backups[path].replace(path)
             raise
 
 
@@ -673,6 +719,7 @@ def main():
     parser.add_argument("--workbook", type=Path, default=DATA / "config_excel/修仙属性基础表.xlsx")
     parser.add_argument("--output", type=Path, default=DATA / "config/cultivation_affinities.json")
     parser.add_argument("--locale-output", type=Path, help="简体中文展示资源路径，默认与运行配置同目录，后缀 .zh-CN.json")
+    parser.add_argument("--icon-output", type=Path, help="Unity 图标索引；使用默认工作簿和默认运行包时自动导出")
     parser.add_argument("--check", action="store_true", help="核对运行配置与简体中文资源，发现差异时返回非零")
     args = parser.parse_args()
     try:
@@ -682,15 +729,28 @@ def main():
         runtime, locale = compile_catalog(build_config(read_sheets(args.workbook)))
         runtime_data = (json.dumps(runtime, ensure_ascii=False, separators=(",", ":")) + "\n").encode("ascii")
         locale_data = (json.dumps(locale, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-        outputs = ((locale_path, locale_data), (args.output, runtime_data))
+        outputs = [(locale_path, locale_data)]
+        icon_path = args.icon_output
+        if (icon_path is None and "creation" in runtime
+                and args.workbook.resolve() == (DATA / "config_excel/修仙属性基础表.xlsx").resolve()
+                and args.output.resolve() == (DATA / "config/cultivation_affinities.json").resolve()
+                and args.locale_output is None):
+            icon_path = creation_catalog.RESOURCES / "CatalogIcons/index.json"
+        if icon_path is not None:
+            if "creation" not in runtime or icon_path.resolve() in {p.resolve() for p in (args.workbook, args.output, locale_path)}:
+                raise ValueError("图标索引需要创作目录及独立输出路径")
+            index_data = json.dumps(creation_catalog.client_icon_index(runtime), separators=(",", ":"))
+            outputs.append((icon_path, (index_data + "\n").encode("ascii")))
+        outputs.append((args.output, runtime_data))
+        files = "、".join(str(path) for path, _ in outputs)
         if args.check:
             differences = [str(path) for path, data in outputs if not path.is_file() or path.read_bytes() != data]
             if differences:
                 raise ValueError(f"{'、'.join(differences)} 与基础表不同，请重新导出")
-            print(f"基础表与 {args.output}、{locale_path} 一致")
+            print(f"基础表与 {files} 一致")
         else:
-            write_pair(outputs)
-            print(f"已导出 {args.output}、{locale_path}")
+            write_outputs(outputs)
+            print(f"已导出 {files}")
     except (OSError, BadZipFile, ET.ParseError, KeyError, ValueError) as error:
         print(error, file=sys.stderr)
         return 1
