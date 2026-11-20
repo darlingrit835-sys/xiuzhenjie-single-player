@@ -101,6 +101,9 @@ def compile_catalog(config):
     locale.update(config["worldText"])
     runtime["alchemy"] = config["alchemyRules"]
     locale["alchemy"] = config["alchemyText"]
+    if "inscriptionRules" in config:
+        runtime["inscription"] = config["inscriptionRules"]
+        locale["inscription"] = config["inscriptionText"]
     # 哈希包含两包内容，任一侧的有效数据变更都能识别成新的配套版本。
     canonical = json.dumps([runtime, locale], ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     version = sha256(canonical.encode("utf-8")).hexdigest()

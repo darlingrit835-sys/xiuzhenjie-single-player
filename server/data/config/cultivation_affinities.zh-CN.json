@@ -237,6 +237,14 @@
     "mat.core": {
       "name": "内丹",
       "meaning": "妖兽凝练的内丹，记为原料，可投入丹方或灵植养护。"
+    },
+    "mat.paper": {
+      "name": "符纸",
+      "meaning": "用灵木、芦纤维等加工的空白符纸。"
+    },
+    "obj.brush": {
+      "name": "符笔",
+      "meaning": "可重复使用的画符工具。"
     }
   },
   "itemTemplates": {
@@ -431,6 +439,58 @@
     "obj.shuangmai_pill": {
       "name": "霜脉清毒丹",
       "note": "以寒渊灵植、矿砂和妖兽材料炼成的清毒丹。"
+    },
+    "mat.qingwen_paper": {
+      "name": "青纹符纸",
+      "note": "云纹木纤维成纸，凝露草作润料。"
+    },
+    "mat.shuanglu_paper": {
+      "name": "霜芦符纸",
+      "note": "用寒渊霜节芦加工，纸质坚韧。"
+    },
+    "mat.leiyin_ink": {
+      "name": "鸣雷墨",
+      "note": "鸣雷角与寒渊银砂配成金行符墨。"
+    },
+    "mat.chiyan_ink": {
+      "name": "赤绒朱墨",
+      "note": "赤绒苔与阳燧晶配成火行符墨。"
+    },
+    "obj.yunmu_brush": {
+      "name": "云木符笔",
+      "note": "云纹木配逐风兽筋，容易稳笔，适合入门。"
+    },
+    "obj.xuanlin_brush": {
+      "name": "玄鳞符笔",
+      "note": "以玄水鳞护笔束，偏向药润与较高符效。"
+    },
+    "obj.jinling_brush": {
+      "name": "金翎符笔",
+      "note": "以金翎匀笔，成符稳且符效高。金克木时会拖累木方。"
+    },
+    "obj.chijing_brush": {
+      "name": "赤晶符笔",
+      "note": "阳燧晶和雷纹豹须配成火行符笔，长于批量出符。"
+    },
+    "obj.qingshen_sign": {
+      "name": "轻身符",
+      "note": "沿用原有试用轻身符的木风取向，作为常规下品符制作。"
+    },
+    "obj.runze_sign": {
+      "name": "润泽符",
+      "note": "引水润气血，供恢复类符箓使用。"
+    },
+    "obj.gengjin_sign": {
+      "name": "庚金破甲符",
+      "note": "凝金成锋，按破甲值计量。"
+    },
+    "obj.yinlei_sign": {
+      "name": "引雷符",
+      "note": "封存已有引雷术的火行雷气，作为本轮制符样例。"
+    },
+    "obj.zhenrang_sign": {
+      "name": "镇壤护符",
+      "note": "聚土罡护身，按可吸收伤害值计量。"
     }
   },
   "profiles": {
@@ -729,6 +789,58 @@
     "pill.shuangmai": {
       "name": "霜脉清毒丹",
       "note": "以寒渊灵植、矿砂和妖兽材料炼成的清毒丹。"
+    },
+    "talisman_paper.qingwen_paper": {
+      "name": "青纹符纸",
+      "note": "云纹木纤维成纸，凝露草作润料。"
+    },
+    "talisman_paper.shuanglu_paper": {
+      "name": "霜芦符纸",
+      "note": "用寒渊霜节芦加工，纸质坚韧。"
+    },
+    "talisman_ink.leiyin_ink": {
+      "name": "鸣雷墨",
+      "note": "鸣雷角与寒渊银砂配成金行符墨。"
+    },
+    "talisman_ink.chiyan_ink": {
+      "name": "赤绒朱墨",
+      "note": "赤绒苔与阳燧晶配成火行符墨。"
+    },
+    "talisman_brush.yunmu_brush": {
+      "name": "云木符笔",
+      "note": "云纹木配逐风兽筋，容易稳笔，适合入门。"
+    },
+    "talisman_brush.xuanlin_brush": {
+      "name": "玄鳞符笔",
+      "note": "以玄水鳞护笔束，偏向药润与较高符效。"
+    },
+    "talisman_brush.jinling_brush": {
+      "name": "金翎符笔",
+      "note": "以金翎匀笔，成符稳且符效高。金克木时会拖累木方。"
+    },
+    "talisman_brush.chijing_brush": {
+      "name": "赤晶符笔",
+      "note": "阳燧晶和雷纹豹须配成火行符笔，长于批量出符。"
+    },
+    "talisman.qingshen_sign": {
+      "name": "轻身符",
+      "note": "沿用原有试用轻身符的木风取向，作为常规下品符制作。"
+    },
+    "talisman.runze_sign": {
+      "name": "润泽符",
+      "note": "引水润气血，供恢复类符箓使用。"
+    },
+    "talisman.gengjin_sign": {
+      "name": "庚金破甲符",
+      "note": "凝金成锋，按破甲值计量。"
+    },
+    "talisman.yinlei_sign": {
+      "name": "引雷符",
+      "note": "封存已有引雷术的火行雷气，作为本轮制符样例。"
+    },
+    "talisman.zhenrang_sign": {
+      "name": "镇壤护符",
+      "note": "聚土罡护身，按可吸收伤害值计量。"
     }
   },
   "profileOrigins": {
@@ -816,6 +928,12 @@
     },
     "formation": {
       "name": "阵法"
+    },
+    "talisman_paper": {
+      "name": "符纸"
+    },
+    "talisman_brush": {
+      "name": "符笔"
     }
   },
   "systems": {
@@ -1467,6 +1585,26 @@
       "form": "浅银矿砂",
       "usage": "炼器、画符调色",
       "processing": "银砂凝寒，用作引气辅料。"
+    },
+    "mat.qingwen_paper": {
+      "form": "空白符纸",
+      "usage": "成品底材",
+      "processing": "加工原料来自青云洲两郡。"
+    },
+    "mat.shuanglu_paper": {
+      "form": "空白符纸",
+      "usage": "成品底材",
+      "processing": "以霜节芦的纤维成纸。"
+    },
+    "mat.leiyin_ink": {
+      "form": "成品符墨",
+      "usage": "承载金行符纹",
+      "processing": "材料有兽材和矿砂两条来源。"
+    },
+    "mat.chiyan_ink": {
+      "form": "成品符墨",
+      "usage": "承载火行符纹",
+      "processing": "材料可在紫霞郡和沙海郡采得。"
     }
   },
   "weaponDetails": {
@@ -1624,6 +1762,122 @@
       },
       "mat.river_scale": {
         "purpose": "药引。玄水鳞纳入辅材五行。"
+      }
+    },
+    "mat.qingwen_paper": {
+      "mat.cloudwood": {
+        "purpose": "灵木纤维。"
+      },
+      "mat.ninglu_herb": {
+        "purpose": "润纸辅料。"
+      }
+    },
+    "mat.shuanglu_paper": {
+      "mat.frost_reed": {
+        "purpose": "芦纤维。"
+      }
+    },
+    "mat.leiyin_ink": {
+      "mat.thunder_horn": {
+        "purpose": "制墨颜料。"
+      },
+      "mat.frost_silver": {
+        "purpose": "金行矿砂。"
+      }
+    },
+    "mat.chiyan_ink": {
+      "mat.ember_moss": {
+        "purpose": "火行颜料。"
+      },
+      "mat.sunstone": {
+        "purpose": "矿物辅料。"
+      }
+    },
+    "obj.yunmu_brush": {
+      "mat.cloudwood": {
+        "purpose": "笔杆。"
+      },
+      "mat.wind_sinew": {
+        "purpose": "韧性笔束。"
+      }
+    },
+    "obj.xuanlin_brush": {
+      "mat.cloudwood": {
+        "purpose": "笔杆。"
+      },
+      "mat.river_scale": {
+        "purpose": "束笔鳞片。"
+      }
+    },
+    "obj.jinling_brush": {
+      "mat.gold_plume": {
+        "purpose": "金翎笔锋。"
+      },
+      "mat.cloudwood": {
+        "purpose": "笔杆。"
+      }
+    },
+    "obj.chijing_brush": {
+      "mat.sunstone": {
+        "purpose": "赤晶笔座。"
+      },
+      "mat.thunder_whisker": {
+        "purpose": "雷纹笔须。"
+      }
+    },
+    "obj.qingshen_sign": {
+      "mat.qingwen_paper": {
+        "purpose": "承载轻身符。"
+      },
+      "mat.chenglu_ink": {
+        "purpose": "润纹用墨。"
+      },
+      "mat.cloudwood": {
+        "purpose": "辅材，用木纹接续风气。"
+      }
+    },
+    "obj.runze_sign": {
+      "mat.qingwen_paper": {
+        "purpose": "底材。"
+      },
+      "mat.chenglu_ink": {
+        "purpose": "水润符墨。"
+      },
+      "mat.dream_lotus": {
+        "purpose": "辅材，用水行灵植定润纹。"
+      }
+    },
+    "obj.gengjin_sign": {
+      "mat.shuanglu_paper": {
+        "purpose": "寒金底材。"
+      },
+      "mat.leiyin_ink": {
+        "purpose": "金行符墨。"
+      },
+      "mat.frost_silver": {
+        "purpose": "辅材，以银砂定破甲纹。"
+      }
+    },
+    "obj.yinlei_sign": {
+      "mat.qingwen_paper": {
+        "purpose": "底材。"
+      },
+      "mat.chiyan_ink": {
+        "purpose": "火行符墨。"
+      },
+      "mat.thunder_whisker": {
+        "purpose": "辅材，稳定引雷纹。"
+      }
+    },
+    "obj.zhenrang_sign": {
+      "mat.shuanglu_paper": {
+        "purpose": "坚韧底材。"
+      },
+      "mat.chiyan_ink": {
+        "purpose": "取火生土。"
+      },
+      "mat.earth_claw": {
+        "purpose": "辅材，厚土熊爪可固土罡。"
       }
     }
   },
@@ -2598,6 +2852,10 @@
       "smithing": {
         "name": "器身主材",
         "note": "木质弓臂与杖身。"
+      },
+      "inscription": {
+        "name": "符纸基材",
+        "note": "可加工青纹符纸，也可作笔杆或轻身符辅材。"
       }
     },
     "made.frost_iron": {
@@ -2654,6 +2912,10 @@
       "alchemy": {
         "name": "丹方药引",
         "note": "肉身材料作为炼丹药引登记。"
+      },
+      "inscription": {
+        "name": "符笔用材",
+        "note": "加工玄鳞符笔。"
       }
     },
     "mat.earth_claw": {
@@ -2668,6 +2930,10 @@
       "alchemy": {
         "name": "丹方药引",
         "note": "肉身材料作为炼丹药引登记。"
+      },
+      "inscription": {
+        "name": "定纹辅材",
+        "note": "镇壤护符固纹。"
       }
     },
     "mat.gold_plume": {
@@ -2746,6 +3012,10 @@
       "alchemy": {
         "name": "丹方矿辅",
         "note": "计入对应丹方的辅材五行。"
+      },
+      "inscription": {
+        "name": "制墨颜料",
+        "note": "可配赤绒朱墨或加工赤晶符笔。"
       }
     },
     "mat.chilie_sand": {
@@ -2770,6 +3040,10 @@
       "alchemy": {
         "name": "丹方辅药",
         "note": "调和水性药汁。"
+      },
+      "inscription": {
+        "name": "制墨颜料",
+        "note": "澄露墨的调墨灵液。"
       }
     },
     "mat.ember_moss": {
@@ -2784,6 +3058,10 @@
       "alchemy": {
         "name": "丹方主药",
         "note": "可作本行丹方主药，也可作其他丹方辅药。"
+      },
+      "inscription": {
+        "name": "制墨颜料",
+        "note": "赤绒朱墨原料。"
       }
     },
     "mat.frost_silver": {
@@ -2818,6 +3096,10 @@
       "alchemy": {
         "name": "丹方主药",
         "note": "凝露丹药材。"
+      },
+      "inscription": {
+        "name": "制墨颜料",
+        "note": "可加工澄露墨或润纸。"
       }
     },
     "mat.wild_herb": {
@@ -2924,8 +3206,32 @@
     },
     "mat.chenglu_ink": {
       "inscription": {
-        "name": "制墨颜料",
-        "note": "澄露成墨可直接绘纹。"
+        "name": "成品符墨",
+        "note": "成品水墨。配方沿用凝露草和寒露液。"
+      }
+    },
+    "mat.qingwen_paper": {
+      "inscription": {
+        "name": "成品符纸",
+        "note": "承载轻身、润泽、引雷等符纹。"
+      }
+    },
+    "mat.shuanglu_paper": {
+      "inscription": {
+        "name": "成品符纸",
+        "note": "承载庚金和镇壤等符纹。"
+      }
+    },
+    "mat.leiyin_ink": {
+      "inscription": {
+        "name": "成品符墨",
+        "note": "金行符墨。"
+      }
+    },
+    "mat.chiyan_ink": {
+      "inscription": {
+        "name": "成品符墨",
+        "note": "火行符墨。"
       }
     }
   },
@@ -3005,8 +3311,17 @@
       "pigment": {
         "name": "制墨颜料"
       },
+      "ink": {
+        "name": "成品符墨"
+      },
       "tool": {
         "name": "符笔用材"
+      },
+      "paper": {
+        "name": "成品符纸"
+      },
+      "auxiliary": {
+        "name": "定纹辅材"
       }
     },
     "array_craft": {
@@ -3182,5 +3497,164 @@
       }
     }
   },
-  "catalogVersion": "b0ae6bb04b9c171328d153b9b6f59be872ec0bd39f789079be0221482bb0135e"
+  "inscription": {
+    "limits": {
+      "inkWeightBps": {
+        "note": "对符墨主五行的关系权重为 30%，剩余 10% 对符纸。"
+      },
+      "patternWeightBps": {
+        "note": "符笔与功法各对成品主五行计算 60% 的关系权重。"
+      },
+      "successMaxBps": {
+        "note": "成符率上限为 98%。"
+      },
+      "successMinBps": {
+        "note": "成符率下限。100 基点为 1 个百分点。"
+      },
+      "yieldMultiplierMaxBps": {
+        "note": "成功后出符倍率上限，另受投入符纸张数限制。"
+      },
+      "yieldMultiplierMinBps": {
+        "note": "成功后出符倍率下限。"
+      }
+    },
+    "potencyByQuality": {
+      "1": {
+        "note": "下品。符效倍率 92%～100%。"
+      },
+      "2": {
+        "note": "中品。符效倍率 101%～111%。"
+      },
+      "3": {
+        "note": "上品。符效倍率 112%～124%。"
+      }
+    },
+    "ranks": {
+      "0": {
+        "name": "未学习",
+        "note": "未学习可按入门符方试画。"
+      },
+      "1": {
+        "name": "一品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "2": {
+        "name": "二品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "3": {
+        "name": "三品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "4": {
+        "name": "四品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "5": {
+        "name": "五品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "6": {
+        "name": "六品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "7": {
+        "name": "七品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "8": {
+        "name": "八品符师",
+        "note": "沿用原符师职业编号。"
+      },
+      "9": {
+        "name": "九品符师",
+        "note": "沿用原符师职业编号。"
+      }
+    },
+    "relations": {
+      "generatedBy": {
+        "name": "被生",
+        "note": "目标生符笔或功法，例如木生火时，火对木为被生。"
+      },
+      "generates": {
+        "name": "相生",
+        "note": "符笔或功法生目标五行，例如水生木。"
+      },
+      "neutral": {
+        "name": "中性",
+        "note": "留作中性效果。"
+      },
+      "overcomeBy": {
+        "name": "被克",
+        "note": "目标克符笔或功法，例如土克水时，水对土为被克。"
+      },
+      "overcomes": {
+        "name": "相克",
+        "note": "符笔或功法克目标，例如水克火。"
+      },
+      "same": {
+        "name": "同属",
+        "note": "同一五行，容易引动同类符纹。"
+      }
+    },
+    "effects": {
+      "absorb_damage": {
+        "name": "护体",
+        "unit": "点伤害",
+        "note": "护盾可吸收累计不超过该值的伤害。"
+      },
+      "armor_break": {
+        "name": "破甲",
+        "unit": "点破甲",
+        "note": "按点数降低有效防御。具体持续时间由战斗接入。"
+      },
+      "lightning_damage": {
+        "name": "雷伤",
+        "unit": "点伤害",
+        "note": "引雷符的基础伤害。战斗中再按抗性与目标结算。"
+      },
+      "move_speed": {
+        "name": "移动速度",
+        "unit": "基点",
+        "note": "按基础值的百分比提高移动速度。"
+      },
+      "recover_blood": {
+        "name": "恢复气血",
+        "unit": "点气血",
+        "note": "恢复对应点数的气血。"
+      }
+    },
+    "recipes": {
+      "sign.gengjin": {
+        "note": "寒渊银砂磨墨，鸣雷角取自白泽幼兽。"
+      },
+      "sign.qingshen": {
+        "note": "常规黄阶下品轻身符。云纹木定纹。"
+      },
+      "sign.runze": {
+        "note": "梦泽莲定润纹，可在朝露郡找齐材料。"
+      },
+      "sign.yinlei": {
+        "note": "引用已有引雷术的火行、雷气。"
+      },
+      "sign.zhenrang": {
+        "note": "取火墨生土，镇壤熊爪稳住护符。"
+      }
+    },
+    "brushes": {
+      "obj.chijing_brush": {
+        "note": "阳燧晶和雷纹豹须配成火行符笔，长于批量出符。"
+      },
+      "obj.jinling_brush": {
+        "note": "以金翎匀笔，成符稳且符效高。金克木时会拖累木方。"
+      },
+      "obj.xuanlin_brush": {
+        "note": "以玄水鳞护笔束，偏向药润与较高符效。"
+      },
+      "obj.yunmu_brush": {
+        "note": "云纹木配逐风兽筋，容易稳笔，适合入门。"
+      }
+    }
+  },
+  "catalogVersion": "6ae647e973a068240ba0f19cc3129d12636cc6a2b66473b2892cfad55396e293"
 }

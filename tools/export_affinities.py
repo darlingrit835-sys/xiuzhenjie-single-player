@@ -15,12 +15,13 @@ from zipfile import BadZipFile, ZipFile
 
 if __package__:
     from .affinity_runtime import compile_catalog
-    from . import alchemy_tables, ecology_tables, geography_tables, region_ecology
+    from . import alchemy_tables, ecology_tables, geography_tables, inscription_tables, region_ecology
 else:
     from affinity_runtime import compile_catalog
     import alchemy_tables
     import ecology_tables
     import geography_tables
+    import inscription_tables
     import region_ecology
 
 
@@ -59,6 +60,7 @@ SHEETS = {
     **ecology_tables.SHEETS,
     **region_ecology.SHEETS,
     **alchemy_tables.SHEETS,
+    **inscription_tables.SHEETS,
 }
 OPTIONAL = {
     "对象属性": {"阴阳", "主五行", "辅五行", "主气", "辅气", "原对象键"},
@@ -67,6 +69,7 @@ OPTIONAL = {
     "炼器工艺": {"品阶ID", "五行"},
     **geography_tables.OPTIONAL,
     **ecology_tables.OPTIONAL,
+    **inscription_tables.OPTIONAL,
 }
 # 外键均由对应的主键校验。本表只列可直接产生程序标识的列。
 PROGRAM_KEYS = {
@@ -105,7 +108,10 @@ def read_sheets(path):
                 shared = [rich_text(si) for si in strings]
                 break
         result = {}
+        has_inscription = bool(inscription_tables.SHEETS.keys() & paths.keys())
         for sheet, (_, header, fields) in SHEETS.items():
+            if not has_inscription and sheet in inscription_tables.SHEETS:
+                continue
             if sheet not in paths:
                 raise ValueError(f"缺少工作表「{sheet}」")
             worksheet = ET.fromstring(archive.read(paths[sheet]))
@@ -639,6 +645,8 @@ def build_config(sheets):
     config["worldRules"] = {**regions, **ecology, **region_ecology.source_indexes(ecology), "ecologyAffinity": habitat}
     config["worldText"] = {**region_text, **ecology_text, "ecologyAffinity": habitat_text}
     config["alchemyRules"], config["alchemyText"] = alchemy_tables.compile_alchemy(config, sheets, config["worldRules"])
+    if "符方表" in sheets:
+        config["inscriptionRules"], config["inscriptionText"] = inscription_tables.compile_inscription(config, sheets)
     return config
 
 
