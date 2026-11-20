@@ -7,6 +7,11 @@
 | 要查的内容 | 入口 |
 | --- | --- |
 | 玩家流程、模块修改入口与回归点 | [游戏流程与模块索引](docs/gameplay.md) |
+| 阴阳、五行、十二气、品阶与浮动加成 | [框架总纲与抽样方法](docs/cultivation-affinities.md) · [策划总表与细表（Excel）](server/data/config_excel/修仙属性基础表.xlsx) · [运行配置](server/data/config/cultivation_affinities.json) · [简体中文资源](server/data/config/cultivation_affinities.zh-CN.json) |
+| 材料、武器、普通成品与玩家造物 | [分类、模板与创制用料](docs/item-creation.md) |
+| 大陆、洲、郡的加成与怪物、灵植、矿物产出 | [地区地利、修士共鸣与材料来源](docs/region-ecology.md) |
+| 丹方、各郡寻材、丹师和炉火的炼丹修正 | [炼丹规则协作草稿](docs/alchemy-design.md) |
+| 审定炼器的词条、工艺来源与作品模板 | [炼器规则样例与引用关系](docs/smithing-workshop.md) |
 | 客户端源码位置和内视补丁 | 下方「Unity 工程与 Git」 |
 | 功能目录对照、文档与版本来源 | [界面与 PB 归档总览](docs/interface-pb/README.md) |
 | 从玩家操作查到 Unity 窗口和 Java 处理 | [玩法流程](docs/interface-pb/flows.md) |
@@ -16,6 +21,8 @@
 | 从 Unity 调用点查 Go 的功能与试用回包 | [Unity 与 Go 接口对应表](docs/interface-pb/go-interfaces.md) |
 | 启动 Go 后端或运行对照测试 | [Go 服务端](server-go/README.md) |
 | 启动、重装与排查 | [玩家使用说明](使用说明.txt) · [服务端启动说明](server/README.md) |
+
+从 Excel 的「框架总纲」查细表。物品通过模板键连接分类、属性和用料，各玩法复用这些键。修改后在仓库根目录运行 `python3 tools/export_affinities.py` 导出运行配置与中文资源，再运行 `python3 tools/export_affinities.py --check` 核对。用 `python3 tools/generate_affinity_classes.py --seed 20261120` 可复现首版 48 个衍生类别。
 
 ## 本地启动
 
