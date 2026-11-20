@@ -53,6 +53,8 @@ python3 tools/preview_map_yield.py --map 1111W11 --kills 2 --json
 
 显示名称按图鉴 ID 查中文资源；Unity 单 Sprite 的资源键按 `CatalogIcons/Monsters/<怪物ID>` 查，例如 `CatalogIcons/Monsters/305`。项目内保留图鉴实际使用的 256 × 256 透明 PNG、固定 GUID 和重建所需画稿。修士的竹简、骨面、魔珠、兽爪、直剑、弯刀、阵盘和丹炉分别标示八种身份。[Unity 图标目录](../UnityProject/Assets/Resources/CatalogIcons/Monsters) · [本地图稿](../art/catalog/monster-studies.svg)
 
+野外和虚神塔战斗用旧协议的对象类型与图标编号识别兽形、人形。新兽像按 256 PPU 导入，让战场单位沿用旧尺寸。另有 16 张兽像供宗门兽潮使用，每次出现时按「界面图池」择一。
+
 图鉴图标采用项目原有兽像和水墨人物、按物种绘制的矢量画稿，以及青岚螳的独立底稿。已有 PNG 能直接导入 Unity。需要重制图标时，可在装有 Pillow 的 Python 环境执行以下命令，Node 本地环境需可解析 sharp。美术生成器使用固定随机种子，可用 `--node` 指定已装好的运行时。
 
 ```sh

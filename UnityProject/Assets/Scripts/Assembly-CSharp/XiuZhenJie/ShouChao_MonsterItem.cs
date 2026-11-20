@@ -63,10 +63,14 @@ namespace XiuZhenJie
 			m_AttackInterval = UnityEngine.Random.Range(2f, 5f);
 			m_Status = ShouChaoMonsterStatus.WaitingMove;
 			base.transform.localPosition = m_WaitMovePos;
-			int index = UnityEngine.Random.Range(1, 46);
-			Sprite sprite = Singleton<FacadeManager>.Instance.SelectImgSprite(0, index, 4);
+			Sprite sprite = CatalogIconArt.RandomFromPool("beast_wave");
+			if (sprite == null)
+			{
+				int index = UnityEngine.Random.Range(1, 46);
+				sprite = Singleton<FacadeManager>.Instance.SelectImgSprite(0, index, 4);
+			}
 			base.gameObject.SetActive(value: true);
-			base.gameObject.transform.Find("MosterIcon").gameObject.GetComponent<Image>().sprite = sprite;
+			IconImg.sprite = sprite;
 		}
 
 		public void StartWalking()

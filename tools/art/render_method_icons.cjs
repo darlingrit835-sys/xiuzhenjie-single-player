@@ -2,6 +2,7 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
+const {createHash} = require('node:crypto');
 const sharp = require('sharp');
 
 const root = path.resolve(__dirname, '../..');
@@ -14,60 +15,79 @@ const motif = (name, x = 0, y = 0, scale = 1, rotation = 0) =>
 
 // Physical book pattern and emblem ID are independent of the current localized title.
 // Each composition has its own scale, overlap and silhouette. Foreground subjects render last.
-const scenes = {
-  71001: [motif('moon', 15, -5, .7, 24), motif('eye', 0, 21, 1.00), motif('surf', 25, 70, .34)],
-  71002: [motif('mountain', 15, -3, .84), motif('monk', -4, 29, .73), motif('grass', 69, 55, .35)],
-  71003: [motif('surf', -1, 54, 1), motif('lotus', 3, -4, .98)],
-  71004: [motif('cloudbank', 11, 48, .85), motif('bell', -1, 0, 1.0)],
-  71005: [motif('moon', 10, -6, .54), motif('wave', 0, 7, .99)],
-  71006: [motif('cloudbank', 2, 53, .97), motif('pagoda', 5, -5, .90)],
-  71007: [motif('flame', -1, -5, 1.02), motif('pearl', 24, 53, .49)],
-  71008: [motif('moon', -1, 1, .83, -25), motif('mask', 31, 25, .66, 5)],
-  71009: [motif('stars', 48, 1, .52), motif('planet', 1, 10, .99, -13)],
-  71010: [motif('fish', 2, 9, .78, -26), motif('fish', 24, 31, .75, 149), motif('pearl', 44, 44, .25)],
-  71011: [motif('stars', 0, 5, 1.0), motif('comet', 19, 14, .87), motif('mountain', -2, 62, .46)],
-  71012: [motif('spiral', -1, 0, .94, -17), motif('eye', 30, 32, .55, -10)],
-  71013: [motif('cloudbank', 22, 56, .73), motif('heron', 0, -1, 1)],
-  71014: [motif('moon', 40, -6, .54), motif('pine', -3, 7, .98), motif('surf', 44, 72, .42)],
-  71015: [motif('shield', 14, 8, .75), motif('flame', -3, 48, .51), motif('flame', 54, 55, .43)],
-  71016: [motif('stars', -1, 4, .68), motif('cloudbank', 4, 55, .98), motif('eagle', 4, -4, .95)],
-  71017: [motif('surf', 5, 54, .93), motif('mirror', 4, -6, .98, -13)],
-  72001: [motif('bones', -4, 13, .91, -16), motif('bones', 46, -6, .56, 20)],
-  72002: [motif('flame', -5, 29, .63), motif('anvil', -4, 21, .95), motif('hammer', 27, -9, .73, -10)],
-  72003: [motif('crystal', 44, -5, .51), motif('shield', -1, 8, .92)],
-  72004: [motif('dragon', 39, -10, .59), motif('elephant', -3, 14, 1.0)],
-  72005: [motif('surf', 3, 62, .91), motif('shell', 0, 3, .98), motif('pearl', 69, 53, .26)],
-  72006: [motif('grass', 42, 47, .51), motif('tiger', -1, 7, 1.04)],
-  72007: [motif('pearl', 18, -12, .67), motif('mantle', 3, 9, .98)],
-  72008: [motif('cloudbank', -2, 46, 1), motif('crescentBlade', 1, -4, 1.03)],
-  72009: [motif('stars', 0, -4, .97), motif('mountain', 6, 24, .92), motif('comet', 51, -9, .48)],
-  72010: [motif('comet', 3, -5, .58), motif('shield', 20, 19, .81, -12), motif('comet', 64, 56, .35)],
-  72011: [motif('mountain', 28, 12, .68), motif('horns', -3, -1, .99)],
-  72012: [motif('flame', -2, 14, .98), motif('mask', 20, 3, .68, -8)],
-  72013: [motif('crystal', -3, -5, 1.02), motif('grass', 60, 57, .42)],
-  72014: [motif('stars', 44, -2, .55), motif('mantle', -3, 13, .88), motif('feather', 58, 49, .44, -22)],
-  72015: [motif('cloudbank', -4, 52, .9), motif('pine', 7, -6, 1.02), motif('lotusbud', 64, 57, .37)],
-  72016: [motif('moon', 13, -9, .77, 45), motif('monk', 8, 6, .95)],
-  73001: [motif('grass', -8, 49, .59), motif('seedling', 9, -4, 1.0), motif('pearl', 63, 59, .29)],
-  73002: [motif('pearl', 21, -9, .53), motif('vessel', 0, 11, .93)],
-  73003: [motif('leaf', 40, -5, .57), motif('pine', -4, 7, .97)],
-  73004: [motif('waterfall', 3, -6, 1.01), motif('fish', 52, 64, .43, -17)],
-  73005: [motif('flame', -6, -6, 1.1), motif('bird', 61, -7, .38)],
-  73006: [motif('mountain', -3, 1, 1.03), motif('grass', 41, 62, .48)],
-  73007: [motif('pearl', 43, -7, .56), motif('cloud', -3, 5, .98), motif('cloudbank', 14, 51, .81)],
-  73008: [motif('stars', 4, -6, .98), motif('moon', 3, 22, .78, -27), motif('pearl', 56, 41, .4)],
-  73009: [motif('spiral', 7, 4, .84, -45), motif('leaf', -6, 57, .41), motif('leaf', 59, -5, .39, 108)],
-  73010: [motif('cauldron', 4, 12, .94), motif('cloud', 14, -9, .65)],
-  73011: [motif('bamboo', -3, 0, .98), motif('bamboo', 49, 27, .62, 14)],
-  73012: [motif('mountaingate', 3, 20, .93), motif('bird', -4, -8, .59), motif('bird', 59, -8, .40)],
-  73013: [motif('moon', 51, -5, .44), motif('dragon', 0, 3, 1.02)],
-  73014: [motif('wave', 23, 13, .76, 11), motif('shell', -5, 27, .74)],
-  73015: [motif('moon', 1, -5, .78, -40), motif('moon', 34, 25, .72, 139), motif('pearl', 26, 34, .39)],
-  73016: [motif('mountain', 2, 40, .91), motif('lotusbud', 25, -7, .66), motif('cloudbank', 47, 63, .52)],
-  73017: [motif('moon', 40, -8, .64), motif('leaf', -4, -2, .94, -22), motif('seedling', 53, 45, .49)],
+const cover = (binding, pigment, marks) => ({binding, pigment, marks});
+const originalCovers = {
+  71001: cover(1, 1, [motif('moon', 15, -5, .7, 24), motif('eye', 0, 21, 1.00), motif('surf', 25, 70, .34)]),
+  71002: cover(1, 2, [motif('mountain', 15, -3, .84), motif('monk', -4, 29, .73), motif('grass', 69, 55, .35)]),
+  71003: cover(1, 3, [motif('surf', -1, 54, 1), motif('lotus', 3, -4, .98)]),
+  71004: cover(1, 4, [motif('cloudbank', 11, 48, .85), motif('bell', -1, 0, 1.0)]),
+  71005: cover(1, 5, [motif('moon', 10, -6, .54), motif('wave', 0, 7, .99)]),
+  71006: cover(1, 1, [motif('cloudbank', 2, 53, .97), motif('pagoda', 5, -5, .90)]),
+  71007: cover(1, 2, [motif('flame', -1, -5, 1.02), motif('pearl', 24, 53, .49)]),
+  71008: cover(1, 3, [motif('moon', -1, 1, .83, -25), motif('mask', 31, 25, .66, 5)]),
+  71009: cover(1, 4, [motif('stars', 48, 1, .52), motif('planet', 1, 10, .99, -13)]),
+  71010: cover(1, 5, [motif('fish', 2, 9, .78, -26), motif('fish', 24, 31, .75, 149), motif('pearl', 44, 44, .25)]),
+  71011: cover(1, 1, [motif('stars', 0, 5, 1.0), motif('comet', 19, 14, .87), motif('mountain', -2, 62, .46)]),
+  71012: cover(1, 2, [motif('spiral', -1, 0, .94, -17), motif('eye', 30, 32, .55, -10)]),
+  71013: cover(1, 3, [motif('cloudbank', 22, 56, .73), motif('heron', 0, -1, 1)]),
+  71014: cover(1, 4, [motif('moon', 40, -6, .54), motif('pine', -3, 7, .98), motif('surf', 44, 72, .42)]),
+  71015: cover(1, 5, [motif('shield', 14, 8, .75), motif('flame', -3, 48, .51), motif('flame', 54, 55, .43)]),
+  71016: cover(1, 1, [motif('stars', -1, 4, .68), motif('cloudbank', 4, 55, .98), motif('eagle', 4, -4, .95)]),
+  71017: cover(1, 3, [motif('surf', 5, 54, .93), motif('mirror', 4, -6, .98, -13)]),
+  72001: cover(2, 1, [motif('bones', -4, 13, .91, -16), motif('bones', 46, -6, .56, 20)]),
+  72002: cover(2, 2, [motif('flame', -5, 29, .63), motif('anvil', -4, 21, .95), motif('hammer', 27, -9, .73, -10)]),
+  72003: cover(2, 3, [motif('crystal', 44, -5, .51), motif('shield', -1, 8, .92)]),
+  72004: cover(2, 4, [motif('dragon', 39, -10, .59), motif('elephant', -3, 14, 1.0)]),
+  72005: cover(2, 5, [motif('surf', 3, 62, .91), motif('shell', 0, 3, .98), motif('pearl', 69, 53, .26)]),
+  72006: cover(2, 1, [motif('grass', 42, 47, .51), motif('tiger', -1, 7, 1.04)]),
+  72007: cover(2, 2, [motif('pearl', 18, -12, .67), motif('mantle', 3, 9, .98)]),
+  72008: cover(2, 3, [motif('cloudbank', -2, 46, 1), motif('crescentBlade', 1, -4, 1.03)]),
+  72009: cover(2, 4, [motif('stars', 0, -4, .97), motif('mountain', 6, 24, .92), motif('comet', 51, -9, .48)]),
+  72010: cover(2, 5, [motif('comet', 3, -5, .58), motif('shield', 20, 19, .81, -12), motif('comet', 64, 56, .35)]),
+  72011: cover(2, 1, [motif('mountain', 28, 12, .68), motif('horns', -3, -1, .99)]),
+  72012: cover(2, 2, [motif('flame', -2, 14, .98), motif('mask', 20, 3, .68, -8)]),
+  72013: cover(2, 3, [motif('crystal', -3, -5, 1.02), motif('grass', 60, 57, .42)]),
+  72014: cover(2, 4, [motif('stars', 44, -2, .55), motif('mantle', -3, 13, .88), motif('feather', 58, 49, .44, -22)]),
+  72015: cover(2, 5, [motif('cloudbank', -4, 52, .9), motif('pine', 7, -6, 1.02), motif('lotusbud', 64, 57, .37)]),
+  72016: cover(2, 1, [motif('moon', 13, -9, .77, 45), motif('monk', 8, 6, .95)]),
+  73001: cover(3, 1, [motif('grass', -8, 49, .59), motif('seedling', 9, -4, 1.0), motif('pearl', 63, 59, .29)]),
+  73002: cover(3, 2, [motif('pearl', 21, -9, .53), motif('vessel', 0, 11, .93)]),
+  73003: cover(3, 3, [motif('leaf', 40, -5, .57), motif('pine', -4, 7, .97)]),
+  73004: cover(3, 4, [motif('waterfall', 3, -6, 1.01), motif('fish', 52, 64, .43, -17)]),
+  73005: cover(3, 5, [motif('flame', -6, -6, 1.1), motif('bird', 61, -7, .38)]),
+  73006: cover(3, 1, [motif('mountain', -3, 1, 1.03), motif('grass', 41, 62, .48)]),
+  73007: cover(3, 2, [motif('pearl', 43, -7, .56), motif('cloud', -3, 5, .98), motif('cloudbank', 14, 51, .81)]),
+  73008: cover(3, 3, [motif('stars', 4, -6, .98), motif('moon', 3, 22, .78, -27), motif('pearl', 56, 41, .4)]),
+  73009: cover(3, 4, [motif('spiral', 7, 4, .84, -45), motif('leaf', -6, 57, .41), motif('leaf', 59, -5, .39, 108)]),
+  73010: cover(3, 5, [motif('cauldron', 4, 12, .94), motif('cloud', 14, -9, .65)]),
+  73011: cover(3, 1, [motif('bamboo', -3, 0, .98), motif('bamboo', 49, 27, .62, 14)]),
+  73012: cover(3, 2, [motif('mountaingate', 3, 20, .93), motif('bird', -4, -8, .59), motif('bird', 59, -8, .40)]),
+  73013: cover(3, 3, [motif('moon', 51, -5, .44), motif('dragon', 0, 3, 1.02)]),
+  73014: cover(3, 4, [motif('wave', 23, 13, .76, 11), motif('shell', -5, 27, .74)]),
+  73015: cover(3, 5, [motif('moon', 1, -5, .78, -40), motif('moon', 34, 25, .72, 139), motif('pearl', 26, 34, .39)]),
+  73016: cover(3, 1, [motif('mountain', 2, 40, .91), motif('lotusbud', 25, -7, .66), motif('cloudbank', 47, 63, .52)]),
+  73017: cover(3, 2, [motif('moon', 40, -8, .64), motif('leaf', -4, -2, .94, -22), motif('seedling', 53, 45, .49)]),
+};
+const alternateCovers = {
+  74001: cover(1, 3, [motif('cloud', 45, -4, .48), motif('lamp', 0, 0, .99), motif('surf', 45, 74, .41)]),
+  74002: cover(1, 2, [motif('moon', -1, -9, .76, -20), motif('hare', 9, 19, .95), motif('grass', 65, 62, .33)]),
+  74003: cover(1, 5, [motif('cloudbank', -2, 49, .65), motif('biDisc', 9, -2, .98)]),
+  74004: cover(1, 2, [motif('cloud', 42, 35, .58), motif('fan', 1, 3, .98, -12)]),
+  74005: cover(1, 1, [motif('mountain', -2, 59, .5), motif('chime', 3, -2, .98), motif('bird', 61, 1, .30)]),
+  74006: cover(1, 4, [motif('moon', 40, -6, .58, 22), motif('plum', -4, 5, 1.04)]),
+  74007: cover(2, 1, [motif('crystal', 1, 7, .47), motif('gauntlet', 2, 6, .97, -10)]),
+  74008: cover(2, 3, [motif('wheel', 18, -3, .83, -12), motif('wave', -7, 27, .78)]),
+  74009: cover(2, 5, [motif('mountain', -5, 24, .97), motif('waterfall', 32, -2, .72), motif('surf', 30, 68, .62)]),
+  74010: cover(2, 2, [motif('biDisc', 43, -7, .55), motif('biDisc', 59, 7, .39), motif('tiger', -7, 17, 1.03)]),
+  74011: cover(2, 4, [motif('stars', 17, -6, .63), motif('hammer', 27, 8, .70, 45), motif('hammer', -2, 6, .92, -33)]),
+  74012: cover(2, 5, [motif('mountain', 13, -6, .72), motif('stoneBridge', -1, 17, .98), motif('surf', 25, 69, .48)]),
+  74013: cover(3, 2, [motif('mountain', 30, -3, .69), motif('pine', -6, 15, .88, -18), motif('grass', 63, 61, .38)]),
+  74014: cover(3, 4, [motif('leaf', 53, 2, .52, 18), motif('gourd', -2, -2, 1.0, -16)]),
+  74015: cover(3, 3, [motif('surf', 10, 53, .9), motif('conch', 3, 6, .94, -12)]),
+  74016: cover(3, 1, [motif('stars', 45, -8, .52), motif('junk', 0, 4, .96), motif('surf', 11, 69, .68)]),
 };
 
-// Cover pigments and block-print inks, indexed by the actual profile's element.
+// Cover pigments and block-print inks, indexed by the artwork's element.
 const palettes = {
   1: ['#363c3d','#616766','#9caaa3','#ddd8bd','#f4e4b8','#b69765'],
   2: ['#263c31','#4c6350','#879270','#c5c7a2','#e0d9ad','#9fa879'],
@@ -123,8 +143,9 @@ function binding(pathId, theme) {
   return `${background[pathId]}<path d="M46 22l15-1-6 192-13 1Z" fill="#302f29" opacity=".23"/><path d="M63 22 57 212" stroke="${worn}" stroke-width=".85" opacity=".65"/>${stations.map(y=>stitch(y,pathId,worn)).join('')}`;
 }
 
-function renderCover(id, pathId, elementId) {
-  const theme=palettes[elementId], marks=scenes[id];
+function renderCover(id, drawing) {
+  const {binding: pathId, pigment, marks} = drawing;
+  const theme = palettes[pigment];
   if (!marks || !theme) throw Error(`Missing drawing or element pigment for icon ${id}`);
   const bindingId=[1,2,3].includes(pathId) ? pathId : 3;
   const [shade,,,ink,light,accent]=theme;
@@ -157,17 +178,23 @@ async function main() {
   if(!config.methods?.templates || !config.catalogVersion || config.catalogVersion!==locale.catalogVersion)
     throw Error('Export matching catalog and localized data before rendering.');
   const output=arg('--output',defaultOut), proof=arg('--proof',null);
-  const ids=Object.entries(config.methods.templates).sort(([a],[b])=>Number(a)-Number(b));
+  // Artwork remains available when templates drop, share, or replace an icon binding.
+  const scenes = options.includes('--only-alternatives') ? alternateCovers : {...originalCovers, ...alternateCovers};
+  const ids = Object.keys(scenes).map(Number).sort((a, b) => a - b);
   fs.mkdirSync(output,{recursive:true});
   const sprites=[];
-  for (const [key,method] of ids) {
-    const id=method.iconId;
-    if (!locale.profiles[method.profileId]?.name) throw Error('Missing localized profile for '+key);
-    const element=config.profiles[method.profileId].primaryElementId;
-    const sprite=await sharp(Buffer.from(renderCover(id,method.pathId,element)),{density:192})
+  const spriteMeta = fs.readFileSync(path.join(root, 'UnityProject/Assets/Resources/InkInterface/Book.png.meta'), 'utf8');
+  for (const id of ids) {
+    const sprite = await sharp(Buffer.from(renderCover(id, scenes[id])), {density:192})
       .resize(256,256,{kernel:'lanczos3'}).png().toBuffer();
-    fs.writeFileSync(path.join(output,id+'.png'),sprite);
-    sprites.push([key,sprite]);
+    const png = path.join(output, id+'.png');
+    fs.writeFileSync(png, sprite);
+    if (path.resolve(output) === defaultOut && !fs.existsSync(png+'.meta')) {
+      const guid = createHash('sha256').update('xiuzhenjie/catalogIcons/Methods/'+id).digest('hex').slice(0,32);
+      const importer = spriteMeta.replace(/^guid: [0-9a-f]+$/m, 'guid: '+guid).replace(/[ \t]+$/gm, '');
+      fs.writeFileSync(png+'.meta', importer);
+    }
+    sprites.push([id,sprite]);
   }
   if (proof) {
     const size=70, step=76, columns=10;

@@ -38,6 +38,13 @@ STUDIES = {
     319: ("study", "earth"), 320: ("study", "earth"), 321: (38, "mist"),
     322: ("study", "tide"), 323: ("study", "steel"), 324: (8, "mist"),
 }
+# 独立画稿，供创作与改装选用。数字是资源 ID，不绑定物种模板。
+OPTIONAL_STUDIES = {
+    64001: (12, "jade"), 64002: (13, "cinnabar"), 64003: (15, "gold"), 64004: (18, "flame"),
+    64005: (24, "mist"), 64006: (26, "ink"), 64007: (28, "steel"), 64008: (30, "cinnabar"),
+    64009: (35, "marsh"), 64010: (42, "earth"), 64011: (43, "earth"), 64012: (45, "gold"),
+    64013: ("study", "mist"), 64014: ("study", "leaf"), 64015: ("study", "tide"), 64016: ("study", "jade"),
+}
 # 墨、设色、纸白。原模型与项目水墨人物分别保留少量固有色。
 COLORS = {
     "flame": ("#322820", "#ad6143", "#f6d7a2"), "cinnabar": ("#31201e", "#8e4a3c", "#efd1ac"),
@@ -194,19 +201,22 @@ def meta(path, template, identity):
     value = uuid5(NAMESPACE_URL, "xiuzhenjie/catalogIcons/Monsters/" + identity).hex
     expected = re.sub(r"(?m)^guid: [0-9a-f]+$", "guid: " + value, template)
     if not path.exists():
-        path.write_text(expected, encoding="utf-8")
+        path.write_text(re.sub(r"(?m)[ \t]+$", "", expected), encoding="utf-8")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--node", default="node", help="装有 sharp 模块的 Node 运行时")
+    parser.add_argument("--only-alternatives", action="store_true", help="只重建可选式样")
     args = parser.parse_args()
     studies = ET.parse(ART / "monster-studies.svg").getroot()
     OUT.mkdir(parents=True, exist_ok=True)
     folder = (RESOURCES / "InkInterface.meta").read_text()
     sprite = (RESOURCES / "InkInterface/Book.png.meta").read_text()
+    sprite = re.sub(r"(?m)^  spritePixelsToUnits: .+$", "  spritePixelsToUnits: 256", sprite)
     meta(OUT.with_suffix(".meta"), folder, "folder")
-    for key, (asset, tone) in STUDIES.items():
+    sources = OPTIONAL_STUDIES if args.only_alternatives else {**STUDIES, **OPTIONAL_STUDIES}
+    for key, (asset, tone) in sources.items():
         target = OUT / f"{key}.png"
         vignette(key, asset, tone, studies, args.node).save(target, optimize=True)
         meta(target.with_suffix(".png.meta"), sprite, str(key))

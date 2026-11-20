@@ -77,6 +77,7 @@ SHEETS = {
     **alchemy_tables.SHEETS,
     **inscription_tables.SHEETS,
     **CONTENT_SHEETS,
+    creation_catalog.UI_POOL_SHEET: creation_catalog.UI_POOL_SCHEMA,
 }
 OPTIONAL = {
     "对象属性": {"阴阳", "主五行", "辅五行", "主气", "辅气", "原对象键"},
@@ -127,9 +128,13 @@ def read_sheets(path):
         result = {}
         has_inscription = bool(inscription_tables.SHEETS.keys() & paths.keys())
         has_content = bool(CONTENT_SHEETS.keys() & paths.keys())
+        if creation_catalog.UI_POOL_SHEET in paths and not has_content:
+            raise ValueError("界面图池需要创作目录")
         if has_content and not has_inscription:
             raise ValueError("创作目录需要画符表组")
         for sheet, (_, header, fields) in SHEETS.items():
+            if sheet == creation_catalog.UI_POOL_SHEET and sheet not in paths:
+                continue
             if not has_content and sheet in CONTENT_SHEETS:
                 continue
             if not has_inscription and sheet in inscription_tables.SHEETS:
@@ -682,8 +687,7 @@ def build_config(sheets):
     return config
 
 
-def write_pair(outputs):
-    # 两份文件先在各自的目录落盘，再发布中文包，最后切换运行包。
+def write_outputs(outputs):
     def stage(path, data, cleanup):
         with NamedTemporaryFile(dir=path.parent, delete=False) as stream:
             pending = Path(stream.name)
@@ -692,19 +696,21 @@ def write_pair(outputs):
         pending.chmod(path.stat().st_mode if path.exists() else 0o644)
         return pending
 
-    (locale_path, locale_data), (runtime_path, runtime_data) = outputs
+    # 所有文件先落临时目录项，按列表顺序切换；切换失败时回滚已覆盖的文件。
     with ExitStack() as cleanup:
-        locale = stage(locale_path, locale_data, cleanup)
-        runtime = stage(runtime_path, runtime_data, cleanup)
-        backup = stage(locale_path, locale_path.read_bytes(), cleanup) if locale_path.exists() else None
-        locale.replace(locale_path)
+        pending = [(path, stage(path, data, cleanup)) for path, data in outputs]
+        backups = {path: stage(path, path.read_bytes(), cleanup) if path.exists() else None for path, _ in pending}
+        published = []
         try:
-            runtime.replace(runtime_path)
+            for path, staged in pending:
+                staged.replace(path)
+                published.append(path)
         except OSError:
-            if backup is None:
-                locale_path.unlink(missing_ok=True)
-            else:
-                backup.replace(locale_path)
+            for path in reversed(published):
+                if backups[path] is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    backups[path].replace(path)
             raise
 
 
@@ -713,6 +719,7 @@ def main():
     parser.add_argument("--workbook", type=Path, default=DATA / "config_excel/修仙属性基础表.xlsx")
     parser.add_argument("--output", type=Path, default=DATA / "config/cultivation_affinities.json")
     parser.add_argument("--locale-output", type=Path, help="简体中文展示资源路径，默认与运行配置同目录，后缀 .zh-CN.json")
+    parser.add_argument("--icon-output", type=Path, help="Unity 图标索引；使用默认工作簿和默认运行包时自动导出")
     parser.add_argument("--check", action="store_true", help="核对运行配置与简体中文资源，发现差异时返回非零")
     args = parser.parse_args()
     try:
@@ -722,15 +729,28 @@ def main():
         runtime, locale = compile_catalog(build_config(read_sheets(args.workbook)))
         runtime_data = (json.dumps(runtime, ensure_ascii=False, separators=(",", ":")) + "\n").encode("ascii")
         locale_data = (json.dumps(locale, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-        outputs = ((locale_path, locale_data), (args.output, runtime_data))
+        outputs = [(locale_path, locale_data)]
+        icon_path = args.icon_output
+        if (icon_path is None and "creation" in runtime
+                and args.workbook.resolve() == (DATA / "config_excel/修仙属性基础表.xlsx").resolve()
+                and args.output.resolve() == (DATA / "config/cultivation_affinities.json").resolve()
+                and args.locale_output is None):
+            icon_path = creation_catalog.RESOURCES / "CatalogIcons/index.json"
+        if icon_path is not None:
+            if "creation" not in runtime or icon_path.resolve() in {p.resolve() for p in (args.workbook, args.output, locale_path)}:
+                raise ValueError("图标索引需要创作目录及独立输出路径")
+            index_data = json.dumps(creation_catalog.client_icon_index(runtime), separators=(",", ":"))
+            outputs.append((icon_path, (index_data + "\n").encode("ascii")))
+        outputs.append((args.output, runtime_data))
+        files = "、".join(str(path) for path, _ in outputs)
         if args.check:
             differences = [str(path) for path, data in outputs if not path.is_file() or path.read_bytes() != data]
             if differences:
                 raise ValueError(f"{'、'.join(differences)} 与基础表不同，请重新导出")
-            print(f"基础表与 {args.output}、{locale_path} 一致")
+            print(f"基础表与 {files} 一致")
         else:
-            write_pair(outputs)
-            print(f"已导出 {args.output}、{locale_path}")
+            write_outputs(outputs)
+            print(f"已导出 {files}")
     except (OSError, BadZipFile, ET.ParseError, KeyError, ValueError) as error:
         print(error, file=sys.stderr)
         return 1

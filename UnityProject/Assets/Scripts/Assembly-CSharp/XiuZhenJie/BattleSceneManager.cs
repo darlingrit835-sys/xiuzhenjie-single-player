@@ -472,6 +472,12 @@ namespace XiuZhenJie
 			return obj;
 		}
 
+		private static Sprite ResolveMonsterPortrait(BattleLifeModel monster)
+		{
+			Sprite portrait = CatalogIconArt.MonsterFromLegacy(monster.ObjectType, monster.Icon);
+			return portrait != null ? portrait : Singleton<FacadeManager>.Instance.SelectImgSprite(0, monster.Icon, 4);
+		}
+
 		public void LoadNormalAnimalMonster(BattleLifeModel monsterModel)
 		{
 			if (m_AliveMonsterList == null)
@@ -492,7 +498,7 @@ namespace XiuZhenJie
 				animalMonster_Normal_Entity.SetBattleProps(monsterModel);
 				animalMonster_Normal_Entity.SetCtrl(component, monsterModel.ObjectIndex.ToString(), new Vector2(monsterModel.Init_X, monsterModel.Init_Y));
 				animalMonster_Normal_Entity.SetShenShiArea(monsterModel.AttackDistance);
-				Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, monsterModel.Icon, 4);
+				Sprite touXiangIcon = ResolveMonsterPortrait(monsterModel);
 				animalMonster_Normal_Entity.SetTouXiangIcon(touXiangIcon);
 				animalMonster_Normal_Entity.Idle();
 				m_AliveMonsterList.Add(monsterModel.ObjectIndex.ToString(), animalMonster_Normal_Entity);
@@ -519,7 +525,7 @@ namespace XiuZhenJie
 				animalMonster_HighOrder_Entity.SetBattleProps(monsterModel);
 				animalMonster_HighOrder_Entity.SetCtrl(component, monsterModel.ObjectIndex.ToString(), new Vector2(monsterModel.Init_X, monsterModel.Init_Y));
 				animalMonster_HighOrder_Entity.SetShenShiArea(monsterModel.AttackDistance);
-				Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, monsterModel.Icon, 4);
+				Sprite touXiangIcon = ResolveMonsterPortrait(monsterModel);
 				animalMonster_HighOrder_Entity.SetTouXiangIcon(touXiangIcon);
 				animalMonster_HighOrder_Entity.Idle();
 				if (m_AliveMonsterList == null)
@@ -550,7 +556,7 @@ namespace XiuZhenJie
 				animalMonster_Top_Entity.SetBattleProps(monsterModel);
 				animalMonster_Top_Entity.SetCtrl(component, monsterModel.ObjectIndex.ToString(), new Vector2(monsterModel.Init_X, monsterModel.Init_Y));
 				animalMonster_Top_Entity.SetShenShiArea(monsterModel.AttackDistance);
-				Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, monsterModel.Icon, 4);
+				Sprite touXiangIcon = ResolveMonsterPortrait(monsterModel);
 				animalMonster_Top_Entity.SetTouXiangIcon(touXiangIcon);
 				animalMonster_Top_Entity.Idle();
 				if (m_AliveMonsterList == null)
@@ -581,7 +587,7 @@ namespace XiuZhenJie
 				animalMonster_Top_Entity.SetBattleProps(monsterModel);
 				animalMonster_Top_Entity.SetCtrl(component, monsterModel.ObjectIndex.ToString(), new Vector2(monsterModel.Init_X, monsterModel.Init_Y));
 				animalMonster_Top_Entity.SetShenShiArea(monsterModel.AttackDistance);
-				Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, monsterModel.Icon, 4);
+				Sprite touXiangIcon = ResolveMonsterPortrait(monsterModel);
 				animalMonster_Top_Entity.SetTouXiangIcon(touXiangIcon);
 				animalMonster_Top_Entity.Idle();
 				if (m_AliveMonsterList == null)
@@ -612,7 +618,7 @@ namespace XiuZhenJie
 				animalMonster_Top_Entity.SetBattleProps(monsterModel);
 				animalMonster_Top_Entity.SetCtrl(component, monsterModel.ObjectIndex.ToString(), new Vector2(monsterModel.Init_X, monsterModel.Init_Y));
 				animalMonster_Top_Entity.SetShenShiArea(monsterModel.AttackDistance);
-				Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, monsterModel.Icon, 4);
+				Sprite touXiangIcon = ResolveMonsterPortrait(monsterModel);
 				animalMonster_Top_Entity.SetTouXiangIcon(touXiangIcon);
 				animalMonster_Top_Entity.Idle();
 				if (m_AliveMonsterList == null)
@@ -684,7 +690,7 @@ namespace XiuZhenJie
 			}
 			peopleMonster_Normal_Entity.SetSkill(list);
 			peopleMonster_Normal_Entity.SetWepon(list2);
-			Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, data.Icon, 4);
+			Sprite touXiangIcon = ResolveMonsterPortrait(data);
 			peopleMonster_Normal_Entity.SetTouXiangIcon(touXiangIcon);
 			peopleMonster_Normal_Entity.Idle();
 			if (m_AliveMonsterList == null)
@@ -734,7 +740,7 @@ namespace XiuZhenJie
 			}
 			peopleMonster_HighOrder_Entity.SetSkill(list);
 			peopleMonster_HighOrder_Entity.SetWepon(list2);
-			Sprite touXiangIcon = Singleton<FacadeManager>.Instance.SelectImgSprite(0, data.Icon, 4);
+			Sprite touXiangIcon = ResolveMonsterPortrait(data);
 			peopleMonster_HighOrder_Entity.SetTouXiangIcon(touXiangIcon);
 			peopleMonster_HighOrder_Entity.Idle();
 			if (m_AliveMonsterList == null)

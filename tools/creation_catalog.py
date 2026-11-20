@@ -16,6 +16,9 @@ SHEETS = {
     "模板索引": ("contentTemplates", "门类ID 模板ID 目录键 图标ID", "kindId id catalogKey iconId"),
     "图标目录": ("contentIcons", "图标ID 式样名 资源键 适用门类ID", "id name resource kindId"),
 }
+UI_POOL_SHEET = "界面图池"
+UI_POOL_SCHEMA = ("iconPools", "图池键 适用门类ID 图标ID", "pool kindId iconId")
+
 OPTIONAL = {"模板索引": {"图标ID"}}
 PLAYER_ID_START = 1000000000
 RESOURCES = Path(__file__).resolve().parents[1] / "UnityProject/Assets/Resources"
@@ -95,5 +98,36 @@ def compile_registry(runtime, sheets, resources=RESOURCES):
         missing = catalogs[record["catalogPath"]].keys() - reverse.get(kind, {}).keys()
         if missing:
             raise ValueError(f"模板索引缺少 {record['catalogPath']} 的目录键 {sorted(missing)}")
-    return ({"kinds": kinds, "templates": templates, "idsByKey": reverse, "icons": icons, "iconKinds": icon_kinds,
-             "playerIdStart": PLAYER_ID_START}, {"kinds": labels, "icons": icon_labels})
+    registry = {"kinds": kinds, "templates": templates, "idsByKey": reverse, "icons": icons,
+                "iconKinds": icon_kinds, "playerIdStart": PLAYER_ID_START}
+    if UI_POOL_SHEET in sheets:
+        pools = {}
+        for where, row in sheets[UI_POOL_SHEET]:
+            key = row["pool"]
+            kind = integer(row["kindId"], where, "适用门类ID", 1)
+            icon = integer(row["iconId"], where, "图标ID", 1)
+            if not re.fullmatch(r"[a-z][a-z0-9_]*", key) or str(kind) not in kinds or str(icon) not in icons:
+                raise ValueError(f"{where} 图池键、门类或图标无效")
+            pool = pools.setdefault(key, {"kind": kind, "icons": []})
+            if pool["kind"] != kind or icon_kinds[str(icon)] not in (kind, 0) or icon in pool["icons"]:
+                raise ValueError(f"{where} 图池成员重复或门类不符")
+            pool["icons"].append(icon)
+        registry["iconPools"] = pools
+    return registry, {"kinds": labels, "icons": icon_labels}
+
+
+def client_icon_index(runtime):
+    """客户端只需资源、外观引用与旧协议索引，避免解析完整服务端数值包。"""
+    creation = runtime["creation"]
+    kinds = {record["catalogPath"]: key for key, record in creation["kinds"].items()}
+    icons = [{"id": int(icon), "kind": creation["iconKinds"][icon], "path": path}
+             for icon, path in creation["icons"].items()]
+    legacy = {template: key for key, template in runtime["methods"]["byLegacyId"].items()}
+    methods = [{"id": int(key), "icon": row["iconId"], "legacy": legacy.get(int(key), "")}
+               for key, row in creation["templates"][kinds["methods.templates"]].items()]
+    monsters = []
+    for key, row in creation["templates"][kinds["monsterSpecies"]].items():
+        old = runtime["monsterSpecies"][row["key"]]
+        monsters.append({"id": int(key), "icon": row["iconId"], "oldType": old["objectTypeId"], "oldIcon": old["iconId"]})
+    pools = [{"key": key, **pool} for key, pool in sorted(creation.get("iconPools", {}).items())]
+    return {"icons": icons, "methods": methods, "monsters": monsters, "pools": pools}

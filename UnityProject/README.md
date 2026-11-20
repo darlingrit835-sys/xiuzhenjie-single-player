@@ -10,6 +10,7 @@
 | `Assets/Scripts/Assembly-CSharp/` | 客户端玩法、窗口和网络相关的 C# 脚本。 |
 | `Assets/gamedata/` | 游戏预制体、材质和资源。 |
 | `Assets/Resources/InkInterface/` | 水墨地图、城池、按钮和五行素材。地图保留地名、等级和导航。 |
+| `Assets/Resources/CatalogIcons/` | 怪物与功法无字图标、导表生成的取图索引。战斗头像、宗门兽潮和功法列表按 ID 选图。 |
 | `Assets/Resources/InkPortraits/` | 12 个玩家头像及离线样式，沿用原编号。 |
 | `Assets/StreamingAssets/Assetbundles/` | 本地发行配置使用的恢复版资源包。 |
 | `Assets/Editor/` | Android 构建和编辑器验证入口。 |
