@@ -131,3 +131,5 @@ python3 tools/generate_affinity_classes.py --seed 20261120 --count 48 --grade-id
 ```
 
 省略 `--count` 默认抽 48 个，传 `--count 120` 可查看全部组合。加 `--output 文件名.json` 可保存该批结果。固定配置与种子时，扩到 96 或 120 会保留原来 48 条的顺序及数值。换种子可生成另一批。类别键始终表示同一个三元组，批次中的具体加成应随成品或批次快照保存。工作簿「衍生类样例」展示首版的基准加成。传入 `--grade-id` 后，输出保留数字品阶 ID、基准基点、按阶选取的词条和品质区间内的最终基点。[导出器](../tools/export_affinities.py) · [类别生成器](../tools/generate_affinity_classes.py)
+
+功法三道、怪物面板、地图群落、人物掉落以及玩家创作与留影的细表入口见[世界内容总表](content-framework.md)。

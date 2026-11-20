@@ -7,11 +7,11 @@ from pathlib import Path
 if __package__:
     from .crafting_preview import craft_outcome, crafting_inputs, crafting_sources, find_recipe, item_element, method_affinity, print_sources, trunc_ratio
     from .crafting_tables import MODIFIER_FIELDS
-    from .preview_region import CONFIG, element_relation, map_region, preview_region, read_json
+    from .preview_region import CONFIG, element_relation, catalog_region, preview_region, read_json
 else:
     from crafting_preview import craft_outcome, crafting_inputs, crafting_sources, find_recipe, item_element, method_affinity, print_sources, trunc_ratio
     from crafting_tables import MODIFIER_FIELDS
-    from preview_region import CONFIG, element_relation, map_region, preview_region, read_json
+    from preview_region import CONFIG, element_relation, catalog_region, preview_region, read_json
 
 
 def material_guide(catalog, locale, recipe):
@@ -59,7 +59,7 @@ def draw_plan(catalog, locale, recipe, rank, brush, method=None, region=None, ro
         element, numerator, denominator = method_affinity(catalog, "inscription", method)
         parts.append(affinity("methodElement", element, numerator, denominator))
     if region is not None:
-        county = map_region(catalog["regions"], region)
+        county = catalog_region(catalog, region)
         if catalog["regions"].get(county, {}).get("level") != 3:
             raise ValueError("画符地点须为已登记的郡或其下级地图")
         local = preview_region(catalog, locale, county, roles, period)
@@ -106,7 +106,7 @@ def main(argv=None):
     parser.add_argument("--talisman", required=True, help="符名、成品模板键或符方键")
     parser.add_argument("--brush", help="符笔模板键，例如 obj.yunmu_brush")
     parser.add_argument("--rank", type=int, help="符师品阶 0～9，与 --brush 一起用于估算")
-    parser.add_argument("--method", help="角色已装备纳气功法的编号 gf_3_1～gf_3_16")
+    parser.add_argument("--method", help="已装备功法的数字模板 ID 或兼容旧键，如 73017、gf_3_3")
     parser.add_argument("--region", help="画符所在郡或其下级地图 ID")
     parser.add_argument("--roles", type=Path, help="可选的只读角色快照，用于计算地区共鸣")
     parser.add_argument("--period", type=int, default=0, help="地区词条的周期编号")

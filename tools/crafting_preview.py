@@ -6,9 +6,11 @@ import re
 
 if __package__:
     from .crafting_tables import MODIFIER_FIELDS
+    from .cultivation_methods import resolve_method
     from .preview_region import role_element
 else:
     from crafting_tables import MODIFIER_FIELDS
+    from cultivation_methods import resolve_method
     from preview_region import role_element
 
 
@@ -83,7 +85,17 @@ def trunc_ratio(numerator, denominator):
 
 
 def method_affinity(catalog, system, method):
-    equipped = re.fullmatch(r"gf_3_([1-9]|1[0-6])", method)
+    if "methods" in catalog:
+        template = resolve_method(catalog, method)
+        if not template:
+            raise ValueError(f"功法目录未登记模板 {method}")
+        by_grade = catalog["methodInfluences"][system].get(str(template["pathId"]), {})
+        scale = by_grade.get(str(template["gradeId"]))
+        if scale is None:
+            raise ValueError(f"该途径与品阶未在 {system} 的功法工艺中配置")
+        element = catalog["profiles"][template["profileId"]]["primaryElementId"]
+        return element, *scale
+    equipped = re.fullmatch(r"gf_3_([1-9]|1[0-6])", str(method))
     if equipped is None:
         raise ValueError("纳气功法须使用角色已装备功法的编号 gf_3_1～gf_3_16")
     numerator, denominator = catalog["methodInfluences"][system]["3"][equipped[1]]

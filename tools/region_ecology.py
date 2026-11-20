@@ -76,7 +76,7 @@ def source_indexes(catalog):
             "systemResources": {key: sorted(values) for key, values in sorted(systems.items())}}
 
 
-def region_ecology_summary(config, locale, region_id, tier=1):
+def region_ecology_summary(config, locale, region_id, tier=1, encounter_weights=None):
     """地区怪物、逐种掉率、分采法物产。返回中文展示所需的数据及明确的概率分母。"""
     rid, tier = str(region_id), int(tier)
     region = config["regions"][rid]
@@ -95,11 +95,17 @@ def region_ecology_summary(config, locale, region_id, tier=1):
                          for key in uses]}
 
     monsters = []
-    for monster, base in sorted(config["regionMonsters"].get(rid, {}).items()):
+    county_weights = config["regionMonsters"].get(rid, {})
+    candidates = county_weights if encounter_weights is None else encounter_weights
+    for monster in sorted(candidates):
+        base = county_weights[monster]
         definition = config["monsterSpecies"][monster]
         if tier == 4 and not definition["allowBoss"]:
             continue
         result = weight_info(base, definition["profileId"], "monster")
+        if encounter_weights is not None:
+            result["localWeight"] = encounter_weights[monster]
+            result["tickets"] *= encounter_weights[monster]
         # 同一个怪、同一材料只有一次机会。指定郡覆盖通用行，其余通用材料仍保留。
         scopes = config["monsterDrops"].get(monster, {})
         items = {**scopes.get("0", {}), **scopes.get(rid, {})}
@@ -126,7 +132,11 @@ def region_ecology_summary(config, locale, region_id, tier=1):
 
 def format_ecology(summary):
     tier_name = {1: "普通", 3: "精英", 4: "兽王"}[summary["tier"]]
-    lines = [f"{tier_name}怪物（本郡同档相遇占比；材料另按击败一只的概率判定）"]
+    if "mapKey" in summary:
+        lines = [f"{summary['mapKey']} · {summary['pool']} · {summary['wave']}　{tier_name}位 {summary['slots']} 个",
+                 "本战区同档相遇占比，材料另按击败一只的概率判定"]
+    else:
+        lines = [f"{tier_name}怪物（全郡栖息候选，材料另按击败一只的概率判定）"]
     for monster in summary["monsters"]:
         percent = monster["tickets"] * 100 / summary["monsterTickets"]
         lines.append(f"  {monster['name']}　{percent:.2f}%")

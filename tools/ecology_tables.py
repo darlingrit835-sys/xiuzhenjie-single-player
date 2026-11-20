@@ -71,8 +71,8 @@ def compile_ecology(config, sheets, geography):
     for location, row in sheets["怪物图鉴"]:
         key = str(integer(row["id"], location, "怪物ID", 1))
         profile = profiles.get(row["profileId"])
-        if not profile or profile["name"] != row["name"] or not profile["primaryElementId"] or not profile["primaryQiId"]:
-            raise ValueError(f"{location} 怪物须引用同名且具有主五行、主气的属性对象")
+        if not profile or profile["kindId"] not in ("monster", "cultivator_style") or not profile["primaryElementId"] or not profile["primaryQiId"]:
+            raise ValueError(f"{location} 怪物须引用具有主五行、主气的怪物或修士属性对象")
         if row["profileId"] in monster_profiles:
             raise ValueError(f"{location} 同一怪物属性对象被重复登记")
         monster_profiles.add(row["profileId"])

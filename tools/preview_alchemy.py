@@ -10,14 +10,14 @@ if __package__:
         craft_outcome, crafting_inputs, find_recipe, item_element, method_affinity, print_sources, trunc_ratio,
         yield_distribution,
     )
-    from .preview_region import CONFIG, element_relation, map_region, preview_region, read_json
+    from .preview_region import CONFIG, element_relation, catalog_region, preview_region, read_json
 else:
     from crafting_tables import MODIFIER_FIELDS
     from crafting_preview import (
         craft_outcome, crafting_inputs, find_recipe, item_element, method_affinity, print_sources, trunc_ratio,
         yield_distribution,
     )
-    from preview_region import CONFIG, element_relation, map_region, preview_region, read_json
+    from preview_region import CONFIG, element_relation, catalog_region, preview_region, read_json
 
 
 def recipe_lookup(catalog, locale, query):
@@ -83,7 +83,7 @@ def brew_plan(catalog, locale, recipe, rank, flame, method=None, region=None, ro
                                   relationId=relation, elementId=method_element))
     primary_element = item_element(catalog, recipe["primaryId"])
     if region is not None:
-        county = map_region(catalog["regions"], region)
+        county = catalog_region(catalog, region)
         if catalog["regions"].get(county, {}).get("level") != 3:
             raise ValueError("炉址须为已登记的郡或其下级地图")
         local = preview_region(catalog, locale, county, roles, period)
@@ -120,7 +120,7 @@ def main(argv=None):
     parser.add_argument("--pill", required=True, help="丹名、丹药模板键或丹方键")
     parser.add_argument("--rank", type=int, help="丹师品阶 0～9，与 --flame 一起用于估算")
     parser.add_argument("--flame", help="丹火键，例如 flame.ember")
-    parser.add_argument("--method", help="角色已装备纳气功法的编号 gf_3_1～gf_3_16")
+    parser.add_argument("--method", help="已装备功法的数字模板 ID 或兼容旧键，如 73017、gf_3_3")
     parser.add_argument("--region", help="开炉所在郡或其下级地图 ID")
     parser.add_argument("--roles", type=Path, help="计算炉址共鸣时可选的只读角色快照")
     parser.add_argument("--period", type=int, default=0, help="地区词条的周期编号")

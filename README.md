@@ -30,6 +30,7 @@
 - [Go 协议缺口清单](docs/Go协议缺口.md)
 - [协作指南](CONTRIBUTING.md)
 - [修仙策划总表（Excel）](server/data/config_excel/修仙属性基础表.xlsx)
+- [世界内容总表与玩家创作](docs/content-framework.md) · [怪物数值](docs/monster-stats.md) · [人物、秘籍与法器掉落](docs/character-encounters.md) · [历史投影](docs/historical-projections.md)
 - [属性框架和地区产出](docs/cultivation-affinities.md) · [炼丹规则协作草稿](docs/alchemy-design.md) · [画符规则协作草稿](docs/inscription-design.md)
 
 ## 使用文档

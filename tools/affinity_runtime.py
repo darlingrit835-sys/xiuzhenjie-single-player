@@ -4,6 +4,14 @@ from hashlib import sha256
 import json
 
 
+if __package__:
+    from .content_affixes import compile_affix_catalog
+    from .creation_catalog import compile_registry
+else:
+    from content_affixes import compile_affix_catalog
+    from creation_catalog import compile_registry
+
+
 PROFILE_ORIGINS = {"已有对象": "existing", "设计示例": "design"}
 ITEM_ORIGINS = {"项目已有": "existing", "系统设计": "system", "玩家创制示例": "player_example"}
 
@@ -104,6 +112,14 @@ def compile_catalog(config):
     if "inscriptionRules" in config:
         runtime["inscription"] = config["inscriptionRules"]
         locale["inscription"] = config["inscriptionText"]
+    if "creationSheets" in config:
+        runtime["methods"], locale["methods"] = config["methodRules"], config["methodText"]
+        runtime["worldSystems"], locale["worldSystems"] = config["worldSystemRules"], config["worldSystemText"]
+        runtime["monsterStats"], locale["monsterStats"] = config["monsterStatRules"], config["monsterStatText"]
+        runtime["characters"], locale["characters"] = config["characterRules"], config["characterText"]
+        runtime["projections"], locale["projections"] = config["projectionRules"], config["projectionText"]
+        runtime["creation"], locale["creation"] = compile_registry(runtime, config["creationSheets"])
+        runtime["contentAffixes"], locale["contentAffixes"] = compile_affix_catalog(runtime, config["creationSheets"])
     # 哈希包含两包内容，任一侧的有效数据变更都能识别成新的配套版本。
     canonical = json.dumps([runtime, locale], ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     version = sha256(canonical.encode("utf-8")).hexdigest()

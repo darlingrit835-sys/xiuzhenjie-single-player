@@ -25,6 +25,21 @@ else:
     import region_ecology
 
 
+if __package__:
+    from . import bestiary_tables, character_tables, content_affixes, creation_catalog, cultivation_methods, history_projection, monster_stats, world_systems
+else:
+    import bestiary_tables
+    import character_tables
+    import content_affixes
+    import history_projection
+    import monster_stats
+    import creation_catalog
+    import cultivation_methods
+    import world_systems
+
+CONTENT_MODULES = (bestiary_tables, cultivation_methods, monster_stats, world_systems, character_tables, history_projection, creation_catalog, content_affixes)
+CONTENT_SHEETS = {name: schema for module in CONTENT_MODULES for name, schema in module.SHEETS.items()}
+
 DATA = Path(__file__).resolve().parents[1] / "server/data"
 SHEETS = {
     "阴阳": ("polarities", "编号 名称 含义", "id name meaning"),
@@ -61,6 +76,7 @@ SHEETS = {
     **region_ecology.SHEETS,
     **alchemy_tables.SHEETS,
     **inscription_tables.SHEETS,
+    **CONTENT_SHEETS,
 }
 OPTIONAL = {
     "对象属性": {"阴阳", "主五行", "辅五行", "主气", "辅气", "原对象键"},
@@ -70,6 +86,7 @@ OPTIONAL = {
     **geography_tables.OPTIONAL,
     **ecology_tables.OPTIONAL,
     **inscription_tables.OPTIONAL,
+    **{name: labels for module in CONTENT_MODULES for name, labels in getattr(module, "OPTIONAL", {}).items()},
 }
 # 外键均由对应的主键校验。本表只列可直接产生程序标识的列。
 PROGRAM_KEYS = {
@@ -109,7 +126,12 @@ def read_sheets(path):
                 break
         result = {}
         has_inscription = bool(inscription_tables.SHEETS.keys() & paths.keys())
+        has_content = bool(CONTENT_SHEETS.keys() & paths.keys())
+        if has_content and not has_inscription:
+            raise ValueError("创作目录需要画符表组")
         for sheet, (_, header, fields) in SHEETS.items():
+            if not has_content and sheet in CONTENT_SHEETS:
+                continue
             if not has_inscription and sheet in inscription_tables.SHEETS:
                 continue
             if sheet not in paths:
@@ -647,6 +669,16 @@ def build_config(sheets):
     config["alchemyRules"], config["alchemyText"] = alchemy_tables.compile_alchemy(config, sheets, config["worldRules"])
     if "符方表" in sheets:
         config["inscriptionRules"], config["inscriptionText"] = inscription_tables.compile_inscription(config, sheets)
+    if "创作门类" in sheets:
+        bestiary, bestiary_text = bestiary_tables.compile_bestiary(sheets, ecology, regions)
+        config["worldRules"].update(bestiary)
+        config["worldText"].update(bestiary_text)
+        config["methodRules"], config["methodText"] = cultivation_methods.compile_methods(config, sheets)
+        config["worldSystemRules"], config["worldSystemText"] = world_systems.compile_world(config, sheets)
+        config["monsterStatRules"], config["monsterStatText"] = monster_stats.compile_stats(config, sheets)
+        config["characterRules"], config["characterText"] = character_tables.compile_characters(config, sheets)
+        config["projectionRules"], config["projectionText"] = history_projection.compile_projection(config, sheets)
+        config["creationSheets"] = sheets
     return config
 
 
