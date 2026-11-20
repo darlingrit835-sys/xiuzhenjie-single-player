@@ -29,6 +29,8 @@
 - [功能状态与协作待办](docs/功能状态与协作待办.md)
 - [Go 协议缺口清单](docs/Go协议缺口.md)
 - [协作指南](CONTRIBUTING.md)
+- [修仙策划总表（Excel）](server/data/config_excel/修仙属性基础表.xlsx)
+- [属性框架和地区产出](docs/cultivation-affinities.md) · [炼丹规则协作草稿](docs/alchemy-design.md)
 
 ## 使用文档
 
