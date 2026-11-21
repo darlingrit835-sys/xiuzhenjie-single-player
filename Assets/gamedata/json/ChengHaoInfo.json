@@ -1,0 +1,543 @@
+[
+  {
+    "Id": 101,
+    "Type": 1,
+    "TypeName": "社交",
+    "EffectStr": "降低传物灵石消耗",
+    "EffectValue": 5,
+    "Name": "谦谦君子"
+  },
+  {
+    "Id": 102,
+    "Type": 1,
+    "TypeName": "社交",
+    "EffectStr": "降低传物灵石消耗",
+    "EffectValue": 10,
+    "Name": "左右逢源"
+  },
+  {
+    "Id": 103,
+    "Type": 1,
+    "TypeName": "社交",
+    "EffectStr": "降低传物灵石消耗",
+    "EffectValue": 20,
+    "Name": "胜友如云"
+  },
+
+
+  {
+    "Id": 201,
+    "Type": 2,
+    "TypeName": "充值",
+    "EffectStr": "减少拍卖行挂拍手续费",
+    "EffectValue": 1,
+    "Name": "朱门富户"
+  },
+  {
+    "Id": 202,
+    "Type": 2,
+    "TypeName": "充值",
+    "EffectStr": "减少拍卖行挂拍手续费",
+    "EffectValue": 3,
+    "Name": "百城之家"
+  },
+  {
+    "Id": 203,
+    "Type": 2,
+    "TypeName": "充值",
+    "EffectStr": "减少拍卖行挂拍手续费",
+    "EffectValue": 5,
+    "Name": "和蔼可亲"
+  },
+  {
+    "Id": 204,
+    "Type": 3,
+    "TypeName": "终身卡",
+    "EffectStr": "增加灵石掉落",
+    "EffectValue": 10,
+    "Name": "天道眷顾"
+  },
+
+
+  {
+    "Id": 301,
+    "Type": 4,
+    "TypeName": "道境",
+    "EffectStr": "提升战斗中法力恢复",
+    "EffectValue": 5,
+    "Name": "远胜他人"
+  },
+  {
+    "Id": 302,
+    "Type": 4,
+    "TypeName": "道境",
+    "EffectStr": "提升战斗中法力恢复",
+    "EffectValue": 8,
+    "Name": "同阶无敌"
+  },
+  {
+    "Id": 303,
+    "Type": 4,
+    "TypeName": "道境",
+    "EffectStr": "提升战斗中法力恢复",
+    "EffectValue": 10,
+    "Name": "举世无双"
+  },
+  {
+    "Id": 304,
+    "Type": 5,
+    "TypeName": "天骄",
+    "EffectStr": "提升战斗中防护恢复",
+    "EffectValue": 5,
+    "Name": "当代天骄"
+  },
+  {
+    "Id": 305,
+    "Type": 5,
+    "TypeName": "天骄",
+    "EffectStr": "提升战斗中防护恢复",
+    "EffectValue": 8,
+    "Name": "绝世天骄"
+  },
+  {
+    "Id": 306,
+    "Type": 5,
+    "TypeName": "天骄",
+    "EffectStr": "提升战斗中防护恢复",
+    "EffectValue": 10,
+    "Name": "修真传说"
+  },
+
+  {
+    "Id": 401,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "脱俗"
+  },
+  {
+    "Id": 402,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "上人"
+  },
+  {
+    "Id": 403,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "真人"
+  },
+  {
+    "Id": 404,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "真君"
+  },
+  {
+    "Id": 405,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "道君"
+  },
+  {
+    "Id": 406,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "尊者"
+  },
+  {
+    "Id": 407,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "皇者"
+  },
+  {
+    "Id": 408,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "圣者"
+  },
+  {
+    "Id": 409,
+    "Type": 6,
+    "TypeName": "境界",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "长生"
+  },
+  {
+    "Id": 501,
+    "Type": 71,
+    "TypeName": "师徒",
+    "EffectStr": "气运增加",
+    "EffectValue": 200,
+    "Name": "传道授业"
+  },
+  {
+    "Id": 502,
+    "Type": 72,
+    "TypeName": "师徒",
+    "EffectStr": "气运增加",
+    "EffectValue": 500,
+    "Name": "桃李满门"
+  },
+  {
+    "Id": 503,
+    "Type": 73,
+    "TypeName": "师徒",
+    "EffectStr": "气运增加",
+    "EffectValue": 1000,
+    "Name": "德高望重"
+  },
+  {
+    "Id": 602,
+    "Type": 8,
+    "TypeName": "天命",
+    "EffectStr": "降低维持聚灵阵的费用",
+    "EffectValue": 10,
+    "Name": "乐天知命"
+  },
+  {
+    "Id": 604,
+    "Type": 9,
+    "TypeName": "天命",
+    "EffectStr": "升级洞府的费用降低",
+    "EffectValue": 10,
+    "Name": "乐天安命"
+  },
+  {
+    "Id": 606,
+    "Type": 10,
+    "TypeName": "天命",
+    "EffectStr": "战斗中移动速度",
+    "EffectValue": 10,
+    "Name": "应天受命"
+  },
+  {
+    "Id": 608,
+    "Type": 11,
+    "TypeName": "天命",
+    "EffectStr": "免费进入奇珍阁",
+    "EffectValue": 0,
+    "Name": "天命有归"
+  },
+  {
+    "Id": 610,
+    "Type": 12,
+    "TypeName": "天命",
+    "EffectStr": "降低法器神识消耗",
+    "EffectValue": 10,
+    "Name": "真命天子"
+  },
+  {
+    "Id": 612,
+    "Type": 13,
+    "TypeName": "天命",
+    "EffectStr": "提升纳气效率",
+    "EffectValue": 10,
+    "Name": "逆天改命"
+  },
+  {
+    "Id": 700,
+    "Type": 21,
+    "TypeName": "新春",
+    "EffectStr": "气运增加",
+    "EffectValue": 100,
+    "Name": "新年快乐"
+  },
+  {
+    "Id": 701,
+    "Type": 22,
+    "TypeName": "新春",
+    "EffectStr": "提升防御总值",
+    "EffectValue": 5,
+    "Name": "大吉大利"
+  },
+  {
+    "Id": 702,
+    "Type": 23,
+    "TypeName": "新春",
+    "EffectStr": "提升造成的伤害",
+    "EffectValue": 5,
+    "Name": "鸿运当头"
+  },
+  {
+    "Id": 703,
+    "Type": 24,
+    "TypeName": "新春",
+    "EffectStr": "提升纳气收益",
+    "EffectValue": 5,
+    "Name": "五福临门"
+  },
+
+  {
+    "Id": 704,
+    "Type": 200,
+    "TypeName": "抽奖",
+    "EffectStr": "气运增加",
+    "EffectValue": 500,
+    "Name": "吉星高照"
+  },
+  {
+    "Id": 705,
+    "Type": 201,
+    "TypeName": "抽奖",
+    "EffectStr": "气运增加",
+    "EffectValue": 1000,
+    "Name": "洪福齐天"
+  },
+  {
+    "Id": 801,
+    "Type": 14,
+    "TypeName": "境界",
+    "EffectStr": "经脉突破几率增加",
+    "EffectValue": 20,
+    "Name": "道尊"
+  },
+  {
+    "Id": 802,
+    "Type": 14,
+    "TypeName": "境界",
+    "EffectStr": "经脉突破几率增加",
+    "EffectValue": 10,
+    "Name": "圣尊"
+  },
+  {
+    "Id": 803,
+    "Type": 14,
+    "TypeName": "境界",
+    "EffectStr": "经脉突破几率增加",
+    "EffectValue": 5,
+    "Name": "圣君"
+  },
+
+
+  {
+    "Id": 804,
+    "Type": 15,
+    "TypeName": "布道",
+    "EffectStr": "提升纳气效率",
+    "EffectValue": 5,
+    "Name": "道演天地"
+  },
+  {
+    "Id": 805,
+    "Type": 15,
+    "TypeName": "布道",
+    "EffectStr": "提升纳气效率",
+    "EffectValue": 3,
+    "Name": "道法自然"
+  },
+  {
+    "Id": 806,
+    "Type": 15,
+    "TypeName": "布道",
+    "EffectStr": "提升纳气效率",
+    "EffectValue": 1,
+    "Name": "道骨仙风"
+  },
+
+  {
+    "Id": 807,
+    "Type": 16,
+    "TypeName": "符师",
+    "EffectStr": "提升全系符箓伤害",
+    "EffectValue": 10,
+    "Name": "神来之笔"
+  },
+  {
+    "Id": 808,
+    "Type": 16,
+    "TypeName": "符师",
+    "EffectStr": "提升全系符箓伤害",
+    "EffectValue": 6,
+    "Name": "一笔传神"
+  },
+  {
+    "Id": 809,
+    "Type": 16,
+    "TypeName": "符师",
+    "EffectStr": "提升全系符箓伤害",
+    "EffectValue": 2,
+    "Name": "妙笔生花"
+  },
+
+
+  {
+    "Id": 810,
+    "Type": 17,
+    "TypeName": "炼器",
+    "EffectStr": "提升全系法器伤害",
+    "EffectValue": 10,
+    "Name": "熔今铸古"
+  },
+  {
+    "Id": 811,
+    "Type": 17,
+    "TypeName": "炼器",
+    "EffectStr": "提升全系法器伤害",
+    "EffectValue": 6,
+    "Name": "巧夺天工"
+  },
+  {
+    "Id": 812,
+    "Type": 17,
+    "TypeName": "炼器",
+    "EffectStr": "提升全系法器伤害",
+    "EffectValue": 2,
+    "Name": "炉火纯青"
+  },
+
+  {
+    "Id": 813,
+    "Type": 18,
+    "TypeName": "灵植",
+    "EffectStr": "提升灵田中土壤蕴灵值",
+    "EffectValue": 10,
+    "Name": "枯木逢春"
+  },
+  {
+    "Id": 814,
+    "Type": 18,
+    "TypeName": "灵植",
+    "EffectStr": "提升灵田中土壤蕴灵值",
+    "EffectValue": 6,
+    "Name": "移花接木"
+  },
+  {
+    "Id": 815,
+    "Type": 18,
+    "TypeName": "灵植",
+    "EffectStr": "提升灵田中土壤蕴灵值",
+    "EffectValue": 2,
+    "Name": "桃红柳绿"
+  },
+
+  {
+    "Id": 816,
+    "Type": 19,
+    "TypeName": "术法",
+    "EffectStr": "提升全系法术伤害",
+    "EffectValue": 10,
+    "Name": "言出法随"
+  },
+  {
+    "Id": 817,
+    "Type": 19,
+    "TypeName": "术法",
+    "EffectStr": "提升全系法术伤害",
+    "EffectValue": 6,
+    "Name": "斗转星移"
+  },
+  {
+    "Id": 818,
+    "Type": 19,
+    "TypeName": "术法",
+    "EffectStr": "提升全系法术伤害",
+    "EffectValue": 2,
+    "Name": "神通广大"
+  },
+  {
+    "Id": 819,
+    "Type": 20,
+    "TypeName": "丹师",
+    "EffectStr": "炼化类丹药药效增加",
+    "EffectValue": 10,
+    "Name": "丹道合一"
+  },
+  {
+    "Id": 820,
+    "Type": 20,
+    "TypeName": "丹师",
+    "EffectStr": "炼化类丹药药效增加",
+    "EffectValue": 6,
+    "Name": "丹藏乾坤"
+  },
+  {
+    "Id": 821,
+    "Type": 20,
+    "TypeName": "丹师",
+    "EffectStr": "炼化类丹药药效增加",
+    "EffectValue": 2,
+    "Name": "丹蕴万灵"
+  },
+  {
+    "Id": 822,
+    "Type": 30,
+    "TypeName": "阵法师",
+    "EffectStr": "阵法持续时间增加",
+    "EffectValue": 20,
+    "Name": "阵演道纹"
+  },
+  {
+    "Id": 823,
+    "Type": 30,
+    "TypeName": "阵法师",
+    "EffectStr": "阵法持续时间增加",
+    "EffectValue": 10,
+    "Name": "火列星屯"
+  },
+  {
+    "Id": 824,
+    "Type": 30,
+    "TypeName": "阵法师",
+    "EffectStr": "阵法持续时间增加",
+    "EffectValue": 5,
+    "Name": "鱼尾雁行"
+  },
+  {
+    "Id": 901,
+    "Type": 100,
+    "TypeName": "宗主",
+    "EffectStr": "宗门战自身战斗力增加",
+    "EffectValue": 10,
+    "Name": "一宗之主"
+  },
+  {
+    "Id": 902,
+    "Type": 103,
+    "TypeName": "宗门",
+    "EffectStr": "气运增加",
+    "EffectValue": 500,
+    "Name": "万宗之首"
+  },
+  {
+    "Id": 903,
+    "Type": 102,
+    "TypeName": "宗门",
+    "EffectStr": "气运增加",
+    "EffectValue": 300,
+    "Name": "一方巨擎"
+  },
+  {
+    "Id": 904,
+    "Type": 101,
+    "TypeName": "宗门",
+    "EffectStr": "气运增加",
+    "EffectValue": 200,
+    "Name": "盛世仙门"
+  },
+  {
+    "Id": 905,
+    "Type": 104,
+    "TypeName": "第一宗宗主",
+    "EffectStr": "",
+    "EffectValue": 0,
+    "Name": "仙道魁首"
+  }
+]

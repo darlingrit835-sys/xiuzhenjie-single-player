@@ -1,0 +1,188 @@
+[
+  {
+    "Level": 1,
+    "Rank": 1,
+    "CoefficientNum": 3.0
+  },
+  {
+    "Level": 2,
+    "Rank": 1,
+    "CoefficientNum": 2.5
+  },
+  {
+    "Level": 3,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 4,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 5,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 6,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 7,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 8,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 9,
+    "Rank": 1,
+    "CoefficientNum": 2.0
+  },
+
+
+
+  {
+    "Level": 1,
+    "Rank": 2,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 2,
+    "Rank": 2,
+    "CoefficientNum": 2.0
+  },
+  {
+    "Level": 3,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+  {
+    "Level": 4,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+  {
+    "Level": 5,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+  {
+    "Level": 6,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+  {
+    "Level": 7,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+  {
+    "Level": 8,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+  {
+    "Level": 9,
+    "Rank": 2,
+    "CoefficientNum": 1.5
+  },
+
+
+  {
+    "Level": 1,
+    "Rank": 3,
+    "CoefficientNum": 1.0
+  },
+  {
+    "Level": 2,
+    "Rank": 3,
+    "CoefficientNum": 0.8
+  },
+  {
+    "Level": 3,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 4,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 5,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 6,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 7,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 8,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 9,
+    "Rank": 3,
+    "CoefficientNum": 0.6
+  },
+
+  {
+    "Level": 1,
+    "Rank": 4,
+    "CoefficientNum": 0.6
+  },
+  {
+    "Level": 2,
+    "Rank": 4,
+    "CoefficientNum": 0.5
+  },
+  {
+    "Level": 3,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  },
+  {
+    "Level": 4,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  },
+  {
+    "Level": 5,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  },
+  {
+    "Level": 6,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  },
+  {
+    "Level": 7,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  },
+  {
+    "Level": 8,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  },
+  {
+    "Level": 9,
+    "Rank": 4,
+    "CoefficientNum": 0.4
+  }
+]

@@ -1,0 +1,9 @@
+[{"id":"1","name":"炼丹","occupationType":1},
+{"id":"2","name":"炼器","occupationType":2},
+{"id":"3","name":"画符","occupationType":3},
+{"id":"4","name":"修法","occupationType":4},
+{"id":"5","name":"布阵","occupationType":5},
+{"id":"6","name":"悟道","occupationType":6},
+{"id":"7","name":"奇巧","occupationType":7},
+{"id":"8","name":"种植","occupationType":8},
+{"id":"9","name":"御兽","occupationType":9}]

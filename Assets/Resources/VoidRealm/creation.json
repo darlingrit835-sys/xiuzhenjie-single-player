@@ -1,0 +1,870 @@
+{
+  "polarities": [
+    "阴",
+    "阳",
+    "平和"
+  ],
+  "elements": [
+    "金",
+    "木",
+    "水",
+    "火",
+    "土"
+  ],
+  "qi": [
+    "风",
+    "雷",
+    "寒",
+    "炎",
+    "润",
+    "燥",
+    "生",
+    "煞",
+    "清",
+    "浊",
+    "罡",
+    "幻"
+  ],
+  "generates": [
+    3,
+    4,
+    2,
+    5,
+    1
+  ],
+  "overcomes": [
+    2,
+    5,
+    4,
+    1,
+    3
+  ],
+  "polarityQiWeights": [
+    [
+      3,
+      2,
+      5,
+      2,
+      5,
+      2,
+      4,
+      4,
+      4,
+      4,
+      3,
+      5
+    ],
+    [
+      5,
+      5,
+      2,
+      5,
+      3,
+      4,
+      4,
+      4,
+      3,
+      2,
+      4,
+      2
+    ]
+  ],
+  "elementQiWeights": [
+    [
+      3,
+      4,
+      4,
+      3,
+      2,
+      3,
+      2,
+      4,
+      4,
+      2,
+      5,
+      3
+    ],
+    [
+      4,
+      3,
+      2,
+      3,
+      5,
+      2,
+      5,
+      2,
+      4,
+      3,
+      3,
+      4
+    ],
+    [
+      3,
+      3,
+      5,
+      2,
+      5,
+      2,
+      4,
+      2,
+      5,
+      4,
+      3,
+      4
+    ],
+    [
+      4,
+      4,
+      2,
+      5,
+      2,
+      5,
+      3,
+      4,
+      4,
+      3,
+      3,
+      2
+    ],
+    [
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      2,
+      3,
+      4,
+      5,
+      2
+    ]
+  ],
+  "halls": [
+    {
+      "id": "dan",
+      "product": "丹方",
+      "mechanic": "炉火每息积热，停火才撤热。火候＝火力 × 候息 − 撤热。",
+      "unit": "分火候",
+      "materialId": "mat.ninglu_herb",
+      "materialName": "凝露草",
+      "stages": [
+        {
+          "name": "起炉",
+          "options": [
+            "文火 1",
+            "和火 2",
+            "武火 3"
+          ]
+        },
+        {
+          "name": "候药",
+          "options": [
+            "一息开盖",
+            "两息开盖",
+            "三息开盖"
+          ]
+        },
+        {
+          "name": "收丹",
+          "options": [
+            "即刻封炉 −0",
+            "拂去余热 −1",
+            "寒露收火 −2"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "凝露养脉",
+          "hint": "守住叶露，试以水行寒气缓收余火。",
+          "target": [
+            2
+          ],
+          "polarity": 1,
+          "element": 3,
+          "qi": 3
+        },
+        {
+          "name": "赤霞回元",
+          "hint": "主药需五分熟，火太旺时借寒露撤热。",
+          "target": [
+            5
+          ],
+          "polarity": 2,
+          "element": 4,
+          "qi": 4
+        },
+        {
+          "name": "青芽续生",
+          "hint": "使药力透芯才收丹，木行生气最合题。",
+          "target": [
+            7
+          ],
+          "polarity": 3,
+          "element": 2,
+          "qi": 7
+        }
+      ],
+      "economyAffix": "文火温养",
+      "masterAffix": "叠火归元",
+      "traits": "文火候足两息可省两枚灵石。武火候满两息再撤热，成谱加三分。",
+      "nameEnding": "丹",
+      "materialPolarity": 1,
+      "materialElements": [
+        2,
+        3
+      ],
+      "materialQi": [
+        5,
+        3
+      ],
+      "materialPrice": 20,
+      "materialNote": "凝露草 · 阴 · 木／水行 · 润／寒气"
+    },
+    {
+      "id": "qi",
+      "product": "器图",
+      "mechanic": "每折一层都沿胚锋起脊，回锤每下卸两分。锋势＝胚锋 × 叠层 − 回锤。",
+      "unit": "分锋势",
+      "materialId": "mat.hanwen_iron",
+      "materialName": "寒纹铁",
+      "stages": [
+        {
+          "name": "开胚",
+          "options": [
+            "厚胚 2",
+            "平胚 3",
+            "尖胚 4"
+          ]
+        },
+        {
+          "name": "叠锻",
+          "options": [
+            "单层 ×1",
+            "双层 ×2",
+            "三层 ×3"
+          ]
+        },
+        {
+          "name": "锤脊",
+          "options": [
+            "留锋 −0",
+            "回锤 −2",
+            "双回锤 −4"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "镇山护镜",
+          "hint": "厚脊承力，留四分锋势、借土行罡气护镜。",
+          "target": [
+            4
+          ],
+          "polarity": 1,
+          "element": 5,
+          "qi": 11
+        },
+        {
+          "name": "鸣雷剑骨",
+          "hint": "剑脊须承雷，六分锋势可留转圜。",
+          "target": [
+            6
+          ],
+          "polarity": 2,
+          "element": 1,
+          "qi": 2
+        },
+        {
+          "name": "断潮刃谱",
+          "hint": "使刃锋达八分后收锤，宜金行煞气。",
+          "target": [
+            8
+          ],
+          "polarity": 2,
+          "element": 1,
+          "qi": 8
+        }
+      ],
+      "economyAffix": "素胚成器",
+      "masterAffix": "回锤藏锋",
+      "traits": "厚胚不回锤可省两枚灵石。叠锻后用双回锤藏锋，成谱加三分。",
+      "nameEnding": "剑",
+      "materialPolarity": 1,
+      "materialElements": [
+        1,
+        3
+      ],
+      "materialQi": [
+        3,
+        11
+      ],
+      "materialPrice": 26,
+      "materialNote": "寒纹铁 · 阴 · 金／水行 · 寒／罡气"
+    },
+    {
+      "id": "fu",
+      "product": "符谱",
+      "mechanic": "符盘为六门（0 至 5）。从起门顺行，再顺挑、逆钩或原地封印，过五归零。",
+      "unit": "号符门",
+      "materialId": "mat.chenglu_ink",
+      "materialName": "澄露墨",
+      "stages": [
+        {
+          "name": "起笔",
+          "options": [
+            "从零门起",
+            "从二门起",
+            "从四门起"
+          ]
+        },
+        {
+          "name": "行墨",
+          "options": [
+            "顺行一门",
+            "顺行两门",
+            "顺行三门"
+          ]
+        },
+        {
+          "name": "封笔",
+          "options": [
+            "原门封印",
+            "顺挑两门",
+            "逆钩一门"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "巡夜警符",
+          "hint": "惊铃诀须从一号门应声，宜阳性雷气。",
+          "target": [
+            1
+          ],
+          "polarity": 2,
+          "element": 4,
+          "qi": 2
+        },
+        {
+          "name": "夜渡护符",
+          "hint": "渡水盾收在四号门，水行润气可护舟。",
+          "target": [
+            4
+          ],
+          "polarity": 1,
+          "element": 3,
+          "qi": 5
+        },
+        {
+          "name": "换阵接符",
+          "hint": "换枢印从零号门闭环，风气适合换位。",
+          "target": [
+            0
+          ],
+          "polarity": 3,
+          "element": 2,
+          "qi": 1
+        }
+      ],
+      "economyAffix": "直笔省墨",
+      "masterAffix": "逆锋藏印",
+      "traits": "原门封笔可省两枚灵石。越过五号门再逆钩，成谱加三分。",
+      "nameEnding": "符",
+      "materialPolarity": 1,
+      "materialElements": [
+        3,
+        2
+      ],
+      "materialQi": [
+        9,
+        5
+      ],
+      "materialPrice": 22,
+      "materialNote": "澄露墨 · 阴 · 水／木行 · 清／润气"
+    },
+    {
+      "id": "shu",
+      "product": "术谱",
+      "mechanic": "起印先蓄息，随后每道法印各耗三息。截流手法会在每道印上省息。",
+      "unit": "息施法",
+      "materialId": "mat.cold_dew",
+      "materialName": "寒露液",
+      "stages": [
+        {
+          "name": "起印",
+          "options": [
+            "一息引气",
+            "两息蓄气",
+            "三息抱元"
+          ]
+        },
+        {
+          "name": "连诀",
+          "options": [
+            "结一道印",
+            "叠两道印",
+            "列三道印"
+          ]
+        },
+        {
+          "name": "截流",
+          "options": [
+            "每印耗三息",
+            "每印耗两息",
+            "每印耗一息"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "追风截羽",
+          "hint": "飞羽三息即过，留心截流能省下几息。",
+          "target": [
+            3
+          ],
+          "polarity": 2,
+          "element": 2,
+          "qi": 1
+        },
+        {
+          "name": "裂岩惊雷",
+          "hint": "六息引雷落在岩隙间。",
+          "target": [
+            6
+          ],
+          "polarity": 2,
+          "element": 4,
+          "qi": 2
+        },
+        {
+          "name": "镜花藏影",
+          "hint": "守足九息让幻影成形，宜阴性幻气。",
+          "target": [
+            9
+          ],
+          "polarity": 1,
+          "element": 3,
+          "qi": 12
+        }
+      ],
+      "economyAffix": "一印入微",
+      "masterAffix": "叠诀凝光",
+      "traits": "只结一道印可省两枚灵石。三印逐道截至一息，成谱加三分。",
+      "nameEnding": "诀",
+      "materialPolarity": 1,
+      "materialElements": [
+        3
+      ],
+      "materialQi": [
+        3,
+        5
+      ],
+      "materialPrice": 28,
+      "materialNote": "寒露液 · 阴 · 水行 · 寒／润气"
+    },
+    {
+      "id": "zhen",
+      "product": "阵图",
+      "mechanic": "两枚阵盘各护一段，重叠阵眼只算一次。先铺两翼，再决定交叠深浅。",
+      "unit": "座阵眼",
+      "materialId": "mat.cloudwood",
+      "materialName": "云纹木",
+      "stages": [
+        {
+          "name": "布左翼",
+          "options": [
+            "布二眼",
+            "布三眼",
+            "布四眼"
+          ]
+        },
+        {
+          "name": "布右翼",
+          "options": [
+            "布二眼",
+            "布四眼",
+            "布六眼"
+          ]
+        },
+        {
+          "name": "合阵",
+          "options": [
+            "并列不叠",
+            "交叠一眼",
+            "交叠两眼"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "守泉叠阵",
+          "hint": "只护三座泉眼，让两翼交叠守中。",
+          "target": [
+            3
+          ],
+          "polarity": 1,
+          "element": 5,
+          "qi": 11
+        },
+        {
+          "name": "回风商阵",
+          "hint": "商队需六眼成阵，借风行气传至末车。",
+          "target": [
+            6
+          ],
+          "polarity": 3,
+          "element": 2,
+          "qi": 1
+        },
+        {
+          "name": "涤浊锁谷",
+          "hint": "九眼方能封谷口，阵内以浊气截流。",
+          "target": [
+            9
+          ],
+          "polarity": 1,
+          "element": 5,
+          "qi": 10
+        }
+      ],
+      "economyAffix": "双眼为基",
+      "masterAffix": "交宫护枢",
+      "traits": "左翼仅布二眼可省两枚灵石。两翼同时布四眼以上并交叠，成谱加三分。",
+      "nameEnding": "阵",
+      "materialPolarity": 2,
+      "materialElements": [
+        2
+      ],
+      "materialQi": [
+        1,
+        11
+      ],
+      "materialPrice": 16,
+      "materialNote": "云纹木 · 阳 · 木行 · 风／罡气"
+    },
+    {
+      "id": "dao",
+      "product": "功法",
+      "mechanic": "每轮只能留住纳入与守住两者较少的气。周天＝每轮实留 × 行功轮数。",
+      "unit": "周天",
+      "materialId": "mat.frost_reed",
+      "materialName": "霜节芦",
+      "stages": [
+        {
+          "name": "纳息",
+          "options": [
+            "纳二缕",
+            "纳三缕",
+            "纳四缕"
+          ]
+        },
+        {
+          "name": "守窍",
+          "options": [
+            "守二缕",
+            "守三缕",
+            "守四缕"
+          ]
+        },
+        {
+          "name": "行周天",
+          "options": [
+            "行一轮",
+            "行两轮",
+            "行三轮"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "清心小周天",
+          "hint": "清气走满四周天，再多吸一缕也须有窍可守。",
+          "target": [
+            4
+          ],
+          "polarity": 1,
+          "element": 3,
+          "qi": 9
+        },
+        {
+          "name": "守元正罡",
+          "hint": "六周天聚罡，土行能守。",
+          "target": [
+            6
+          ],
+          "polarity": 3,
+          "element": 5,
+          "qi": 11
+        },
+        {
+          "name": "焚尘大周天",
+          "hint": "九周天行毕方可收功，取阳性燥气。",
+          "target": [
+            9
+          ],
+          "polarity": 2,
+          "element": 4,
+          "qi": 6
+        }
+      ],
+      "economyAffix": "一纳一守",
+      "masterAffix": "绵息连周",
+      "traits": "所纳所守等量可省两枚灵石。两者至少三缕并行三轮，成谱加三分。",
+      "nameEnding": "经",
+      "materialPolarity": 1,
+      "materialElements": [
+        1,
+        3
+      ],
+      "materialQi": [
+        3,
+        9
+      ],
+      "materialPrice": 23,
+      "materialNote": "霜节芦 · 阴 · 金／水行 · 寒／清气"
+    },
+    {
+      "id": "qiao",
+      "product": "机关图",
+      "mechanic": "主轴带齿轮增速，减速箱按传动比折算整转，未满一转的余力散去。",
+      "unit": "转输出",
+      "materialId": "mat.cloudwood",
+      "materialName": "云纹木",
+      "stages": [
+        {
+          "name": "上弦",
+          "options": [
+            "上一匝",
+            "上两匝",
+            "上三匝"
+          ]
+        },
+        {
+          "name": "啮齿",
+          "options": [
+            "双齿轮 ×2",
+            "三齿轮 ×3",
+            "四齿轮 ×4"
+          ]
+        },
+        {
+          "name": "换挡",
+          "options": [
+            "直连 ÷1",
+            "二档 ÷2",
+            "三档 ÷3"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "灵雀传书",
+          "hint": "木雀需每息两转，勿令翼轴空耗。",
+          "target": [
+            2
+          ],
+          "polarity": 3,
+          "element": 2,
+          "qi": 1
+        },
+        {
+          "name": "沉砂开锁",
+          "hint": "锁芯只认四转，金行清气宜辨齿。",
+          "target": [
+            4
+          ],
+          "polarity": 1,
+          "element": 1,
+          "qi": 9
+        },
+        {
+          "name": "鸣霆飞梭",
+          "hint": "梭轮得六转才能离弦，借雷气催动。",
+          "target": [
+            6
+          ],
+          "polarity": 2,
+          "element": 1,
+          "qi": 2
+        }
+      ],
+      "economyAffix": "整齿传力",
+      "masterAffix": "隔轮同音",
+      "traits": "经减速箱仍整除无余转，可省两枚灵石。三匝上弦且减速后整除，成谱加三分。",
+      "nameEnding": "枢",
+      "materialPolarity": 2,
+      "materialElements": [
+        2
+      ],
+      "materialQi": [
+        1,
+        11
+      ],
+      "materialPrice": 16,
+      "materialNote": "云纹木 · 阳 · 木行 · 风／罡气"
+    },
+    {
+      "id": "zhi",
+      "product": "植谱",
+      "mechanic": "根露＝浇入的水 − 蒸散。裸土蒸散三滴；每深一层根或多一层遮荫，少散一滴，最多保住全部浇水。",
+      "unit": "滴根露",
+      "materialId": "mat.ninglu_herb",
+      "materialName": "凝露草",
+      "stages": [
+        {
+          "name": "引露",
+          "options": [
+            "引两滴",
+            "引四滴",
+            "引六滴"
+          ]
+        },
+        {
+          "name": "调根",
+          "options": [
+            "根附表土",
+            "根下一层",
+            "根下两层"
+          ]
+        },
+        {
+          "name": "遮荫",
+          "options": [
+            "无遮",
+            "疏荫一层",
+            "密荫两层"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "寒汀留种",
+          "hint": "喜寒的芽只留一滴根露，别把浅土荫得太密。",
+          "target": [
+            1
+          ],
+          "polarity": 1,
+          "element": 3,
+          "qi": 3
+        },
+        {
+          "name": "青藤延蔓",
+          "hint": "三滴根露能令青藤舒展，宜木行生气。",
+          "target": [
+            3
+          ],
+          "polarity": 3,
+          "element": 2,
+          "qi": 7
+        },
+        {
+          "name": "润泽莲台",
+          "hint": "莲根要留足六滴露，深根与遮荫能补足蒸散。",
+          "target": [
+            6
+          ],
+          "polarity": 1,
+          "element": 2,
+          "qi": 5
+        }
+      ],
+      "economyAffix": "疏荫省露",
+      "masterAffix": "深根藏润",
+      "traits": "根荫恰好抵尽三滴蒸散，可省两枚灵石。深根藏入第二层且用疏荫，成谱加三分。",
+      "nameEnding": "芽",
+      "materialPolarity": 1,
+      "materialElements": [
+        2,
+        3
+      ],
+      "materialQi": [
+        5,
+        3
+      ],
+      "materialPrice": 20,
+      "materialNote": "凝露草 · 阴 · 木／水行 · 润／寒气"
+    },
+    {
+      "id": "shou",
+      "product": "驭兽谱",
+      "mechanic": "幼兽、警兽、烈兽分别习惯轻、中、重的口令。起始信赖依次为 2、4、6；口令每偏一档减 2，再由抚慰补足。",
+      "unit": "点信赖",
+      "materialId": "mat.common_hide",
+      "materialName": "妖兽皮",
+      "stages": [
+        {
+          "name": "观性",
+          "options": [
+            "亲近幼兽 2",
+            "观察警兽 4",
+            "候住烈兽 6"
+          ]
+        },
+        {
+          "name": "发令",
+          "options": [
+            "轻声短令",
+            "平声长令",
+            "重声远令"
+          ]
+        },
+        {
+          "name": "安抚",
+          "options": [
+            "静候 ＋0",
+            "顺毛 ＋1",
+            "以香安神 ＋2"
+          ]
+        }
+      ],
+      "briefs": [
+        {
+          "name": "辨迹问狐",
+          "hint": "狐群以三点信赖随行，幻气可藏行迹。",
+          "target": [
+            3
+          ],
+          "polarity": 1,
+          "element": 2,
+          "qi": 12
+        },
+        {
+          "name": "白鹿识泉",
+          "hint": "白鹿需五点信赖才肯引路，宜清气。",
+          "target": [
+            5
+          ],
+          "polarity": 3,
+          "element": 3,
+          "qi": 9
+        },
+        {
+          "name": "镇煞守山",
+          "hint": "守山烈兽需八点信赖，听对口令后还要安抚。",
+          "target": [
+            8
+          ],
+          "polarity": 2,
+          "element": 5,
+          "qi": 8
+        }
+      ],
+      "economyAffix": "应声识主",
+      "masterAffix": "同息驭灵",
+      "traits": "口令与兽性合拍可省两枚灵石。警兽或烈兽听对口令再以香安神，成谱加三分。",
+      "nameEnding": "契",
+      "materialPolarity": 1,
+      "materialElements": [
+        5
+      ],
+      "materialQi": [
+        11
+      ],
+      "materialPrice": 12,
+      "materialNote": "妖兽皮 · 阴 · 土行 · 罡气"
+    }
+  ]
+}

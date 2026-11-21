@@ -1,0 +1,22 @@
+{
+  "width": 620, "height": 930, "frames": 12, "cell": 128,
+  "rooms": [
+    { "name": "GatePennant", "left": 38, "top": 116, "right": 75, "bottom": 177, "period": 2.3 },
+    { "name": "PavilionLamps", "left": 443, "top": 86, "right": 579, "bottom": 172, "period": 3.1 },
+    { "name": "MarketCanopy", "left": 20, "top": 292, "right": 151, "bottom": 355, "period": 2.6 },
+    { "name": "TavernWheel", "left": 520, "top": 319, "right": 620, "bottom": 449, "period": 1.55 },
+    { "name": "SpiritLanterns", "left": 101, "top": 517, "right": 244, "bottom": 578, "period": 2.45 },
+    { "name": "TransitRunes", "left": 437, "top": 521, "right": 552, "bottom": 576, "period": 2.1 },
+    { "name": "NoticePaper", "left": 322, "top": 754, "right": 385, "bottom": 812, "period": 3.3 }
+  ],
+  "sunlight": [
+    { "name": "GateRoofGlint", "left": 35, "top": 88, "right": 240, "bottom": 171, "period": 2.0 },
+    { "name": "PavilionGlaze", "left": 439, "top": 64, "right": 581, "bottom": 171, "period": 2.0 },
+    { "name": "MarketBrass", "left": 20, "top": 311, "right": 147, "bottom": 367, "period": 1.8 },
+    { "name": "TavernEaves", "left": 415, "top": 261, "right": 589, "bottom": 355, "period": 1.9 },
+    { "name": "ShrineGlaze", "left": 47, "top": 449, "right": 222, "bottom": 525, "period": 2.0 },
+    { "name": "TransitStones", "left": 387, "top": 466, "right": 604, "bottom": 585, "period": 2.0 },
+    { "name": "NoticeTacks", "left": 238, "top": 732, "right": 383, "bottom": 810, "period": 1.8 },
+    { "name": "RiverReflection", "left": 265, "top": 590, "right": 398, "bottom": 671, "period": 3.1 }
+  ]
+}

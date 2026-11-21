@@ -1,0 +1,8 @@
+{
+    "name": "XiuZhenJie.Client.Protocol",
+    "rootNamespace": "XiuZhenJie.Client.Protocol",
+    "overrideReferences": true,
+    "precompiledReferences": ["Google.Protobuf.dll"],
+    "autoReferenced": true,
+    "noEngineReferences": true
+}

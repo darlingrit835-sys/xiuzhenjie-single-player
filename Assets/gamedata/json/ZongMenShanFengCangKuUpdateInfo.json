@@ -1,0 +1,93 @@
+[
+  {
+    "Stage": 3,
+    "MaxShinyStone": "7500000",
+    "MaxShinyJade": 6400,
+    "MaxLingKuang": "75000",
+    "MaxLingZhi": "75000",
+    "MaxYuanCai": "75000",
+    "ShinyStoneCast": "0",
+    "MaterialCast": "0",
+    "TimeCast": "0",
+    "ShinyJadeSpeedUp": 0,
+    "AllShinyJadeSpeedUp": 0
+  },
+  {
+    "Stage": 4,
+    "MaxShinyStone": "75000000",
+    "MaxShinyJade": 11000,
+    "MaxLingKuang": "750000",
+    "MaxLingZhi": "750000",
+    "MaxYuanCai": "750000",
+    "ShinyStoneCast": "10000",
+    "MaterialCast": "10000",
+    "TimeCast": "14400",
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 240
+  },
+  {
+    "Stage": 5,
+    "MaxShinyStone": "450000000",
+    "MaxShinyJade": 18600,
+    "MaxLingKuang": "7500000",
+    "MaxLingZhi": "7500000",
+    "MaxYuanCai": "7500000",
+    "ShinyStoneCast": "100000",
+    "MaterialCast": "100000",
+    "TimeCast": "28800",
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 480
+  },
+  {
+    "Stage": 6,
+    "MaxShinyStone": "1500000000",
+    "MaxShinyJade": 26800,
+    "MaxLingKuang": "75000000",
+    "MaxLingZhi": "75000000",
+    "MaxYuanCai": "75000000",
+    "ShinyStoneCast": "1000000",
+    "MaterialCast": "1000000",
+    "TimeCast": "57600",
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 960
+  },
+  {
+    "Stage": 7,
+    "MaxShinyStone": "7500000000",
+    "MaxShinyJade": 35600,
+    "MaxLingKuang": "750000000",
+    "MaxLingZhi": "750000000",
+    "MaxYuanCai": "750000000",
+    "ShinyStoneCast": "10000000",
+    "MaterialCast": "10000000",
+    "TimeCast": "115200",
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 1920
+  },
+  {
+    "Stage": 8,
+    "MaxShinyStone": "37500000000",
+    "MaxShinyJade": 45000,
+    "MaxLingKuang": "7500000000",
+    "MaxLingZhi": "7500000000",
+    "MaxYuanCai": "7500000000",
+    "ShinyStoneCast": "100000000",
+    "MaterialCast": "100000000",
+    "TimeCast": "230400",
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 3840
+  },
+  {
+    "Stage": 9,
+    "MaxShinyStone": "50000000000",
+    "MaxShinyJade": 55000,
+    "MaxLingKuang": "10000000000",
+    "MaxLingZhi": "10000000000",
+    "MaxYuanCai": "10000000000",
+    "ShinyStoneCast": "1000000000",
+    "MaterialCast": "1000000000",
+    "TimeCast": "460800",
+    "ShinyJadeSpeedUp": 60,
+    "AllShinyJadeSpeedUp": 7680
+  }
+]

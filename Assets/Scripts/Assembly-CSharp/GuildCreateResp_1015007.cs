@@ -1,0 +1,334 @@
+using System;
+using System.Diagnostics;
+using Google.Protobuf;
+using Google.Protobuf.Reflection;
+
+public sealed class GuildCreateResp_1015007 : IMessage<GuildCreateResp_1015007>, IMessage, IEquatable<GuildCreateResp_1015007>, IDeepCloneable<GuildCreateResp_1015007>
+{
+	private static readonly MessageParser<GuildCreateResp_1015007> _parser = new MessageParser<GuildCreateResp_1015007>(() => new GuildCreateResp_1015007());
+
+	private UnknownFieldSet _unknownFields;
+
+	public const int CodeFieldNumber = 1;
+
+	private int code_;
+
+	public const int IsSuccessFieldNumber = 2;
+
+	private bool isSuccess_;
+
+	public const int ShinyStoneFieldNumber = 3;
+
+	private long shinyStone_;
+
+	public const int ShinyJadeFieldNumber = 4;
+
+	private int shinyJade_;
+
+	public const int GuildIdFieldNumber = 5;
+
+	private int guildId_;
+
+	[DebuggerNonUserCode]
+	public static MessageParser<GuildCreateResp_1015007> Parser => _parser;
+
+	[DebuggerNonUserCode]
+	public static MessageDescriptor Descriptor => GuildProtoReflection.Descriptor.MessageTypes[8];
+
+	[DebuggerNonUserCode]
+	MessageDescriptor IMessage.Descriptor => pb_003A_003AGoogle_002EProtobuf_002EIMessage_002Eget_Descriptor();
+
+	[DebuggerNonUserCode]
+	public int Code
+	{
+		get
+		{
+			return code_;
+		}
+		set
+		{
+			code_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public bool IsSuccess
+	{
+		get
+		{
+			return isSuccess_;
+		}
+		set
+		{
+			isSuccess_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public long ShinyStone
+	{
+		get
+		{
+			return shinyStone_;
+		}
+		set
+		{
+			shinyStone_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public int ShinyJade
+	{
+		get
+		{
+			return shinyJade_;
+		}
+		set
+		{
+			shinyJade_ = value;
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public int GuildId
+	{
+		get
+		{
+			return guildId_;
+		}
+		set
+		{
+			guildId_ = value;
+		}
+	}
+
+	private MessageDescriptor pb_003A_003AGoogle_002EProtobuf_002EIMessage_002Eget_Descriptor()
+	{
+		return Descriptor;
+	}
+
+	[DebuggerNonUserCode]
+	public GuildCreateResp_1015007()
+	{
+	}
+
+	[DebuggerNonUserCode]
+	public GuildCreateResp_1015007(GuildCreateResp_1015007 other)
+		: this()
+	{
+		code_ = other.code_;
+		isSuccess_ = other.isSuccess_;
+		shinyStone_ = other.shinyStone_;
+		shinyJade_ = other.shinyJade_;
+		guildId_ = other.guildId_;
+		_unknownFields = UnknownFieldSet.Clone(other._unknownFields);
+	}
+
+	[DebuggerNonUserCode]
+	public GuildCreateResp_1015007 Clone()
+	{
+		return new GuildCreateResp_1015007(this);
+	}
+
+	[DebuggerNonUserCode]
+	public override bool Equals(object other)
+	{
+		return Equals(other as GuildCreateResp_1015007);
+	}
+
+	[DebuggerNonUserCode]
+	public bool Equals(GuildCreateResp_1015007 other)
+	{
+		if (other == null)
+		{
+			return false;
+		}
+		if (other == this)
+		{
+			return true;
+		}
+		if (Code != other.Code)
+		{
+			return false;
+		}
+		if (IsSuccess != other.IsSuccess)
+		{
+			return false;
+		}
+		if (ShinyStone != other.ShinyStone)
+		{
+			return false;
+		}
+		if (ShinyJade != other.ShinyJade)
+		{
+			return false;
+		}
+		if (GuildId != other.GuildId)
+		{
+			return false;
+		}
+		return object.Equals(_unknownFields, other._unknownFields);
+	}
+
+	[DebuggerNonUserCode]
+	public override int GetHashCode()
+	{
+		int num = 1;
+		if (Code != 0)
+		{
+			num ^= Code.GetHashCode();
+		}
+		if (IsSuccess)
+		{
+			num ^= IsSuccess.GetHashCode();
+		}
+		if (ShinyStone != 0L)
+		{
+			num ^= ShinyStone.GetHashCode();
+		}
+		if (ShinyJade != 0)
+		{
+			num ^= ShinyJade.GetHashCode();
+		}
+		if (GuildId != 0)
+		{
+			num ^= GuildId.GetHashCode();
+		}
+		if (_unknownFields != null)
+		{
+			num ^= _unknownFields.GetHashCode();
+		}
+		return num;
+	}
+
+	[DebuggerNonUserCode]
+	public override string ToString()
+	{
+		return JsonFormatter.ToDiagnosticString(this);
+	}
+
+	[DebuggerNonUserCode]
+	public void WriteTo(CodedOutputStream output)
+	{
+		if (Code != 0)
+		{
+			output.WriteRawTag(8);
+			output.WriteInt32(Code);
+		}
+		if (IsSuccess)
+		{
+			output.WriteRawTag(16);
+			output.WriteBool(IsSuccess);
+		}
+		if (ShinyStone != 0L)
+		{
+			output.WriteRawTag(24);
+			output.WriteInt64(ShinyStone);
+		}
+		if (ShinyJade != 0)
+		{
+			output.WriteRawTag(32);
+			output.WriteInt32(ShinyJade);
+		}
+		if (GuildId != 0)
+		{
+			output.WriteRawTag(40);
+			output.WriteInt32(GuildId);
+		}
+		if (_unknownFields != null)
+		{
+			_unknownFields.WriteTo(output);
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public int CalculateSize()
+	{
+		int num = 0;
+		if (Code != 0)
+		{
+			num += 1 + CodedOutputStream.ComputeInt32Size(Code);
+		}
+		if (IsSuccess)
+		{
+			num += 2;
+		}
+		if (ShinyStone != 0L)
+		{
+			num += 1 + CodedOutputStream.ComputeInt64Size(ShinyStone);
+		}
+		if (ShinyJade != 0)
+		{
+			num += 1 + CodedOutputStream.ComputeInt32Size(ShinyJade);
+		}
+		if (GuildId != 0)
+		{
+			num += 1 + CodedOutputStream.ComputeInt32Size(GuildId);
+		}
+		if (_unknownFields != null)
+		{
+			num += _unknownFields.CalculateSize();
+		}
+		return num;
+	}
+
+	[DebuggerNonUserCode]
+	public void MergeFrom(GuildCreateResp_1015007 other)
+	{
+		if (other != null)
+		{
+			if (other.Code != 0)
+			{
+				Code = other.Code;
+			}
+			if (other.IsSuccess)
+			{
+				IsSuccess = other.IsSuccess;
+			}
+			if (other.ShinyStone != 0L)
+			{
+				ShinyStone = other.ShinyStone;
+			}
+			if (other.ShinyJade != 0)
+			{
+				ShinyJade = other.ShinyJade;
+			}
+			if (other.GuildId != 0)
+			{
+				GuildId = other.GuildId;
+			}
+			_unknownFields = UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+		}
+	}
+
+	[DebuggerNonUserCode]
+	public void MergeFrom(CodedInputStream input)
+	{
+		uint num;
+		while ((num = input.ReadTag()) != 0)
+		{
+			switch (num)
+			{
+			default:
+				_unknownFields = UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+				break;
+			case 8u:
+				Code = input.ReadInt32();
+				break;
+			case 16u:
+				IsSuccess = input.ReadBool();
+				break;
+			case 24u:
+				ShinyStone = input.ReadInt64();
+				break;
+			case 32u:
+				ShinyJade = input.ReadInt32();
+				break;
+			case 40u:
+				GuildId = input.ReadInt32();
+				break;
+			}
+		}
+	}
+}

@@ -1,0 +1,6 @@
+{
+  "name": "XiuZhenJie.Client.Release",
+  "rootNamespace": "XiuZhenJie.Client.Release",
+  "references": ["HybridCLR.Runtime", "UnityEngine.UI"],
+  "autoReferenced": true
+}

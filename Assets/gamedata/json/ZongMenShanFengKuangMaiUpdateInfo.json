@@ -1,0 +1,86 @@
+[
+  {
+    "Stage": 3,
+    "MaxLingShiMiners": 300,
+    "OneYield": 300,
+    "HourYield": 90000,
+    "DayYield": 2160000,
+    "MaxLingYuMiners": 300,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 30,
+    "ShinyLingYu": 720,
+    "MultiplierConsumption": 0
+  },
+  {
+    "Stage": 4,
+    "MaxLingShiMiners": 500,
+    "OneYield": 350,
+    "HourYield": 175000,
+    "DayYield": 4200000,
+    "MaxLingYuMiners": 500,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 50,
+    "ShinyLingYu": 1200,
+    "MultiplierConsumption": 50000
+  },
+  {
+    "Stage": 5,
+    "MaxLingShiMiners": 900,
+    "OneYield": 400,
+    "HourYield": 360000,
+    "DayYield": 8640000,
+    "MaxLingYuMiners": 900,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 90,
+    "ShinyLingYu": 2160,
+    "MultiplierConsumption": 200000
+  },
+  {
+    "Stage": 6,
+    "MaxLingShiMiners": 1300,
+    "OneYield": 600,
+    "HourYield": 780000,
+    "DayYield": 18720000,
+    "MaxLingYuMiners": 1300,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 130,
+    "ShinyLingYu": 3120,
+    "MultiplierConsumption": 500000
+  },
+  {
+    "Stage": 7,
+    "MaxLingShiMiners": 1700,
+    "OneYield": 1000,
+    "HourYield": 1700000,
+    "DayYield": 40800000,
+    "MaxLingYuMiners": 1700,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 170,
+    "ShinyLingYu": 4080,
+    "MultiplierConsumption": 1000000
+  },
+  {
+    "Stage": 8,
+    "MaxLingShiMiners": 2100,
+    "OneYield": 700,
+    "HourYield": 1470000,
+    "DayYield": 100800000,
+    "MaxLingYuMiners": 2100,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 210,
+    "ShinyLingYu": 5040,
+    "MultiplierConsumption": 2000000
+  },
+  {
+    "Stage": 9,
+    "MaxLingShiMiners": 2500,
+    "OneYield": 3000,
+    "HourYield": 7500000,
+    "DayYield": 180000000,
+    "MaxLingYuMiners": 2500,
+    "SpiritJadeYield": 1,
+    "TimeLingYu": 250,
+    "ShinyLingYu": 6000,
+    "MultiplierConsumption": 5000000
+  }
+]
