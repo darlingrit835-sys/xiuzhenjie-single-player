@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>修真界 · UI 设计总览</title>
+<link rel="stylesheet" href="source/gallery.css">
+</head>
+<body>
+<header class="cover">
+  <div class="cover-inner">
+    <div class="brand"><span aria-hidden="true">修真</span> 修真界</div>
+    <h1>修真界 UI 设计</h1>
+    <p>竖屏画板 · 1080 × 2400</p>
+    <a href="#all">浏览全部画板 <span aria-hidden="true">↓</span></a>
+    <a href="04 修炼与参悟.html">试玩 04 修炼与参悟 <span aria-hidden="true">→</span></a>
+    <a href="07 宗门.html">试玩 07 宗门 <span aria-hidden="true">→</span></a>
+    <a href="08 坊市与交易.html">试玩 08 坊市与交易 <span aria-hidden="true">→</span></a>
+    <a href="09 炼丹.html">试玩 09 炼丹 <span aria-hidden="true">→</span></a>
+    <a href="11 制符与灵植.html">试玩 11 制符与灵植 <span aria-hidden="true">→</span></a>
+    <a href="12 虚神界.html">试玩 12 虚神界 <span aria-hidden="true">→</span></a>
+  </div>
+</header>
+<main>
+  <section class="section" id="selected">
+    <div class="heading"><h2>主要界面</h2></div>
+    <div class="featured"></div>
+  </section>
+  <section class="section" id="all">
+    <div class="heading"><h2>全部画板</h2><span id="count" aria-live="polite"></span></div>
+    <div class="filters">
+      <label class="search"><span>搜索</span><input id="search" type="search" placeholder="中文名称、Prefab 或路径"></label>
+      <label><span>模块</span><select id="module"><option value="">全部模块</option></select></label>
+      <label><span>画板类型</span><select id="kind"><option value="">全部画板类型</option></select></label>
+    </div>
+    <div class="catalog"></div>
+    <button id="more" type="button">显示更多</button>
+  </section>
+</main>
+<dialog id="inspect">
+  <div class="inspector">
+    <div class="canvas"><img id="fullImage" alt=""></div>
+    <aside>
+      <button class="close" type="button" aria-label="关闭预览">×</button>
+      <div id="meta"></div>
+      <h2 id="title"></h2>
+      <div class="info">1080 × 2400 PNG</div>
+      <p class="asset-label">对应资源</p>
+      <code id="assetPath"></code>
+      <a class="primary" id="original" target="_blank" rel="noopener">打开原尺寸 PNG ↗</a>
+      <a class="secondary" id="html" target="_blank" rel="noopener">打开独立画板 ↗</a>
+      <nav><button id="previous" type="button">‹ 上一张</button><button id="next" type="button">下一张 ›</button></nav>
+    </aside>
+  </div>
+</dialog>
+<script src="source/catalog.js"></script>
+<script src="source/theme.js"></script>
+<script src="source/gallery.js"></script>
+</body>
+</html>

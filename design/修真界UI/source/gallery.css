@@ -1,0 +1,53 @@
+:root{--ink:#223e35;--paper:#f5ecd8;--dark:#122e28;--muted:#615c4c;--line:#bfaf8c;--red:#9b4737;--serif:"Songti SC","Noto Serif CJK SC","STSong","SimSun",serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:#f4eddb;font:15px/1.55 "PingFang SC","Microsoft YaHei",sans-serif}
+h1,h2,h3,p{margin:0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.cover{min-height:430px;background:linear-gradient(90deg,#fbefd7 14%,#fbefd7c9 45%,#fbefd710 87%),linear-gradient(0deg,#f4eddb,transparent 22%),url("../assets/mountain.jpg") center 48%/cover}
+.cover-inner{max-width:1380px;margin:auto;padding:37px 40px 72px}
+.brand{display:flex;align-items:center;gap:9px;color:#624131;font-weight:650;letter-spacing:.17em}
+.brand span{padding:7px 5px;background:var(--red);color:#fbf1d4;outline:1px solid #f5e3b099;outline-offset:-3px;font:750 14px/1 var(--serif)}
+.cover h1{font:800 clamp(40px,6.3vw,82px)/1.2 var(--serif);margin:69px 0 13px;letter-spacing:.025em}
+.cover p{color:#42594b;font-size:16px;letter-spacing:.1em;margin-bottom:25px}
+.cover a,.primary,.secondary{display:inline-flex;padding:9px 16px;gap:12px;text-decoration:none;border:1px solid #7e8c73;background:#284c41;color:#fbf2dc}
+.cover a:hover,.primary:hover{background:#396756}
+main{max-width:1380px;padding:0 40px 70px;margin:auto}
+.section{margin-top:38px;scroll-margin-top:26px}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 0 11px;border-bottom:1px solid var(--line);margin-bottom:19px}
+.heading h2{font:750 32px/1.2 var(--serif)}
+#count{color:var(--muted);font-size:14px}
+.featured,.catalog{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+.card{display:flex;flex-direction:column;align-items:stretch;text-align:left;background:#faf3e3;border:1px solid #d2c2a2;padding:7px 7px 10px;min-width:0}
+.card:hover,.card:focus-visible{border-color:#50765f;box-shadow:0 4px 16px #2a4b3221}
+.card img{background:#dfd5bb;width:100%;aspect-ratio:9/20;object-fit:cover;border:1px solid #c4b49460}
+.card h3{font:750 18px/1.24 var(--serif);margin-top:8px}
+.card div{color:var(--muted);font-size:11px;margin-top:3px}
+.filters{display:flex;gap:14px;margin-bottom:20px}
+.filters label{display:flex;flex-direction:column;gap:4px;color:#3d574b}
+.filters .search{flex:1}
+.filters input,.filters select{width:100%;height:43px;background:#fdf7e9;border:1px solid #bcac88;border-radius:0;padding:6px 10px}
+.filters select{min-width:145px}
+#more{display:block;margin:25px auto 0;padding:9px 17px;background:#f9f0da;border:1px solid #a89168}
+#more[hidden]{display:none}
+dialog{border:1px solid #a6916b;max-height:94vh;max-width:96vw;padding:0;background:#f9f2df;color:var(--ink);overflow:auto}
+dialog::backdrop{background:#102a24b5}
+.inspector{display:grid;grid-template-columns:minmax(240px,auto) minmax(240px,315px);min-height:530px}
+.canvas{display:flex;justify-content:center;background:#142c27;align-items:center;padding:18px}
+.canvas>img{display:block;height:min(84vh,960px);max-width:100%;width:auto;object-fit:contain}
+aside{padding:32px 22px;position:relative}
+aside .close{position:absolute;top:12px;right:12px;background:none;border:1px solid #b9aa86;font:24px/1 var(--serif);width:33px;height:33px}
+#meta{font-size:12px;color:#734b38;padding-right:26px}
+#title{font:750 29px/1.2 var(--serif);margin:11px 0}
+.info,.asset-label{font-size:13px;color:var(--muted)}
+.asset-label{margin-top:27px}
+#assetPath{display:block;font-size:12px;overflow-wrap:anywhere;margin:5px 0 23px}
+aside .primary,aside .secondary{display:block;text-align:center;margin-top:9px}
+aside .secondary{background:#fff6e2;color:var(--ink)}
+aside nav{display:flex;gap:8px;margin-top:13px}
+aside nav button{flex:1;background:transparent;border:1px solid var(--line);padding:7px}
+aside nav button:disabled{opacity:.45;cursor:default}
+@media(max-width:950px){.featured,.catalog{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:630px){.cover-inner,main{padding-left:18px;padding-right:18px}.cover{min-height:340px}.cover h1{margin-top:44px}.featured,.catalog{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{flex-wrap:wrap}.filters .search{flex-basis:100%}.inspector{display:block}.canvas>img{height:auto;max-height:65vh}aside{padding:20px 16px}.filters select{min-width:125px}}

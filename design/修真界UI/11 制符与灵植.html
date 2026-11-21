@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>11 制符与灵植 · 修真界</title></head>
+<body><a href="画板.html#HuaFuChooseWnd">进入符案</a>　<a href="画板.html#LT_LingTianMainWnd">进入灵田</a><script>
+const entry=decodeURIComponent(location.hash.slice(1));
+const route=entry==='灵田'?'LT_LingTianMainWnd':/^(HuaFu|SFH_|LT_|LZ_)[A-Za-z_]*Wnd$/.test(entry)?entry:'HuaFuChooseWnd';
+location.replace('画板.html#'+route);
+</script></body></html>

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>修真界 · 设计画板</title><link rel="stylesheet" href="source/theme.css"><link rel="stylesheet" href="source/journey.css"><link rel="stylesheet" href="source/workshop.css"><link rel="stylesheet" href="source/components.css"><link rel="stylesheet" href="source/cultivation.css"><link rel="stylesheet" href="source/meridian.css"><link rel="stylesheet" href="source/sect-court.css"><link rel="stylesheet" href="source/auction-house.css"><link rel="stylesheet" href="source/alchemy-room.css"><link rel="stylesheet" href="source/sigil-garden.css"></head><body><main id="screen"></main><script src="source/catalog.js"></script><script src="source/theme.js"></script><script src="source/journey.js"></script><script src="source/workshop.js"></script><script src="source/components.js"></script><script src="source/meridian-points.js"></script><script src="source/meridian.js"></script><script src="source/system-methods.js"></script><script src="source/cultivation.js"></script><script src="source/market.js"></script><script src="source/sect-court.js"></script><script src="source/auction-guide-lines.js"></script><script src="source/auction-house.js"></script><script src="source/alchemy-catalog.js"></script><script src="source/alchemy-room.js"></script><script src="source/sigil-garden.js"></script><script>
+window.draw = function(key) {
+ const d=catalog.find(e=>e.key===key)||catalog.find(e=>e.id===key)||catalog.find(e=>e.id==='SignInWnd');
+ if (d.id==='XuShenJieWnd' || d.id==='XuShenDianWnd') {
+   const screen=document.querySelector('#screen');
+   screen.innerHTML='<iframe title="虚神界互动样稿" src="12 虚神界.html" style="width:100%;height:100%;display:block;border:0"></iframe>';
+   screen.setAttribute('aria-label',d.title);document.body.dataset.key=d.key;document.title=d.title+' · 修真界';return;
+ }
+ const renderers=[window.sigilGardenDesign,window.alchemyRoomDesign,window.auctionHouseDesign,window.sectCourtDesign,window.componentDesign,window.journeyDesign,window.workshopDesign,window.marketDesign];
+ let markup; for(const render of renderers){ if(render && (markup=render(d,ui)))break; }
+ if(!markup)throw Error('画板缺少设计 '+d.id);
+ document.title=d.title+' · 修真界';document.querySelector('#screen').innerHTML=markup;document.body.dataset.key=d.key;
+ document.querySelector('#screen').setAttribute('aria-label',d.title);
+};
+function show(){draw(decodeURIComponent(location.hash.slice(1)))} window.addEventListener('hashchange',show); if(location.hash)show();
+</script></body></html>
