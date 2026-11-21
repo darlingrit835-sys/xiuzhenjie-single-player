@@ -25,7 +25,7 @@ Go 后端沿用这些 PB 编号与存档字段，[Go 源码与运行说明](../.
 | [单机服务端仓库](../../README.md) | `server/src/server/account` 处理 HTTPS，`server/src/server/game` 放游戏服分派与会话基础，`server/src/server/game/modules` 放专用处理和业务服务。`server/src/xzj/Xzj.java` 是构建使用的 PB 类型，`server/proto/xzj.proto` 保留较早的协议整理稿 |
 | 单机配置与运行数据 | `server/data/config` 存运行用 JSON，`server/data/config_excel` 存策划表副本。账号、角色及其备份见 `server/data`。本地编译输出见 `server/.local-build`，Windows 启动脚本使用 `server/out` |
 | 同级 Unity 工程 | `UnityProject/Assets/Scenes` 放场景，`gamedata/prefabs/uiprefabs/window/<模块>` 放可编辑窗口，`gamedata/prefabs/uiprefabs/item/<模块>` 放界面子组件，`Scripts/Assembly-CSharp/XiuZhenJie/<模块>` 放业务 C#，`StreamingAssets/Assetbundles` 放客户端运行时包 |
-| Unity 恢复资料与交付 | `RecoveryData` 存恢复原料，`RecoveryLogs` 存编辑器、联调和真机记录，`Builds` 为本机构建输出。旧版本地 APK 基线可从本仓 Git 历史恢复，见[玩家使用说明](../../使用说明.txt) |
+| Unity 恢复资料与交付 | `RecoveryData` 存恢复原料，`RecoveryLogs` 存编辑器、联调和真机记录，`Builds` 为本机构建输出。安装包由发行环境单独保管，安装步骤见[玩家使用说明](../../使用说明.txt) |
 | 独立的公开说明仓库 | 当前本地检出包含面向玩家的说明、启动工具与配置样例 |
 
 历史记录归档在 `server` 下。[FIXES.md](../../server/FIXES.md) 记录既往修复与参数，[DESIGN.md](../../server/DESIGN.md) 记录玩法设计与待实现方案，[CONTINUE.md](../../server/CONTINUE.md) 记录旧环境路径与早期调查。当前源码状态见本目录的调用表。

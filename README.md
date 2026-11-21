@@ -32,15 +32,21 @@
 ## 本地启动
 
 - macOS / Linux 在仓库根目录运行 `./server/start-local.sh`。安装 Go 1.26 或更新版本。需要运行 Unity 时，用 Unity 2022.3.62f3 打开同级工程的 `StartLoadScene` 并进入 Play Mode。
-- Windows 双击 `启动游戏.bat`，脚本启动 Go，通过 ADB 建立 USB 映射并打开本地版客户端。首次安装或重装时，通过环境变量 `XZJ_CLIENT_APK` 指定本地版 APK 的完整路径，也可使用默认位置 `client/修真界单机版.apk`。历史基线的恢复命令见[玩家使用说明](使用说明.txt)。手机直连云端使用单独构建的试用包。
+- Windows 双击 `启动游戏.bat`，脚本启动 Go，通过 ADB 建立 USB 映射并打开本地版客户端。首次安装或重装时，通过环境变量 `XZJ_CLIENT_APK` 指定本地版 APK 的完整路径，也可使用默认位置 `client/修真界单机版.apk`。手机安装步骤见[玩家使用说明](使用说明.txt)。手机直连云端使用单独构建的试用包。
 - 需要回退 Java 时先停止 Go。macOS / Linux 运行 `XZJ_BACKEND=java ./server/start-local.sh`。Windows 在同一个 PowerShell 窗口执行 `$env:XZJ_BACKEND = 'java'` 后运行 `.\start.ps1`。两版共用存档格式和默认端口。
 - 测试试用玩法时使用独立存档，并启用 `-interface-preview -interface-writes`。并行测试为账号、游戏和战斗各指定空闲端口。点穴与突破的本机验收结果见 [功能记录](docs/interface-pb/social-status.md#用通脉所得经脉点突破穴位)。
 
-本机存档默认写入 `server/data/`。新检出初次运行用空账号和角色数据，可在客户端注册和建角。备份与迁移请先停服，再备份完整存档目录。仓库保留运行用配置表与本地开发证书。账号、角色、宗门、聊天、历史、部署配置与云端证书按各环境单独备份。
+本机存档默认写入 `server/data/`。新检出初次运行用空账号和角色数据，可在客户端注册和建角。备份与迁移请先停服，再备份完整存档目录。运行配置表随源码提供。启动前将自己的开发证书放到 `server/data/server.p12`，并设置证书口令环境变量 `XZJ_TLS_PASSWORD`。账号、角色、宗门、聊天、历史、部署配置与云端证书按各环境单独备份。
 
 ## Unity 工程与 Git
 
-Unity 1.3.5 的完整客户端在同级目录 `../xiuzhenjie-unity-recovery/UnityProject`，用独立的本地 Git 仓库管理，维护手册为 `Docs/README.md`。在新机器上，从客户端源码备份恢复到这个相对位置，即可使用下文中的跨仓源码链接。工程旁的 `Builds/Android` 保存热更新基线与签名发布内容。APK 单独归档，`server-go/.build` 供本地编译与测试临时使用。
+完整 Unity 客户端位于同一仓库的 `codex/full-unity-source` 分支。在服务端源码根目录运行以下命令，文档中的跨仓源码链接即可按原路径打开。
+
+```sh
+git clone --single-branch --branch codex/full-unity-source https://github.com/darlingrit835-sys/xiuzhenjie-single-player.git ../xiuzhenjie-unity-recovery/UnityProject
+```
+
+客户端维护手册位于该工程的 `Docs/README.md`。APK、热更新基线和签名材料均由发行环境单独保存。
 
 本轮纳戒分类与选售、器胚塑形和模具量产、法术修习与感悟的客户端改动，随[纳戒、炼器与修法补丁](client/patches/ring-forge-spell.patch)提供。补丁含器物图标，基线为本轮改动前已接入纳戒同步和炼器工坊的 Unity 工程，需搭配本仓 Go 服务端与协议表。
 
@@ -64,4 +70,4 @@ git -C ../xiuzhenjie-unity-recovery/UnityProject apply --check "$patch_file"
 git -C ../xiuzhenjie-unity-recovery/UnityProject apply "$patch_file"
 ```
 
-当前主仓从本机 Git bundle 导入。同级 `xiuzhenjie-single-player-public` 是独立检出，有自己的历史与远端。提交前用 `git rev-parse --show-toplevel` 确认目标目录，用 `git diff --cached --stat` 确认待提交范围。
+完整服务端的发布分支是 `codex/full-server-source`。仓库 `main` 保留原有公开项目的历史。

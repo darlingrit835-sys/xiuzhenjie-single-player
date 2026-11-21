@@ -12,9 +12,8 @@
 
 二、跑起来（3 步）
   首次安装或重装前，请准备本地版 APK。若已安装，可直接从第 1 步开始。
-  在本仓根目录打开 PowerShell，执行以下命令可从 Git 历史恢复配套的旧版 APK：
-    git restore --source=8341590 --worktree -- "client/修真界单机版.apk"
-  使用其他位置保存的本地版 APK 时，在同一个 PowerShell 窗口指定完整路径并启动：
+  将开发证书放入 server\data\server.p12。打开 PowerShell，设置环境变量 XZJ_TLS_PASSWORD 为该证书的口令。
+  使用本地版 APK 的完整路径启动：
     $env:XZJ_CLIENT_APK = 'D:\游戏\修真界单机版.apk'
     .\启动游戏.bat
   1. 手机用数据线连电脑，打开「开发者选项 → USB 调试」，手机上点“允许”。
