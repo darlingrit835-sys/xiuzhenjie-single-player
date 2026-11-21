@@ -1,0 +1,23 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/LT_LingTianItem.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/LT_LingTianItem.cs
+index 8dd90a0..8a12325 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/LT_LingTianItem.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/LT_LingTianItem.cs
+@@ -196,13 +196,11 @@ namespace XiuZhenJie
+ 				break;
+ 			case 4:
+ 			case 5:
+-				if (JinDu)
+-				{
+-					ZhiWuJinDuTimeText.text = string.Format(TimeToString((int)m_TimeRemaining));
+-					ZhiWuJinDuTiaoImage.fillAmount = 1f;
+-					m_Status = 6;
+-					ShuXingShuJu();
+-				}
++				JinDu = true;
++				ZhiWuJinDuTimeText.text = TimeToString(0);
++				ZhiWuJinDuTiaoImage.fillAmount = 1f;
++				m_Status = 6;
++				ShuXingShuJu();
+ 				break;
+ 			case 6:
+ 				if (JinDu)

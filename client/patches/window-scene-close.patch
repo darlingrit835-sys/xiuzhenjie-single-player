@@ -1,0 +1,51 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/UIManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/UIManager.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/UIManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/UIManager.cs
+@@ -290,32 +290,25 @@
+ 
+ 		public void CloseAllWnd(bool destory = true)
+ 		{
+-			for (int num = m_WindowList.Count - 1; num >= 0; num--)
+-			{
+-				CloseWnd(m_WindowList[num], destory);
+-			}
++			CloseAllExcept(null, destory);
+ 		}
+ 
+ 		public void CloseAllWnd(string[] windowNames)
+ 		{
+-			if (windowNames == null || windowNames.Length == 0)
+-			{
+-				CloseAllWnd();
+-			}
+-			Window[] array = new Window[windowNames.Length];
+-			for (int i = 0; i < windowNames.Length; i++)
+-			{
+-				if (!m_WindowDic.TryGetValue(windowNames[i], out array[i]))
+-				{
+-					CloseAllWnd();
+-				}
+-			}
+-			for (int num = m_WindowList.Count - 1; num >= 0; num--)
+-			{
+-				if (!array.Contains(m_WindowList[num]))
+-				{
+-					CloseWnd(m_WindowList[num]);
+-				}
++			CloseAllExcept(windowNames, true);
++		}
++
++		private void CloseAllExcept(string[] keepNames, bool destroy)
++		{
++			// A window can close its filter or another child from OnDisable.
++			var opened = m_WindowList.ToArray();
++			for (int i = opened.Length - 1; i >= 0; i--)
++			{
++				Window window = opened[i];
++				if (keepNames != null && Array.IndexOf(keepNames, window.Name) >= 0)
++					continue;
++				if (FindWndByName(window.Name) == window)
++					CloseWnd(window, destroy);
+ 			}
+ 		}
+ 

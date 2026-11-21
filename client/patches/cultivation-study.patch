@@ -1,0 +1,1577 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuWnd.cs
+@@ -1,5 +1,3 @@
+-using System;
+-using System.Collections;
+ using System.Collections.Generic;
+ using System.Linq;
+ using Google.Protobuf;
+@@ -23,42 +21,14 @@
+ 
+ 		private Dictionary<int, Sprite> m_RankBgSprite;
+ 
+-		private Dictionary<string, ShaiXuanParamsModel> m_ContentShaiXuanResult;
+-
+-		private List<ShaiXuanItemType> UseShaiXuanType;
+-
+-		private GameObject m_YiCanWuObj;
+-
+-		private GameObject m_CanWuScrollItem;
+-
+-		private List<CanWuEntity> m_GongFaDataSource;
+-
+-		private List<CanWuEntity> m_FaShuDataSource;
+-
+-		private List<CanWuEntity> m_DanFangDataSource;
+-
+-		private List<CanWuEntity> m_FuShuDataSource;
+-
+-		private List<CanWuEntity> m_QituDataSource;
+-
+-		private List<CanWuEntity> m_ZhenTuDataSource;
+-
+-		public CanWuTitleType m_CurrentType;
+-
+-		private Common_ShaiXuanWnd m_ShaiXuanWnd;
+-
+-		private Dictionary<CanWuTitleType, CanWuScrollItem> m_CanWuScrollItemDic;
+-
+-		private int m_HaveLearnBooks;
+-
+-		private int m_CanLearnBooks;
+-		private SystemMethodShelf systemShelf;
++		private GameObject sectionPrefab;
++		private readonly List<CanWuEntity> books = new List<CanWuEntity>();
++		private SystemMethodShelf shelf;
+ 
+ 		public override void Awake(params object[] paralist)
+ 		{
+ 			base.Awake(paralist);
+ 			ResourceLoad();
+-			m_CurrentType = CanWuTitleType.FaShu;
+ 			Panel = base.GameObject.GetComponent<CanWuPanel>();
+ 			InkInterfaceArt.Set(Panel.GetComponent<Image>(), "InkLandscapePaper", false);
+ 			Panel.SmallTitleText.text = string.Empty;
+@@ -75,60 +45,21 @@
+ 			InkDialogArt.StyleButton(Panel.TiShiLiKaiBtn, "LightPlaque", InkInterfaceArt.Ink);
+ 			InkDialogArt.StyleButton(Panel.TiShiGoSettingBtn, "LightAction", InkDialogArt.Ivory);
+ 			InkCultivationPages.StudyShelf(Panel);
+-			systemShelf = new SystemMethodShelf(Panel, RelfashData);
+-			UseShaiXuanType = new List<ShaiXuanItemType>();
+-			UseShaiXuanType.Add(ShaiXuanItemType.CanWuZhuangTai);
+-			UseShaiXuanType.Add(ShaiXuanItemType.WuXing);
+-			UseShaiXuanType.Add(ShaiXuanItemType.PinJie);
+-			UseShaiXuanType.Add(ShaiXuanItemType.DengJie);
+-			m_GongFaDataSource = new List<CanWuEntity>();
+-			m_FaShuDataSource = new List<CanWuEntity>();
+-			m_DanFangDataSource = new List<CanWuEntity>();
+-			m_FuShuDataSource = new List<CanWuEntity>();
+-			m_QituDataSource = new List<CanWuEntity>();
+-			m_ZhenTuDataSource = new List<CanWuEntity>();
+-			m_CanWuScrollItemDic = new Dictionary<CanWuTitleType, CanWuScrollItem>();
+-			AddButtonClickListener(Panel.ShaiXuanBtn, PopShaiXuan);
+-			AddButtonClickListener(Panel.TiShiLiKaiBtn, () =>
+-			{
+-				Panel.TiShiPanel.gameObject.SetActive(value: false);
+-			});
+-			m_ShaiXuanWnd = Singleton<UIManager>.Instance.PopUpWnd("Common_ShaiXuanWnd.prefab", true, UseShaiXuanType, true) as Common_ShaiXuanWnd;
+-			m_CanWuScrollItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/CanWuScrollItem.prefab");
+-			if (m_ShaiXuanWnd != null)
+-			{
+-				Common_ShaiXuanWnd shaiXuanWnd = m_ShaiXuanWnd;
+-				shaiXuanWnd.ReChooseAction = (UnityAction)Delegate.Remove(shaiXuanWnd.ReChooseAction, new UnityAction(RelfashData));
+-				Common_ShaiXuanWnd shaiXuanWnd2 = m_ShaiXuanWnd;
+-				shaiXuanWnd2.ReChooseAction = (UnityAction)Delegate.Combine(shaiXuanWnd2.ReChooseAction, new UnityAction(RelfashData));
+-			}
+-		}
+-
+-		private void PopShaiXuan()
+-		{
+-			if (systemShelf.Active) systemShelf.Filters();
+-			else m_ShaiXuanWnd?.PopUpPanel(isPop: true);
++			shelf = new SystemMethodShelf(Panel, RefreshShelf);
++			sectionPrefab = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/CanWuScrollItem.prefab");
++			AddButtonClickListener(Panel.ShaiXuanBtn, () => MonoSingleton<GameStart>.Instance.PopUpAttention(
++				"普通功法先在纳戒读书，天道传承可直接参悟。\n\n功法五行须与任一灵根相合，达到所需境界即可参悟。《启灵经》人人可修。\n\n学成后可在练功房更换功法。", title: "参悟规则"));
++			AddButtonClickListener(Panel.TiShiLiKaiBtn, () => Panel.TiShiPanel.gameObject.SetActive(false));
++			Panel.TiShiLiKaiBtnText.text = "回书目";
+ 		}
+ 
+ 		public override void OnShow(params object[] paralist)
+ 		{
+ 			base.OnShow(paralist);
+-			InkCultivationPages.RefreshRolePortrait(Panel.SmallTitleText.transform.parent.Find("StudyPortrait"));
++			shelf.Reset();
++			Panel.TiShiPanel.gameObject.SetActive(false);
++			InkCultivationPages.RefreshStudyRole(Panel);
+ 			EnterCanWu();
+-		}
+-
+-		private void ShowGuide(GuideType _type, int _index)
+-		{
+-			MonoSingleton<GameStart>.Instance.StartCoroutine(delayShowGuide(_type, _index));
+-		}
+-
+-		private IEnumerator delayShowGuide(GuideType _type, int _index)
+-		{
+-			yield return new WaitForSeconds(0.3f);
+-			if (Singleton<GuideManager>.Instance.IsCanShowGuide(_type, _index))
+-			{
+-				Singleton<GuideManager>.Instance.ShowGuide(_type, _index);
+-			}
+ 		}
+ 
+ 		private void ResourceLoad()
+@@ -160,742 +91,128 @@
+ 
+ 		public void EnterCanWu()
+ 		{
++			PracticeBook = null;
+ 			PracticeListLoaded = false;
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CANWU_LIST, null, (object _obj) =>
++			Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CANWU_LIST, null, response =>
+ 			{
+ 				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
+-				{
+-					OpenUnderstandPanelResp_1001011 openUnderstandPanelResp_ = new OpenUnderstandPanelResp_1001011();
+-					openUnderstandPanelResp_.MergeFrom(byteString);
+-					if (openUnderstandPanelResp_.IsSuccess)
++				if (!(response is ByteString bytes) || GameObject == null) return;
++				var list = OpenUnderstandPanelResp_1001011.Parser.ParseFrom(bytes);
++				if (!list.IsSuccess)
++				{
++					MonoSingleton<GameStart>.Instance.PopUpAttention(MonoSingleton<GameStart>.Instance.GetHintMsgByCode(list.Code));
++					return;
++				}
++				books.Clear();
++				foreach (var entry in list.Object)
++				{
++					if (!m_GoodsIconSprite.ContainsKey(entry.Type)) continue;
++					books.Add(new CanWuEntity
+ 					{
+-						m_FaShuDataSource.Clear();
+-						m_GongFaDataSource.Clear();
+-						m_DanFangDataSource.Clear();
+-						m_FuShuDataSource.Clear();
+-						m_QituDataSource.Clear();
+-						m_ZhenTuDataSource.Clear();
+-						m_HaveLearnBooks = openUnderstandPanelResp_.Object.Count(book => book.IsUnderstand);
+-						m_CanLearnBooks = Mathf.Max(0, Singleton<RoleManager>.Instance.Role_Entity.HunLiVal / 5 - m_HaveLearnBooks);
+-						foreach (OpenUnderstandPanelResp_1001011.Types.UnderstandMethodObjectResp_1001012 item2 in openUnderstandPanelResp_.Object)
+-						{
+-							CanWuEntity item = new CanWuEntity
+-							{
+-								Type = item2.Type,
+-								Name = item2.Name,
+-								FiveElement = item2.FiveElement,
+-								Id = item2.Id,
+-								IsCanWu = item2.IsUnderstand,
+-								Level = item2.Level,
+-								Rank = item2.Rank
+-							};
+-							switch ((CanWuTitleType)item2.Type)
+-							{
+-							case CanWuTitleType.FaShu:
+-								m_FaShuDataSource.Add(item);
+-								break;
+-							case CanWuTitleType.GongFa:
+-								m_GongFaDataSource.Add(item);
+-								break;
+-							case CanWuTitleType.DanFang:
+-								m_DanFangDataSource.Add(item);
+-								break;
+-							case CanWuTitleType.QiTu:
+-								m_QituDataSource.Add(item);
+-								break;
+-							case CanWuTitleType.ZhenFa:
+-								m_ZhenTuDataSource.Add(item);
+-								break;
+-							case CanWuTitleType.FuShu:
+-								m_FuShuDataSource.Add(item);
+-								break;
+-							}
+-						}
+-						PracticeBookUnderstood = m_GongFaDataSource.Any(book => book.Id == PracticeGuideFlow.StarterId && book.IsCanWu);
+-						CreateData();
+-						PracticeListLoaded = true;
+-					}
+-				}
++						Type = entry.Type, Name = entry.Name, FiveElement = entry.FiveElement, Id = entry.Id,
++						IsCanWu = entry.IsUnderstand, Level = entry.Level, Rank = entry.Rank
++					});
++				}
++				PracticeBookUnderstood = books.Any(book => book.Id == PracticeGuideFlow.StarterId && book.IsCanWu);
++				if (Singleton<GuideManager>.Instance.Practice?.Stage == 2 && !PracticeBookUnderstood) shelf.Reset();
++				RefreshShelf();
++				PracticeListLoaded = true;
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		private void CreateScrollItem(string titleName, CanWuTitleType canWuTitleType)
+-		{
+-			string helpContent = string.Empty;
+-			if (!m_CanWuScrollItemDic.ContainsKey(canWuTitleType))
+-			{
+-				if (canWuTitleType == CanWuTitleType.GongFa)
+-				{
+-					helpContent = "纳气、锻体、炼神升重后将提升基础周天效率，每一阶功法均可以升至第三重。每次升重可以使用同名功法残卷或道经残卷。";
+-				}
+-				CanWuScrollItem component = SetListContentParent(Panel.ScrollContent, m_CanWuScrollItem).gameObject.GetComponent<CanWuScrollItem>();
+-				component.SetValue(titleName, this, helpContent);
+-				m_CanWuScrollItemDic.Add(canWuTitleType, component);
+-			}
+-		}
+-
+-		public void ClearData()
+-		{
+-			foreach (Transform item in Panel.ScrollContent)
+-			{
+-				item.gameObject.SetActive(false);
+-				UnityEngine.Object.Destroy(item.gameObject);
+-			}
+-		}
+-
+-		public void KeCanWuItemsInIt(CanWuEntity canWuEntity, CanWuActionModel canWuActionModel, List<string> xiangQingData)
+-		{
+-			CanWuTitleType type = (CanWuTitleType)canWuEntity.Type;
+-			CanWuScrollItem value = null;
+-			if (!m_CanWuScrollItemDic.TryGetValue(type, out value))
+-			{
+-				return;
+-			}
+-			RectTransform component = value.gameObject.GetComponent<RectTransform>();
+-			UI_GoodsItem component2 = SetListContentParent(component, CanWuObj).GetComponent<UI_GoodsItem>();
+-			Sprite value2 = null;
+-			m_GoodsIconSprite.TryGetValue(canWuActionModel.type, out value2);
+-			int levelByRank = WorldSetting.GetLevelByRank(canWuEntity.Rank);
+-			Sprite value3 = null;
+-			m_RankBgSprite.TryGetValue(levelByRank, out value3);
+-			component2.SetItem(null, canWuEntity.Name, canWuEntity.FiveElement, canWuEntity.Level, value3, value2, (object _obj, GameObject gameObj) =>
+-			{
+-				UnityAction<object> unityAction = (object obj) =>
+-				{
+-					CanWuAction(canWuActionModel.id, canWuActionModel.type);
+-				};
+-				if (SystemMethodShelf.IsSystem(canWuEntity.Id))
+-				{
+-					systemShelf.Details(canWuEntity, () => CanWuAction(canWuEntity.Id, (int)CanWuTitleType.GongFa));
+-					return;
+-				}
+-				switch ((CanWuTitleType)canWuActionModel.type)
+-				{
+-				case CanWuTitleType.FaShu:
+-					Singleton<RoleManager>.Instance.SelectTemplateSkillDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "参悟", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.GongFa:
+-					Singleton<RoleManager>.Instance.SelectTemplateAchievementDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "参悟", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.DanFang:
+-					Singleton<RoleManager>.Instance.SelectTemplateElixirDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "参悟", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.QiTu:
+-					Singleton<RoleManager>.Instance.SelectTemplateQiTuDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "参悟", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.ZhenFa:
+-					Singleton<RoleManager>.Instance.SelectTemplateMatrixDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "参悟", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.FuShu:
+-					Singleton<RoleManager>.Instance.SelectTemplateSignDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "参悟", unityAction, list);
+-					});
+-					break;
+-				}
+-			});
+-			InkCultivationPages.Book(component2, canWuEntity);
+-			value.AddItem(component2);
+-			if (type == CanWuTitleType.GongFa && canWuEntity.Id == PracticeGuideFlow.StarterId)
+-				PracticeBook = component2.ClickBtn;
+-		}
+-
+-		public void YiCanWuItemListInit(CanWuEntity canWuEntity, CanWuActionModel canWuActionModel, List<string> xiangQingData)
+-		{
+-			CanWuTitleType type = (CanWuTitleType)canWuEntity.Type;
+-			CanWuScrollItem value = null;
+-			if (!m_CanWuScrollItemDic.TryGetValue(type, out value))
+-			{
+-				return;
+-			}
+-			RectTransform component = value.gameObject.GetComponent<RectTransform>();
+-			UI_GoodsItem component2 = SetListContentParent(component, CanWuObj).GetComponent<UI_GoodsItem>();
+-			Sprite value2 = null;
+-			m_GoodsIconSprite.TryGetValue(canWuEntity.Type, out value2);
+-			int levelByRank = WorldSetting.GetLevelByRank(canWuEntity.Rank);
+-			Sprite value3 = null;
+-			m_RankBgSprite.TryGetValue(levelByRank, out value3);
+-			component2.SetItem(null, canWuEntity.Name, canWuEntity.FiveElement, canWuEntity.Level, value3, value2, (object _obj, GameObject gameObj) =>
+-			{
+-				UnityAction<object> unityAction = (object obj) =>
+-				{
+-					YiWangYiCanWu(canWuActionModel.id, canWuEntity.Name, canWuActionModel.type);
+-				};
+-				if (SystemMethodShelf.IsSystem(canWuEntity.Id))
+-				{
+-					systemShelf.Details(canWuEntity, () => CanWuAction(canWuEntity.Id, (int)CanWuTitleType.GongFa));
+-					return;
+-				}
+-				switch ((CanWuTitleType)canWuActionModel.type)
+-				{
+-				case CanWuTitleType.FaShu:
+-					Singleton<RoleManager>.Instance.SelectTemplateSkillDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "法术", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.GongFa:
+-					Singleton<RoleManager>.Instance.SelectTemplateAchievementDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingGongFaPanel(canWuEntity.Name, "遗忘", canWuActionModel, unityAction, list, canWuEntity);
+-					});
+-					break;
+-				case CanWuTitleType.DanFang:
+-					Singleton<RoleManager>.Instance.SelectTemplateElixirDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "遗忘", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.QiTu:
+-					Singleton<RoleManager>.Instance.SelectTemplateQiTuDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "遗忘", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.ZhenFa:
+-					Singleton<RoleManager>.Instance.SelectTemplateMatrixDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "遗忘", unityAction, list);
+-					});
+-					break;
+-				case CanWuTitleType.FuShu:
+-					Singleton<RoleManager>.Instance.SelectTemplateSignDetail(canWuActionModel.id, canWuEntity.Level, canWuEntity.Rank, canWuEntity.FiveElement, (List<string> list) =>
+-					{
+-						PopUpXiangQingPanel(canWuEntity, "遗忘", unityAction, list);
+-					});
+-					break;
+-				}
+-			}, isUsing: true);
+-			InkCultivationPages.Book(component2, canWuEntity);
+-			value.AddItem(component2);
+-		}
+-
+-		private void PopUpXiangQingPanel(CanWuEntity book, string action, UnityAction<object> accept, List<string> details)
+-		{
+-			var data = new Common_TipWndParamEntity
+-			{
+-				BtnName = action, ContentList = details, DataSource = book, TitleName = book.Name,
+-				SureBtnClick = accept, ID = book.Id, Rank = book.Rank
+-			};
+-			var detail = Singleton<UIManager>.Instance.PopUpWnd("Common_TipWnd.prefab", true, data) as Common_TipWnd;
+-			if (detail?.Panel != null) InkCultivationPages.BookHeading(detail.Panel.TitleText, book);
+-		}
+-
+-		private void PopUpXiangQingGongFaPanel(string name, string btnName, CanWuActionModel canWuActionModel, UnityAction<object> sureBtnCallBack, List<string> xiangQingData, CanWuEntity canWuEntity)
+-		{
+-			Common_TipWndParamEntity common_TipWndParamEntity = new Common_TipWndParamEntity
+-			{
+-				BtnName = btnName,
+-				CloseBtnClick = null,
+-				ContentList = xiangQingData,
+-				DataSource = canWuEntity,
+-				TitleName = name,
+-				SureBtnClick = sureBtnCallBack,
+-				ID = canWuEntity.Id,
+-				Rank = canWuEntity.Rank
+-			};
+-			Singleton<UIManager>.Instance.PopUpWnd("CanWuGongFaWnd.prefab", true, common_TipWndParamEntity, canWuEntity);
+-		}
+-
+-		private void YiWangYiCanWu(string id, string name, int type)
+-		{
+-			MonoSingleton<GameStart>.Instance.PopUpAttention("是否确定遗忘" + name + "?", () =>
+-			{
+-				UnderstandMethodForgetReq_1001013 data = new UnderstandMethodForgetReq_1001013
+-				{
+-					Id = id,
+-					Type = type
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_YIWANG_CANWU, data, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-					}
+-				}, isShowWaitUI: true);
+-			});
+-		}
+-
+-		private void computeContentHightAndWith(int count)
+-		{
+-			GridLayoutGroup component = Panel.ScrollContent.gameObject.GetComponent<GridLayoutGroup>();
+-			SetGrticalListContentHight(count, Panel.ScrollContent, component);
+-		}
+-
+-		private void RelfashData()
+-		{
+-			CreateData();
++		private void RefreshShelf()
++		{
++			PracticeBook = null;
++			foreach (Transform child in Panel.ScrollContent)
++			{
++				child.gameObject.SetActive(false);
++				UnityEngine.Object.Destroy(child.gameObject);
++			}
++			var page = shelf.Books(books);
++			if (page.Count > 0)
++			{
++				var section = SetListContentParent(Panel.ScrollContent, sectionPrefab).GetComponent<CanWuScrollItem>();
++				section.SetValue(string.Empty, this);
++				section.HelpBtn.gameObject.SetActive(false);
++				foreach (var book in page)
++				{
++					var card = SetListContentParent(section.ContentRect, CanWuObj).GetComponent<UI_GoodsItem>();
++					m_RankBgSprite.TryGetValue(WorldSetting.GetLevelByRank(book.Rank), out var rank);
++					card.SetItem(book, book.Name, book.FiveElement, book.Level, rank, m_GoodsIconSprite[book.Type],
++						(_, __) => OpenBook(book), book.IsCanWu);
++					InkCultivationPages.Book(card, book);
++					section.AddItem(card);
++					if (book.Id == PracticeGuideFlow.StarterId && !book.IsCanWu) PracticeBook = card.ClickBtn;
++				}
++			}
++			LayoutRebuilder.ForceRebuildLayoutImmediate(Panel.ScrollContent);
+ 			Panel.ScrollView.StopMovement();
+ 			Panel.ScrollView.verticalNormalizedPosition = 1f;
+ 		}
+ 
+-		private void CreateData()
+-		{
+-			PracticeBook = null;
+-			ClearData();
+-			m_CanWuScrollItemDic.Clear();
+-			if (systemShelf.Active)
+-			{
+-				var books = systemShelf.Books(m_GongFaDataSource);
+-				if (books.Count > 0)
+-				{
+-					CreateScrollItem("系统传承", CanWuTitleType.GongFa);
+-					GongFaBtnClick(books);
+-				}
+-				LayoutRebuilder.ForceRebuildLayoutImmediate(Panel.ScrollContent);
+-				return;
+-			}
+-			systemShelf.ShowRegular();
+-			var filter = m_ShaiXuanWnd?.GetResult() ?? new Dictionary<string, ShaiXuanParamsModel>();
+-			int visible = CreateGongFa(filter) + CreateFaShu(filter) + CreateDanFang(filter)
+-				+ CreateFuShu(filter) + CreateQiTu(filter) + CreateZhenTu(filter);
+-			Panel.SmallTitleText.text = visible == 0
+-				? (filter.Values.Any(value => value.ItemTag != null) ? "没有符合筛选条件的书籍" : "暂无可查看的书籍")
+-				: $"已参悟 {m_HaveLearnBooks} 本　剩余名额 {m_CanLearnBooks}";
+-
+-			LayoutRebuilder.ForceRebuildLayoutImmediate(Panel.ScrollContent);
+-		}
+-
+-		private int CreateGongFa(Dictionary<string, ShaiXuanParamsModel> result)
+-		{
+-			List<CanWuEntity> list = m_GongFaDataSource.Where(b => !SystemMethodShelf.IsSystem(b.Id)).ToList();
+-			ShaiXuanParamsModel fiveElement = null;
+-			if (result.TryGetValue("五行", out fiveElement) && fiveElement.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => x.FiveElement == int.Parse(fiveElement.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel value = null;
+-			if (result.TryGetValue("状态", out value))
+-			{
+-				bool chooseState = !(value.ItemName == "可参悟");
+-				if (value.ItemTag != null)
+-				{
+-					list = list.Where((CanWuEntity x) => x.IsCanWu == chooseState).ToList();
+-				}
+-			}
+-			ShaiXuanParamsModel pinJie = null;
+-			if (result.TryGetValue("品阶", out pinJie) && pinJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetLevelByRank(x.Rank) == int.Parse(pinJie.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel dengJie = null;
+-			if (result.TryGetValue("等阶", out dengJie) && dengJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetStageByLevel(x.Level) == int.Parse(dengJie.ItemTag)).ToList();
+-			}
+-			if (Singleton<GuideManager>.Instance.Practice?.Stage == 2)
+-			{
+-				CanWuEntity starter = m_GongFaDataSource.FirstOrDefault(book => book.Id == PracticeGuideFlow.StarterId && !book.IsCanWu);
+-				if (starter != null)
+-				{
+-					list = list.Where(book => book != starter).Prepend(starter).ToList();
+-				}
+-			}
+-			if (list.Count > 0)
+-			{
+-				CreateScrollItem("功法", CanWuTitleType.GongFa);
+-				GongFaBtnClick(list);
+-			}
+-			return list.Count;
+-		}
+-
+-		private int CreateFaShu(Dictionary<string, ShaiXuanParamsModel> result)
+-		{
+-			List<CanWuEntity> list = m_FaShuDataSource;
+-			ShaiXuanParamsModel fiveElement = null;
+-			if (result.TryGetValue("五行", out fiveElement) && fiveElement.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => x.FiveElement == int.Parse(fiveElement.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel value = null;
+-			if (result.TryGetValue("状态", out value))
+-			{
+-				bool chooseState = !(value.ItemName == "可参悟");
+-				if (value.ItemTag != null)
+-				{
+-					list = list.Where((CanWuEntity x) => x.IsCanWu == chooseState).ToList();
+-				}
+-			}
+-			ShaiXuanParamsModel pinJie = null;
+-			if (result.TryGetValue("品阶", out pinJie) && pinJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetLevelByRank(x.Rank) == int.Parse(pinJie.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel dengJie = null;
+-			if (result.TryGetValue("等阶", out dengJie) && dengJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetStageByLevel(x.Level) == int.Parse(dengJie.ItemTag)).ToList();
+-			}
+-			if (list.Count > 0)
+-			{
+-				CreateScrollItem("法术", CanWuTitleType.FaShu);
+-				FaShuBtnClick(list);
+-			}
+-			return list.Count;
+-		}
+-
+-		private int CreateDanFang(Dictionary<string, ShaiXuanParamsModel> result)
+-		{
+-			List<CanWuEntity> list = m_DanFangDataSource;
+-			ShaiXuanParamsModel fiveElement = null;
+-			if (result.TryGetValue("五行", out fiveElement) && fiveElement.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => x.FiveElement == int.Parse(fiveElement.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel value = null;
+-			if (result.TryGetValue("状态", out value))
+-			{
+-				bool chooseState = !(value.ItemName == "可参悟");
+-				if (value.ItemTag != null)
+-				{
+-					list = list.Where((CanWuEntity x) => x.IsCanWu == chooseState).ToList();
+-				}
+-			}
+-			ShaiXuanParamsModel pinJie = null;
+-			if (result.TryGetValue("品阶", out pinJie) && pinJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetLevelByRank(x.Rank) == int.Parse(pinJie.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel dengJie = null;
+-			if (result.TryGetValue("等阶", out dengJie) && dengJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetStageByLevel(x.Level) == int.Parse(dengJie.ItemTag)).ToList();
+-			}
+-			if (list.Count > 0)
+-			{
+-				CreateScrollItem("丹方", CanWuTitleType.DanFang);
+-				DanFangBtnClick(list);
+-			}
+-			return list.Count;
+-		}
+-
+-		private int CreateFuShu(Dictionary<string, ShaiXuanParamsModel> result)
+-		{
+-			List<CanWuEntity> list = m_FuShuDataSource;
+-			ShaiXuanParamsModel fiveElement = null;
+-			if (result.TryGetValue("五行", out fiveElement) && fiveElement.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => x.FiveElement == int.Parse(fiveElement.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel value = null;
+-			if (result.TryGetValue("状态", out value))
+-			{
+-				bool chooseState = !(value.ItemName == "可参悟");
+-				if (value.ItemTag != null)
+-				{
+-					list = list.Where((CanWuEntity x) => x.IsCanWu == chooseState).ToList();
+-				}
+-			}
+-			ShaiXuanParamsModel pinJie = null;
+-			if (result.TryGetValue("品阶", out pinJie) && pinJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetLevelByRank(x.Rank) == int.Parse(pinJie.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel dengJie = null;
+-			if (result.TryGetValue("等阶", out dengJie) && dengJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetStageByLevel(x.Level) == int.Parse(dengJie.ItemTag)).ToList();
+-			}
+-			if (list.Count > 0)
+-			{
+-				CreateScrollItem("符书", CanWuTitleType.FuShu);
+-				FuShuBtnClick(list);
+-			}
+-			return list.Count;
+-		}
+-
+-		private int CreateQiTu(Dictionary<string, ShaiXuanParamsModel> result)
+-		{
+-			List<CanWuEntity> list = m_QituDataSource;
+-			ShaiXuanParamsModel fiveElement = null;
+-			if (result.TryGetValue("五行", out fiveElement) && fiveElement.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => x.FiveElement == int.Parse(fiveElement.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel value = null;
+-			if (result.TryGetValue("状态", out value))
+-			{
+-				bool chooseState = !(value.ItemName == "可参悟");
+-				if (value.ItemTag != null)
+-				{
+-					list = list.Where((CanWuEntity x) => x.IsCanWu == chooseState).ToList();
+-				}
+-			}
+-			ShaiXuanParamsModel pinJie = null;
+-			if (result.TryGetValue("品阶", out pinJie) && pinJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetLevelByRank(x.Rank) == int.Parse(pinJie.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel dengJie = null;
+-			if (result.TryGetValue("等阶", out dengJie) && dengJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetStageByLevel(x.Level) == int.Parse(dengJie.ItemTag)).ToList();
+-			}
+-			if (list.Count > 0)
+-			{
+-				CreateScrollItem("器图", CanWuTitleType.QiTu);
+-				QiTuBtnClick(list);
+-			}
+-			return list.Count;
+-		}
+-
+-		private int CreateZhenTu(Dictionary<string, ShaiXuanParamsModel> result)
+-		{
+-			List<CanWuEntity> list = m_ZhenTuDataSource;
+-			ShaiXuanParamsModel fiveElement = null;
+-			if (result.TryGetValue("五行", out fiveElement) && fiveElement.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => x.FiveElement == int.Parse(fiveElement.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel value = null;
+-			if (result.TryGetValue("状态", out value))
+-			{
+-				bool chooseState = !(value.ItemName == "可参悟");
+-				if (value.ItemTag != null)
+-				{
+-					list = list.Where((CanWuEntity x) => x.IsCanWu == chooseState).ToList();
+-				}
+-			}
+-			ShaiXuanParamsModel pinJie = null;
+-			if (result.TryGetValue("品阶", out pinJie) && pinJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetLevelByRank(x.Rank) == int.Parse(pinJie.ItemTag)).ToList();
+-			}
+-			ShaiXuanParamsModel dengJie = null;
+-			if (result.TryGetValue("等阶", out dengJie) && dengJie.ItemTag != null)
+-			{
+-				list = list.Where((CanWuEntity x) => WorldSetting.GetStageByLevel(x.Level) == int.Parse(dengJie.ItemTag)).ToList();
+-			}
+-			if (list.Count > 0)
+-			{
+-				CreateScrollItem("阵图", CanWuTitleType.ZhenFa);
+-				ZhenTuBtnClick(list);
+-			}
+-			return list.Count;
+-		}
+-
+-		public void DanFangBtnClick(List<CanWuEntity> data)
+-		{
+-			m_CurrentType = CanWuTitleType.DanFang;
+-			int num = 0;
+-			int num2 = 0;
+-			if (data == null)
+-			{
+-				return;
+-			}
+-			foreach (CanWuEntity datum in data)
+-			{
+-				CanWuActionModel canWuActionModel = new CanWuActionModel
+-				{
+-					id = datum.Id,
+-					roleId = Singleton<RoleManager>.Instance.currentRoleId,
+-					type = 3
+-				};
+-				WorldSetting.GetLevelByRank(datum.Rank);
+-				if (datum.IsCanWu)
+-				{
+-					YiCanWuItemListInit(datum, canWuActionModel, null);
+-					num++;
+-				}
+-				else
+-				{
+-					KeCanWuItemsInIt(datum, canWuActionModel, null);
+-					num2++;
+-				}
+-			}
+-		}
+-
+-		public void FaShuBtnClick(List<CanWuEntity> data)
+-		{
+-			m_CurrentType = CanWuTitleType.FaShu;
+-			int num = 0;
+-			int num2 = 0;
+-			if (data == null)
+-			{
+-				return;
+-			}
+-			foreach (CanWuEntity datum in data)
+-			{
+-				CanWuActionModel canWuActionModel = new CanWuActionModel
+-				{
+-					id = datum.Id,
+-					roleId = Singleton<RoleManager>.Instance.currentRoleId,
+-					type = Convert.ToInt16(CanWuTitleType.FaShu)
+-				};
+-				WorldSetting.GetLevelByRank(datum.Rank);
+-				if (datum.IsCanWu)
+-				{
+-					YiCanWuItemListInit(datum, canWuActionModel, null);
+-					num++;
+-				}
+-				else
+-				{
+-					KeCanWuItemsInIt(datum, canWuActionModel, null);
+-					num2++;
+-				}
+-			}
+-		}
+-
+-		public void GongFaBtnClick(List<CanWuEntity> dataSource)
+-		{
+-			m_CurrentType = CanWuTitleType.GongFa;
+-			int num = 0;
+-			int num2 = 0;
+-			if (dataSource == null)
+-			{
+-				return;
+-			}
+-			foreach (CanWuEntity item in dataSource)
+-			{
+-				CanWuActionModel canWuActionModel = new CanWuActionModel
+-				{
+-					id = item.Id,
+-					roleId = Singleton<RoleManager>.Instance.currentRoleId,
+-					type = Convert.ToInt16(CanWuTitleType.GongFa)
+-				};
+-				WorldSetting.GetLevelByRank(item.Rank);
+-				if (item.IsCanWu)
+-				{
+-					YiCanWuItemListInit(item, canWuActionModel, null);
+-					num++;
+-				}
+-				else
+-				{
+-					KeCanWuItemsInIt(item, canWuActionModel, null);
+-					num2++;
+-				}
+-			}
+-		}
+-
+-		public void FuShuBtnClick(List<CanWuEntity> dataSource)
+-		{
+-			m_CurrentType = CanWuTitleType.FuShu;
+-			int num = 0;
+-			int num2 = 0;
+-			if (dataSource == null)
+-			{
+-				return;
+-			}
+-			foreach (CanWuEntity item in dataSource)
+-			{
+-				CanWuActionModel canWuActionModel = new CanWuActionModel
+-				{
+-					id = item.Id,
+-					roleId = Singleton<RoleManager>.Instance.currentRoleId,
+-					type = Convert.ToInt16(CanWuTitleType.FuShu)
+-				};
+-				WorldSetting.GetLevelByRank(item.Rank);
+-				if (item.IsCanWu)
+-				{
+-					YiCanWuItemListInit(item, canWuActionModel, null);
+-					num++;
+-				}
+-				else
+-				{
+-					KeCanWuItemsInIt(item, canWuActionModel, null);
+-					num2++;
+-				}
+-			}
+-		}
+-
+-		public void QiTuBtnClick(List<CanWuEntity> dataSource)
+-		{
+-			m_CurrentType = CanWuTitleType.QiTu;
+-			int num = 0;
+-			int num2 = 0;
+-			if (dataSource == null)
+-			{
+-				return;
+-			}
+-			foreach (CanWuEntity item in dataSource)
+-			{
+-				CanWuActionModel canWuActionModel = new CanWuActionModel
+-				{
+-					id = item.Id,
+-					roleId = Singleton<RoleManager>.Instance.currentRoleId,
+-					type = Convert.ToInt16(CanWuTitleType.QiTu)
+-				};
+-				WorldSetting.GetLevelByRank(item.Rank);
+-				if (item.IsCanWu)
+-				{
+-					YiCanWuItemListInit(item, canWuActionModel, null);
+-					num++;
+-				}
+-				else
+-				{
+-					KeCanWuItemsInIt(item, canWuActionModel, null);
+-					num2++;
+-				}
+-			}
+-		}
+-
+-		public void ZhenTuBtnClick(List<CanWuEntity> dataSource)
+-		{
+-			m_CurrentType = CanWuTitleType.ZhenFa;
+-			int num = 0;
+-			int num2 = 0;
+-			if (dataSource == null)
+-			{
+-				return;
+-			}
+-			foreach (CanWuEntity item in dataSource)
+-			{
+-				CanWuActionModel canWuActionModel = new CanWuActionModel
+-				{
+-					id = item.Id,
+-					roleId = Singleton<RoleManager>.Instance.currentRoleId,
+-					type = Convert.ToInt16(CanWuTitleType.ZhenFa)
+-				};
+-				WorldSetting.GetLevelByRank(item.Rank);
+-				if (item.IsCanWu)
+-				{
+-					YiCanWuItemListInit(item, canWuActionModel, null);
+-					num++;
+-				}
+-				else
+-				{
+-					KeCanWuItemsInIt(item, canWuActionModel, null);
+-					num2++;
+-				}
+-			}
+-		}
+-
+-		public override void OnClose()
+-		{
+-			base.OnClose();
+-			Common_ShaiXuanWnd shaiXuanWnd = m_ShaiXuanWnd;
+-			shaiXuanWnd.ReChooseAction = (UnityAction)Delegate.Remove(shaiXuanWnd.ReChooseAction, new UnityAction(RelfashData));
+-			Singleton<UIManager>.Instance.CloseWnd("Common_ShaiXuanWnd.prefab");
+-		}
+-
+-		private void CanWuAction(string id, int type)
+-		{
++		private void OpenBook(CanWuEntity book)
++		{
++			if (SystemMethodShelf.IsSystem(book.Id))
++			{
++				shelf.Details(book, () => CanWuAction(book), GoToSettingGongFa);
++				return;
++			}
++			var roles = Singleton<RoleManager>.Instance;
++			UnityAction<List<string>> show = details => ShowBookDetails(book, details);
++			switch ((CanWuTitleType)book.Type)
++			{
++				case CanWuTitleType.GongFa: roles.SelectTemplateAchievementDetail(book.Id, book.Level, book.Rank, book.FiveElement, show); break;
++				case CanWuTitleType.FaShu: roles.SelectTemplateSkillDetail(book.Id, book.Level, book.Rank, book.FiveElement, show); break;
++				case CanWuTitleType.DanFang: roles.SelectTemplateElixirDetail(book.Id, book.Level, book.Rank, book.FiveElement, show); break;
++				case CanWuTitleType.FuShu: roles.SelectTemplateSignDetail(book.Id, book.Level, book.Rank, book.FiveElement, show); break;
++				case CanWuTitleType.QiTu: roles.SelectTemplateQiTuDetail(book.Id, book.Level, book.Rank, book.FiveElement, show); break;
++				case CanWuTitleType.ZhenFa: roles.SelectTemplateMatrixDetail(book.Id, book.Level, book.Rank, book.FiveElement, show); break;
++			}
++		}
++
++		private void ShowBookDetails(CanWuEntity book, List<string> details)
++		{
++			if (GameObject == null || !GameObject.activeInHierarchy || details == null || details.Count == 0) return;
++			var state = SystemMethodShelf.State(book);
++			string gate = WorldSetting.GetRoleLevelNameByRoleLevel(book.Level);
++			if (book.Type == (int)CanWuTitleType.GongFa)
++			{
++				details.RemoveAll(row => row.StartsWith("等阶,", System.StringComparison.Ordinal));
++				details.Insert(0, "所需境界," + gate);
++				if (book.Id == PracticeGuideFlow.StarterId)
++					details.Insert(0, "入门心法,各灵根均可修习");
++				else if (book.IsCanWu)
++					details.Insert(0, "修习记录," + SystemMethodShelf.EquipHint(book));
++			}
++			var data = new Common_TipWndParamEntity
++			{
++				TitleName = book.Name, ContentList = details, DataSource = book, ID = book.Id, Rank = book.Rank
++			};
++			bool learnedMethod = book.IsCanWu && book.Type == (int)CanWuTitleType.GongFa;
++			if (learnedMethod)
++			{
++				data.BtnName = "去练功房";
++				data.SureBtnClick = _ => GoToSettingGongFa();
++				Singleton<UIManager>.Instance.PopUpWnd("CanWuGongFaWnd.prefab", true, data, book);
++				return;
++			}
++			if (state == SystemMethodShelf.Shelf.Ready)
++			{
++				data.BtnName = "参悟";
++				data.SureBtnClick = _ => CanWuAction(book);
++			}
++			else data.BtnName = book.IsCanWu ? "收起" : gate + "可悟";
++			var detail = Singleton<UIManager>.Instance.PopUpWnd("Common_TipWnd.prefab", true, data) as Common_TipWnd;
++			if (detail?.Panel == null) return;
++			InkCultivationPages.BookHeading(detail.Panel.TitleText, book);
++			detail.Panel.QueRenBtn.interactable = book.IsCanWu || state == SystemMethodShelf.Shelf.Ready;
++		}
++
++		private void CanWuAction(CanWuEntity book)
++		{
++			if (SystemMethodShelf.State(book) != SystemMethodShelf.Shelf.Ready) return;
++			string id = book.Id;
++			int type = book.Type;
+ 			var practice = Singleton<GuideManager>.Instance.Practice;
+ 			UnderstandMethodReq_1001005 data = new UnderstandMethodReq_1001005
+ 			{
+@@ -912,8 +229,8 @@
+ 					actionBoolResp_.MergeFrom(byteString);
+ 					if (actionBoolResp_.IsSuccess)
+ 					{
+-						OnShow();
+-						TiShi(type, actionBoolResp_.Code);
++						EnterCanWu();
++						TiShi(type, book.Name);
+ 						if (type == (int)CanWuTitleType.GongFa && id == PracticeGuideFlow.StarterId)
+ 							practice?.RecordMilestone(2);
+ 					}
+@@ -926,7 +243,7 @@
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		private void TiShi(int type, int code)
++		private void TiShi(int type, string bookName)
+ 		{
+ 			Panel.TiShiPanel.gameObject.SetActive(value: true);
+ 			string text = "去设置";
+@@ -954,13 +271,12 @@
+ 				call = ToHuaFu;
+ 				break;
+ 			case CanWuTitleType.GongFa:
+-				text = "去设置";
++				text = "去练功房";
+ 				call = GoToSettingGongFa;
+ 				break;
+ 			}
+-			string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(code);
+ 			Panel.TiShiGoSettingBtnText.text = text;
+-			Panel.TiShiContentText.text = hintMsgByCode;
++			Panel.TiShiContentText.text = "已参悟《" + bookName + "》。";
+ 			Panel.TiShiGoSettingBtn.onClick.RemoveAllListeners();
+ 			Panel.TiShiGoSettingBtn.onClick.AddListener(call);
+ 		}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/SystemMethodShelf.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/SystemMethodShelf.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/SystemMethodShelf.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/SystemMethodShelf.cs
+@@ -20,20 +20,20 @@
+         private static readonly string[] Elements = { "全部", "金", "木", "水", "火", "土" };
+         private static readonly string[] Breaths = { "全部", "风", "雷", "寒", "炎", "润", "燥", "生", "煞", "清", "浊", "罡", "幻" };
+         private static readonly string[] Practices = { "全部", "炼神", "锻体", "纳气" };
+-        private static readonly string[] States = { "全部", "可悟", "已悟", "未达" };
++        internal enum Shelf { Ready, Locked, Learned }
++        private static readonly string[] Titles = { "可参悟", "待突破", "已参悟" };
+         private const int PageSize = 12;
+-
+         private readonly CanWuPanel panel;
+         private readonly Font font;
+         private readonly Action refresh;
+-        private readonly Button regular, transmission, previous, next;
+-        private readonly Text pageNumber;
+-        private readonly int[] selected = new int[5];
+-        private static readonly string[][] Options = { Poles, Elements, Breaths, Practices, States };
+-        private static readonly string[] Lanes = { "阴阳", "主行", "主气", "行功", "状态" };
++        private readonly Button[] tabs = new Button[3];
++        private readonly RectTransform pager;
++        private readonly Button previous, next;
++        private readonly Text pageNumber, emptyMessage;
+         private GameObject overlay;
+         private int page;
+-        internal bool Active { get; private set; }
++        private Shelf selected;
++        internal string Title => Titles[(int)selected];
+ 
+         internal static bool IsSystem(string id) => id != null && id.StartsWith("sys_", StringComparison.Ordinal);
+ 
+@@ -58,9 +58,50 @@
+             return item;
+         }
+ 
+-        private static int Level => Singleton<RoleManager>.Instance.Role_Entity.RoleLevel;
+-        private static int State(CanWuEntity book) => book.IsCanWu ? 2 : Level >= book.Level ? 1 : 3;
+-        internal static string StateText(CanWuEntity book) => States[State(book)];
++        private static RoleInfoEntity Role => Singleton<RoleManager>.Instance.Role_Entity;
++
++        internal static bool MatchesRoots(CanWuEntity book)
++        {
++            if (book.Type != (int)CanWuTitleType.GongFa || book.Id == PracticeGuideFlow.StarterId) return true;
++            var role = Role;
++            if (role == null) return false;
++            switch ((WuXing)book.FiveElement)
++            {
++                case WuXing.Jin: return role.JinLingGen;
++                case WuXing.Mu: return role.MuLingGen;
++                case WuXing.Shui: return role.ShuiLingGen;
++                case WuXing.Huo: return role.HuoLingGen;
++                case WuXing.Tu: return role.TuLingGen;
++                default: return false;
++            }
++        }
++
++        internal static Shelf? State(CanWuEntity book)
++        {
++            if (book.IsCanWu) return Shelf.Learned;
++            if (Role == null || !MatchesRoots(book)) return null;
++            return Role.RoleLevel >= book.Level ? Shelf.Ready : Shelf.Locked;
++        }
++
++        internal static string EquipHint(CanWuEntity book)
++        {
++            if (Role.RoleLevel < book.Level)
++                return "达到" + WorldSetting.GetRoleLevelNameByRoleLevel(book.Level) + "后可在练功房更换。";
++            return MatchesRoots(book) ? "已参悟，可在练功房更换功法。" : "此前已悟，可在练功房换回。";
++        }
++
++        internal static string PracticeName(CanWuEntity book)
++        {
++            var system = Find(book.Id);
++            int kind = system?.kind ?? 0;
++            if (kind == 0 && book.Id != null && book.Id.StartsWith("gf_", StringComparison.Ordinal))
++            {
++                var parts = book.Id.Split('_');
++                if (parts.Length == 3) int.TryParse(parts[1], out kind);
++            }
++            return kind > 0 && kind < Practices.Length ? Practices[kind] : "";
++        }
++
+         internal static string Signature(Method def) => Poles[def.polarity] + Elements[def.element] + " · " + Breaths[def.qi] + "气";
+         private static void Bounds(RectTransform rect, float l, float b, float r, float t)
+         {
+@@ -93,48 +134,69 @@
+             this.panel = panel; this.refresh = refresh; font = panel.SmallTitleText.font;
+             var bar = RoleFolio.Box(panel.transform, "MethodShelves");
+             bar.anchorMin = new Vector2(0, 1); bar.anchorMax = Vector2.one;
+-            bar.offsetMin = new Vector2(12, -146); bar.offsetMax = new Vector2(-12, -111);
+-            regular = ButtonAt(bar, "Regular", "修行典籍", 0, .02f, .259f, .98f, () => SetActive(false));
+-            transmission = ButtonAt(bar, "System", "系统传承", .27f, .02f, .55f, .98f, () => SetActive(true));
+-            previous = ButtonAt(bar, "Previous", "上页", .58f, .03f, .72f, .97f, () => { page--; refresh(); });
+-            next = ButtonAt(bar, "Next", "下页", .86f, .03f, 1, .97f, () => { page++; refresh(); });
+-            pageNumber = Label(bar,"Page","",12,.72f,0,.86f,1,TextAnchor.MiddleCenter);
++            bar.offsetMin = new Vector2(12, -115); bar.offsetMax = new Vector2(-12, -80);
++            string[] names = { "Ready", "Locked", "Learned" };
++            for (int i = 0; i < tabs.Length; i++)
++            {
++                var state = (Shelf)i;
++                tabs[i] = ButtonAt(bar, names[i], Titles[i], i / 3f, 0, (i + 1) / 3f - .008f, 1, () =>
++                {
++                    selected = state;
++                    page = 0;
++                    refresh();
++                });
++            }
++            pager = RoleFolio.Box(panel.transform, "StudyPages");
++            pager.anchorMin = Vector2.zero; pager.anchorMax = Vector2.right;
++            pager.offsetMin = new Vector2(12, 4); pager.offsetMax = new Vector2(-12, 37);
++            previous = ButtonAt(pager, "Previous", "上页", .17f, 0, .38f, 1, () => { page--; refresh(); });
++            next = ButtonAt(pager, "Next", "下页", .62f, 0, .83f, 1, () => { page++; refresh(); });
++            pageNumber = Label(pager, "Page", "", 13, .38f, 0, .62f, 1, TextAnchor.MiddleCenter);
++            emptyMessage = Label(panel.ScrollView.transform, "EmptyShelf", "", 14, .07f, .63f, .93f, .91f, TextAnchor.MiddleCenter);
++            emptyMessage.gameObject.SetActive(false);
++            panel.TiShiPanel.SetAsLastSibling();
++            UpdateNavigation(0);
++        }
++
++        internal void Reset()
++        {
++            selected = Shelf.Ready;
++            page = 0;
++            ClosePaper();
++        }
++
++        private void UpdateNavigation(int pages)
++        {
++            for (int i = 0; i < tabs.Length; i++) Mark(tabs[i], selected == (Shelf)i);
++            pager.gameObject.SetActive(pages > 1);
++            previous.interactable = page > 0;
++            next.interactable = page + 1 < pages;
++            pageNumber.text = (page+1) + "/" + pages;
+             var list = (RectTransform)panel.ScrollView.transform;
+-            list.offsetMax = new Vector2(list.offsetMax.x,-151);
+-            UpdateNavigation(0);
+-            panel.TiShiPanel.SetAsLastSibling();
+-        }
+-
+-        private void SetActive(bool state)
+-        {
+-            if (Active == state) return;
+-            Active = state; page = 0; refresh();
+-        }
+-
+-        private void UpdateNavigation(int pages)
+-        {
+-            Mark(regular,!Active); Mark(transmission,Active);
+-            previous.gameObject.SetActive(Active && pages > 1);
+-            next.gameObject.SetActive(Active && pages > 1);
+-            pageNumber.gameObject.SetActive(Active && pages > 1);
+-            previous.interactable = page > 0; next.interactable = page + 1 < pages;
+-            pageNumber.text = (page+1) + "/" + pages;
+-        }
+-
+-        internal void ShowRegular() { UpdateNavigation(0); }
++            list.offsetMin = new Vector2(12, pages > 1 ? 41 : 4);
++            list.offsetMax = new Vector2(-12, -119);
++        }
+ 
+         internal List<CanWuEntity> Books(List<CanWuEntity> source)
+         {
+-            var matching = source.Where(b => IsSystem(b.Id)).Where(b =>
+-            {
+-                var def = Find(b.Id);
+-                return (selected[0] == 0 || def?.polarity == selected[0]) && (selected[1] == 0 || b.FiveElement == selected[1])
+-                    && (selected[2] == 0 || def?.qi == selected[2]) && (selected[3] == 0 || def?.kind == selected[3])
+-                    && (selected[4] == 0 || State(b) == selected[4]);
+-            }).OrderBy(State).ThenBy(b => b.Level).ThenBy(b => b.Rank).ThenBy(b => b.Id, StringComparer.Ordinal).ToList();
+-            int totalPages = Mathf.CeilToInt((float)matching.Count / PageSize);
+-            page = Mathf.Clamp(page,0,Mathf.Max(0,totalPages-1)); UpdateNavigation(totalPages);
+-            panel.SmallTitleText.text = matching.Count == 0 ? "没有符合条件的传承" : $"传承 {matching.Count} 部　可悟 {matching.Count(b => State(b) == 1)} 部";
++            var matching = source.Where(book => State(book) == selected)
++                .OrderByDescending(book => book.Id == PracticeGuideFlow.StarterId)
++                .ThenBy(book => book.Level).ThenBy(book => IsSystem(book.Id)).ThenBy(book => book.Rank)
++                .ThenBy(book => book.FiveElement).ThenBy(book => book.Id, StringComparer.Ordinal).ToList();
++            int pages = (matching.Count + PageSize - 1) / PageSize;
++            page = Mathf.Clamp(page, 0, Mathf.Max(0, pages - 1));
++            UpdateNavigation(pages);
++            panel.SmallTitleText.text = Title + " " + matching.Count + " 门";
++            emptyMessage.gameObject.SetActive(matching.Count == 0);
++            if (matching.Count == 0)
++            {
++                if (selected == Shelf.Ready)
++                    emptyMessage.text = "暂无可悟典籍\n可在纳戒阅读与灵根相合的功法书。";
++                else if (selected == Shelf.Locked)
++                    emptyMessage.text = "没有等待突破的典籍。";
++                else
++                    emptyMessage.text = "尚未参悟典籍。";
++            }
+             return matching.Skip(page * PageSize).Take(PageSize).ToList();
+         }
+ 
+@@ -157,41 +219,7 @@
+             overlay.SetActive(false); UnityEngine.Object.Destroy(overlay); overlay = null;
+         }
+ 
+-        internal void Filters()
+-        {
+-            var sheet = OpenPaper("筛选系统传承");
+-            float[] top = { .832f,.715f,.598f,.365f,.248f };
+-            var groups = new List<Button[]>();
+-            int[] draft = (int[])selected.Clone();
+-            for (int lane = 0; lane < Options.Length; lane++)
+-            {
+-                int slot = lane; string[] options = Options[slot];
+-                var group = new Button[options.Length]; groups.Add(group);
+-                Label(sheet,Lanes[slot],Lanes[slot],14,.045f,top[slot]-.083f,.162f,top[slot]);
+-                int columns = slot == 2 ? 7 : options.Length;
+-                float width = .785f / columns;
+-                for (int i = 0; i < options.Length; i++)
+-                {
+-                    int index = i; float x = .167f + i%columns * width, y = top[slot] - i/columns * .099f;
+-                    group[i] = ButtonAt(sheet,Lanes[slot]+i,options[i],x,y-.081f,x+width-.009f,y,() =>
+-                    {
+-                        draft[slot] = index;
+-                        for (int j=0;j<group.Length;j++) Mark(group[j],j==index);
+-                    });
+-                    Mark(group[i],draft[slot]==i);
+-                }
+-            }
+-            ButtonAt(sheet,"Clear","重置",.058f,.045f,.34f,.126f,() =>
+-            {
+-                Array.Clear(draft,0,draft.Length);
+-                foreach (var group in groups) for(int j=0;j<group.Length;j++) Mark(group[j],j==0);
+-            });
+-            var apply = ButtonAt(sheet,"Apply","查看书目",.38f,.045f,.942f,.126f,() =>
+-            { Array.Copy(draft,selected,draft.Length); page=0; ClosePaper(); refresh(); });
+-            Mark(apply,true);
+-        }
+-
+-        internal void Details(CanWuEntity book, Action accept)
++        internal void Details(CanWuEntity book, Action accept, Action equip)
+         {
+             var sheet = OpenPaper(book.Name);
+             var def = Find(book.Id);
+@@ -200,13 +228,14 @@
+             glyph.sprite = InkInterfaceArt.Get("Element" + (WuXing)book.FiveElement); glyph.preserveAspect = true;
+             Bounds(glyph.rectTransform,.055f,.64f,.225f,.83f);
+             Label(sheet,"Affinity",sign,19,.25f,.739f,.94f,.835f);
+-            Label(sheet,"State",WorldSetting.GetRankAllName(book.Rank) + "　" + StateText(book),14,.25f,.65f,.94f,.735f);
++            Label(sheet,"State",WorldSetting.GetRankAllName(book.Rank) + "　·　天道传承",14,.25f,.65f,.94f,.735f);
+             string gate = WorldSetting.GetRoleLevelNameByRoleLevel(book.Level);
+             Label(sheet,"Description",def?.description ?? "",17,.066f,.46f,.934f,.628f);
+-            Label(sheet,"Gate","参悟境界　" + gate,15,.067f,.345f,.935f,.432f);
++            Label(sheet,"Gate","所需境界　" + gate,15,.067f,.345f,.935f,.432f);
+             var facts = Label(sheet,"Effect","正在查阅传承…",15,.067f,.20f,.935f,.337f);
+-            string action = book.IsCanWu ? "已参悟" : Level < book.Level ? gate + "可悟" : "免费参悟";
+-            var button = ButtonAt(sheet,"Study",action,.13f,.047f,.87f,.151f,() => { ClosePaper(); accept(); });
++            var state = State(book);
++            string action = book.IsCanWu ? "去练功房" : state == Shelf.Ready ? "免费参悟" : gate + "可悟";
++            var button = ButtonAt(sheet,"Study",action,.13f,.047f,.87f,.151f,() => { ClosePaper(); if (book.IsCanWu) equip(); else accept(); });
+             Mark(button,true); button.interactable = false;
+             var req = new MethodAchievementDetailReq_1011004 { Id = book.Id };
+             bool queued = Singleton<NetManager>.Instance.TrySendGameRequest(MsgType.TEMPLATE_ACHIEVEMENT_DETAIL,req,bytes =>
+@@ -216,8 +245,11 @@
+                 var info = MethodAchievementDetailResp_1011004.Parser.ParseFrom(bytes);
+                 if (!info.IsSuccess) { facts.text = "此传承暂不可查阅。"; return; }
+                 string practice = info.ActionScope >= 1 && info.ActionScope <= 3 ? Practices[info.ActionScope] : "";
+-                facts.text = practice + "　灵衍值 " + info.ConversionRate.ToString("0.##") + "\n传承者　" + info.CreatedBy;
+-                button.interactable = !book.IsCanWu && Level >= book.Level;
++                string instruction = "天道传承无需功法书。";
++                if (book.IsCanWu)
++                    instruction = EquipHint(book);
++                facts.text = practice + "　灵衍值 " + info.ConversionRate.ToString("0.##") + "\n" + instruction;
++                button.interactable = book.IsCanWu || State(book) == Shelf.Ready;
+             });
+             if (!queued) facts.text = "连接中断，请返回后重新查阅。";
+         }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/InkCultivationPages.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/InkCultivationPages.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/InkCultivationPages.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/InkCultivationPages.cs
+@@ -154,12 +154,13 @@
+ 			image.enabled = image.sprite != null;
+ 		}
+ 
+-		private static string RootCaption(RoleInfoEntity role)
++		private static string RootCaption(RoleInfoEntity role, bool showMissing = false)
+ 		{
+ 			if (role == null) return "";
+ 			var roots = (role.JinLingGen ? "金" : "") + (role.MuLingGen ? "木" : "") + (role.ShuiLingGen ? "水" : "")
+ 				+ (role.HuoLingGen ? "火" : "") + (role.TuLingGen ? "土" : "");
+-			return roots.Length > 0 ? roots + "灵根" : WorldSetting.GetRoleLevelNameByRoleLevel(role.RoleLevel);
++			if (roots.Length > 0) return roots + "灵根";
++			return showMissing ? "无五行灵根" : WorldSetting.GetRoleLevelNameByRoleLevel(role.RoleLevel);
+ 		}
+ 
+ 		private static void PracticeRow(Toggle route, Button change, Text name, Text rate, Image running, float bottom)
+@@ -209,24 +210,22 @@
+ 			titleText.text = "参悟书目";
+ 			titleText.color = InkInterfaceArt.Ink;
+ 			InkDialogArt.StyleButton(panel.ShaiXuanBtn, "JadeButton", InkDialogArt.Ivory);
+-
+-			var role = Singleton<RoleManager>.Instance.Role_Entity;
++			panel.ShaiXuanBtn.transform.Find("ShaiXuan_image")?.gameObject.SetActive(false);
++			var rulesLabel = panel.ShaiXuanBtn.GetComponentInChildren<Text>(true);
++			rulesLabel.text = "规则";
++			Place(rulesLabel.rectTransform, 0, 0, 1, 1);
++			rulesLabel.alignment = TextAnchor.MiddleCenter;
++
+ 			var header = (RectTransform)panel.SmallTitleText.transform.parent;
+ 			header.anchorMin = new Vector2(0, 1);
+ 			header.anchorMax = Vector2.one;
+-			header.offsetMin = new Vector2(12, -104);
+-			header.offsetMax = new Vector2(-12, -33);
++			header.offsetMin = new Vector2(12, -76);
++			header.offsetMax = new Vector2(-12, -48);
+ 			InkInterfaceArt.Set(header.GetComponent<Image>(), "InkLedgerPaper", false);
+-			var font = panel.SmallTitleText.font;
+-			var portrait = Art(header, "StudyPortrait", null);
+-			Place(portrait.rectTransform, .018f, .08f, .225f, .92f);
+-			var name = Caption(header, "StudyDisciple", font, role?.RoleName ?? "", 19, InkInterfaceArt.Ink);
+-			Place(name.rectTransform, .24f, .54f, .62f, .94f);
+-			var rootsLabel = Caption(header, "StudyRoots", font, RootCaption(role), 12, InkInterfaceArt.SoftInk);
+-			Place(rootsLabel.rectTransform, .64f, .54f, .98f, .94f);
+-			rootsLabel.alignment = TextAnchor.MiddleRight;
+-			Place(panel.SmallTitleText.rectTransform, .24f, .08f, .98f, .47f);
+-			panel.SmallTitleText.alignment = TextAnchor.MiddleLeft;
++			var roots = Caption(header, "StudyRoots", panel.SmallTitleText.font, "", 13, InkInterfaceArt.Ink);
++			Place(roots.rectTransform, .035f, .05f, .53f, .95f);
++			Place(panel.SmallTitleText.rectTransform, .54f, .05f, .965f, .95f);
++			panel.SmallTitleText.alignment = TextAnchor.MiddleRight;
+ 			panel.SmallTitleText.fontSize = 13;
+ 			UIManager.FitTextToRect(panel.SmallTitleText);
+ 			var fit = panel.ScrollContent.GetComponent<ContentSizeFitter>() ?? panel.ScrollContent.gameObject.AddComponent<ContentSizeFitter>();
+@@ -234,9 +233,15 @@
+ 			var list = (RectTransform)panel.ScrollView.transform;
+ 			Place(list, 0, 0, 1, 1);
+ 			list.offsetMin = new Vector2(12, 4);
+-			list.offsetMax = new Vector2(-12, -112);
+-			// The pooled modal must remain above the new identity header.
++			list.offsetMax = new Vector2(-12, -119);
+ 			panel.TiShiPanel.SetAsLastSibling();
++		}
++
++		internal static void RefreshStudyRole(CanWuPanel panel)
++		{
++			var role = Singleton<RoleManager>.Instance.Role_Entity;
++			var header = panel.SmallTitleText.transform.parent;
++			header.Find("StudyRoots").GetComponent<Text>().text = RootCaption(role, true);
+ 		}
+ 
+ 		internal static void BookHeading(Text title, CanWuEntity book)
+@@ -261,13 +266,25 @@
+ 			var name = Caption(face.transform, "Name", item.GoodsName.font, book.Name, 14, InkInterfaceArt.Ink);
+ 			Place(name.rectTransform, .27f, .45f, .985f, .96f);
+ 			string grade = WorldSetting.GetLevelByRankName(book.Rank);
+-			var system = SystemMethodShelf.Find(book.Id);
+-			string signature = system != null ? SystemMethodShelf.Signature(system) : ElementNames[element] + " · " + grade + " " + book.Level;
+-			var info = Caption(face.transform, "Grade", name.font, signature, 11, ElementInks[element]);
+-			Place(info.rectTransform, .27f, .07f, .74f, .45f);
+-			var status = Caption(face.transform, "State", name.font, SystemMethodShelf.IsSystem(book.Id) ? SystemMethodShelf.StateText(book) : book.IsCanWu ? "已悟" : "可悟", 11,
+-				book.IsCanWu ? InkInterfaceArt.SoftInk : InkInterfaceArt.Seal);
+-			Place(status.rectTransform, .74f, .07f, .965f, .45f);
++			string kind = SystemMethodShelf.PracticeName(book);
++			if (kind.Length == 0)
++			{
++				switch ((CanWuTitleType)book.Type)
++				{
++					case CanWuTitleType.GongFa: kind = "功法"; break;
++					case CanWuTitleType.FaShu: kind = "法术"; break;
++					case CanWuTitleType.DanFang: kind = "丹方"; break;
++					case CanWuTitleType.QiTu: kind = "器图"; break;
++					case CanWuTitleType.ZhenFa: kind = "阵图"; break;
++					case CanWuTitleType.FuShu: kind = "符书"; break;
++				}
++			}
++			var info = Caption(face.transform, "Grade", name.font, ElementNames[element] + " · " + kind, 11, ElementInks[element]);
++			bool locked = SystemMethodShelf.State(book) == SystemMethodShelf.Shelf.Locked;
++			Place(info.rectTransform, .27f, .06f, locked ? .59f : .70f, .45f);
++			string note = locked ? WorldSetting.GetRoleLevelNameByRoleLevel(book.Level) : grade;
++			var status = Caption(face.transform, "State", name.font, note, 11, InkInterfaceArt.SoftInk);
++			Place(status.rectTransform, locked ? .60f : .71f, .06f, .975f, .45f);
+ 			status.alignment = TextAnchor.MiddleRight;
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuScrollItem.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuScrollItem.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuScrollItem.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CanWuScrollItem.cs
+@@ -18,6 +18,8 @@
+ 
+ 		private GridLayoutGroup m_GridLayoutGroup;
+ 
++		private float headingHeight;
++
+ 		public Button HelpBtn;
+ 
+ 		public float GetContentHight()
+@@ -37,7 +39,8 @@
+ 			ContentRect.anchorMin = new Vector2(0, 1);
+ 			ContentRect.anchorMax = Vector2.one;
+ 			ContentRect.pivot = new Vector2(.5f, 1f);
+-			ContentRect.anchoredPosition = new Vector2(0, -25);
++			headingHeight = string.IsNullOrEmpty(titleName) ? 0 : 25;
++			ContentRect.anchoredPosition = new Vector2(0, -headingHeight);
+ 			ContentRect.sizeDelta = new Vector2(0, ContentRect.sizeDelta.y);
+ 			m_GridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+ 			m_GridLayoutGroup.padding = new RectOffset(4, 4, 4, 4);
+@@ -48,6 +51,7 @@
+ 			InkInterfaceArt.Set(ContentRect.GetComponent<Image>(), "InkLedgerPaper", false);
+ 			TitleText.color = InkInterfaceArt.Ink;
+ 			TitleText.text = titleName;
++			TitleText.transform.parent.gameObject.SetActive(headingHeight > 0);
+ 			m_CanWuWindow = canWuWindow;
+ 			if (!string.IsNullOrEmpty(helpContent))
+ 			{
+@@ -81,7 +85,7 @@
+ 			int rows = (m_ListGoods.Count + columns - 1) / columns;
+ 			float height = rows * 50 + Mathf.Max(0, rows - 1) * 4 + 8;
+ 			ContentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, height);
+-			m_SelfRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 25 + height);
++			m_SelfRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, headingHeight + height);
+ 		}
+ 
+ 		public void AddItem(UI_GoodsItem uI_GoodsItem)
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/DataConstants.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/DataConstants.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/DataConstants.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/DataConstants.cs
+@@ -36,11 +36,11 @@
+ 
+ 		public const string GongFaType = "功法共分为纳气、锻体、炼神三种类型，纳气是提升境界的唯一手段，锻体功法增强体魄即防御能力，炼神功法则可以增强神识提高感知和操控能力";
+ 
+-		public const string GongFaLevel = "学习和使用此功法的最低等级，低于此等级将无法学习和使用此功法";
++		public const string GongFaLevel = "达到所需境界后可参悟和运转此功法。境界不足时可先在纳戒阅读，收录后见「待突破」。";
+ 
+ 		public const string GongFaRank = "基于灵衍值给定的品级，品阶越高则效果越强";
+ 
+-		public const string GongFaFiveElement = "分金、木、水、火、土五行，功法的五行如与灵根不符，则效率低下，请选择适合自身灵根的五行";
++		public const string GongFaFiveElement = "功法五行须与自身至少一种灵根相合才可参悟。《启灵经》各灵根均可修习。";
+ 
+ 		public const string GongFaLingYanZhi = "吸纳外界灵气转换为自身丹田内灵气的比值，灵衍值越高则转换效率越高，功法效果越强";
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/Common_TipWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/Common_TipWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/Common_TipWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/Common_TipWnd.cs
+@@ -19,6 +19,8 @@
+ 		{
+ 			base.Awake(paralist);
+ 			Panel = base.GameObject.GetComponent<Common_TipPanel>();
++			Panel.QueRenBtn.interactable = true;
++			Panel.QueRenBtn.gameObject.SetActive(true);
+ 			InkDialogArt.StyleDetails(Panel.transform, Panel.TitleText, Panel.CloseBtn, Panel.ScrollRect);
+ 			InkDialogArt.StyleButton(Panel.QueRenBtn, "LightAction", InkDialogArt.Ivory);
+ 			InkDialogArt.StyleButton(Panel.QueRenBtn2, "LightPlaque", InkInterfaceArt.Ink);
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
+@@ -438,6 +438,13 @@
+ 						RemoveWuPin(_data.GoodsId, 1);
+ 						if (PracticeGuideFlow.IsStarter(_data) && practice?.RecordMilestone(1) == true)
+ 							return;
++						string message = "《" + _data.Name + "》已收入参悟书目。";
++						if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < _data.Level)
++							message += "达到" + WorldSetting.GetRoleLevelNameByRoleLevel(_data.Level) + "后即可参悟。";
++						else
++							message += "可在「可参悟」中翻阅。";
++						MonoSingleton<GameStart>.Instance.PopUpAttention(message);
++						return;
+ 					}
+ 					MonoSingleton<GameStart>.Instance.PopUpAttention(MonoSingleton<GameStart>.Instance.GetHintMsgByCode(goodsUseResp_.Code));
+ 				}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+@@ -789,9 +789,9 @@
+ 							m_DataList.Add(string.Format("{0},{1},{2}", "功法类型", "纳气", "功法共分为纳气、锻体、炼神三种类型，纳气是提升境界的唯一手段，锻体功法增强体魄即防御能力，炼神功法则可以增强神识提高感知和操控能力"));
+ 							break;
+ 						}
+-						m_DataList.Add(string.Format("{0},{1},{2}", "等阶", WorldSetting.GetStageChineseName(WorldSetting.GetStageByLevel(level)), "学习和使用此功法的最低等级，低于此等级将无法学习和使用此功法"));
++						m_DataList.Add(string.Format("{0},{1},{2}", "等阶", WorldSetting.GetStageChineseName(WorldSetting.GetStageByLevel(level)), DataConstants.GongFaLevel));
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "品阶", WorldSetting.GetRankAllName(rank), "基于灵衍值给定的品级，品阶越高则效果越强"));
+-						m_DataList.Add(string.Format("{0},{1},{2}", "五行", WorldSetting.GetWuXingName((WuXing)fiveElement), "分金、木、水、火、土五行，功法的五行如与灵根不符，则效率低下，请选择适合自身灵根的五行"));
++						m_DataList.Add(string.Format("{0},{1},{2}", "五行", WorldSetting.GetWuXingName((WuXing)fiveElement), DataConstants.GongFaFiveElement));
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "灵衍值", goodsBookAchievementDetailResp_.ConversionRate, "吸纳外界灵气转换为自身丹田内灵气的比值，灵衍值越高则转换效率越高，功法效果越强"));
+ 						if (goodsBookAchievementDetailResp_.EffectType1 != 0)
+ 						{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/MainQuest/PracticeGuideFlow.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/MainQuest/PracticeGuideFlow.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/MainQuest/PracticeGuideFlow.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/MainQuest/PracticeGuideFlow.cs
+@@ -172,7 +172,7 @@
+ 			else if (study.PracticeListLoaded && study.PracticeBookUnderstood)
+ 				RecordMilestone(2);
+ 			else if (study.PracticeBook != null)
+-				Focus("翻开经卷", "在功法栏点《启灵经》，查看这门心法。", study.PracticeBook);
++				Focus("翻开经卷", "在「可参悟」中点《启灵经》，查看这门心法。", study.PracticeBook);
+ 			else
+ 				Missing("正在展卷", "正在读取《启灵经》的参悟记录。");
+ 		}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs
+@@ -359,6 +359,14 @@
+ 
+ 		public string GetHintMsgByCode(int code)
+ 		{
++			// These cultivation replies are newer than the bundled message table.
++			switch (code)
++			{
++			case 4961: return "此功法需要对应的五行灵根。";
++			case 4962: return "请先在纳戒中阅读这本功法书，再来参悟。";
++			case 4963: return "这门功法已在参悟书目中，经书仍在纳戒。";
++			case 4964: return "已收录经文，可前往参悟书目查看。";
++			}
+ 			if (code == 0 || code == 5000)
+ 			{
+ 				return null;
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
+@@ -1279,7 +1279,7 @@
+ 								list.Add(new GongFaEntity(achievement));
+ 							}
+ 						}
+-						if (gongFaEntity != null && !string.IsNullOrEmpty(gongFaEntity.Id))
++						if (gongFaEntity != null && !string.IsNullOrEmpty(gongFaEntity.Id) && !list.Exists(book => book.Id == gongFaEntity.Id))
+ 						{
+ 							list.Add(gongFaEntity);
+ 						}
+@@ -1446,7 +1446,8 @@
+ 					changeAchievementPanelResp_.MergeFrom(byteString);
+ 					if (changeAchievementPanelResp_.IsSuccess)
+ 					{
+-						GongFaEntity gongFaEntity = new GongFaEntity(changeAchievementPanelResp_.CurrentAchievement);
++						var current = changeAchievementPanelResp_.CurrentAchievement;
++						GongFaEntity gongFaEntity = current == null ? null : new GongFaEntity(current);
+ 						List<GongFaEntity> list = new List<GongFaEntity>();
+ 						if (changeAchievementPanelResp_.Achievements != null)
+ 						{
+@@ -1455,11 +1456,11 @@
+ 								list.Add(new GongFaEntity(achievement));
+ 							}
+ 						}
+-						if (gongFaEntity != null && !string.IsNullOrEmpty(gongFaEntity.Id))
++						if (gongFaEntity != null && !string.IsNullOrEmpty(gongFaEntity.Id) && !list.Exists(book => book.Id == gongFaEntity.Id))
+ 						{
+ 							list.Add(gongFaEntity);
+ 						}
+-						if (list.Count == 0 && string.IsNullOrEmpty(gongFaEntity.Id))
++						if (list.Count == 0)
+ 						{
+ 							MonoSingleton<GameStart>.Instance.PopUpAttention("无已参悟的锻体功法，请先参悟功法");
+ 						}
+@@ -1620,7 +1621,8 @@
+ 					changeAchievementPanelResp_.MergeFrom(byteString);
+ 					if (changeAchievementPanelResp_.IsSuccess)
+ 					{
+-						GongFaEntity gongFaEntity = new GongFaEntity(changeAchievementPanelResp_.CurrentAchievement);
++						var current = changeAchievementPanelResp_.CurrentAchievement;
++						GongFaEntity gongFaEntity = current == null ? null : new GongFaEntity(current);
+ 						List<GongFaEntity> list = new List<GongFaEntity>();
+ 						if (changeAchievementPanelResp_.Achievements != null)
+ 						{
+@@ -1629,7 +1631,7 @@
+ 								list.Add(new GongFaEntity(achievement));
+ 							}
+ 						}
+-						if (gongFaEntity != null && !string.IsNullOrEmpty(gongFaEntity.Id))
++						if (gongFaEntity != null && !string.IsNullOrEmpty(gongFaEntity.Id) && !list.Exists(book => book.Id == gongFaEntity.Id))
+ 						{
+ 							list.Add(gongFaEntity);
+ 						}

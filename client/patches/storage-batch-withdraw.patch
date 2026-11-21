@@ -1,0 +1,237 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs
+@@ -25,7 +25,7 @@
+ 
+ 		public Dictionary<int, Sprite> m_RankBgSprite;
+ 
+-		private Dictionary<string, UI_GoodsItem> m_ChuWuXiangBoxDic;
++		private bool collecting;
+ 
+ 		private GameObject ItemObj;
+ 
+@@ -53,7 +53,6 @@
+ 			NaJieIsOpen = false;
+ 			m_IsOneKeyMode = false;
+ 			Panel = base.GameObject.GetComponent<ChuWuXiangPanel>();
+-			m_ChuWuXiangBoxDic = new Dictionary<string, UI_GoodsItem>();
+ 			m_ChooseEntityList = new List<GameObject>();
+ 			AddButtonClickListener(Panel.CloseBtn, CloseBtn);
+ 			AddButtonClickListener(Panel.OpenNaJieBtn, OpenNaJie);
+@@ -62,7 +61,6 @@
+ 			AddButtonClickListener(Panel.ShaiXuanBtn, ShaiXuanPop);
+ 			AddButtonClickListener(Panel.ChooseYiJianLingQuBtn, OpenYiJianLingQu);
+ 			AddButtonClickListener(Panel.YiJianLingQuBtn, YiJianLingQu);
+-			InitShaiXuan();
+ 			ResourceLoad();
+ 		}
+ 
+@@ -78,19 +76,15 @@
+ 			UseShaiXuanType.Add(ShaiXuanItemType.WuXing);
+ 			UseShaiXuanType.Add(ShaiXuanItemType.PinJie);
+ 			UseShaiXuanType.Add(ShaiXuanItemType.DengJie);
+-			m_ShaiXuanWnd = Singleton<UIManager>.Instance.PopUpWnd("Common_ShaiXuanWnd.prefab", true, UseShaiXuanType, true) as Common_ShaiXuanWnd;
++			m_ShaiXuanWnd = Singleton<UIManager>.Instance.PopUpNamedWnd("StorageGoodsFilter", "Common_ShaiXuanWnd.prefab", false, true, UseShaiXuanType, true) as Common_ShaiXuanWnd;
+ 			if (m_ShaiXuanWnd != null)
+-			{
+-				Common_ShaiXuanWnd shaiXuanWnd = m_ShaiXuanWnd;
+-				shaiXuanWnd.ReChooseAction = (UnityAction)Delegate.Remove(shaiXuanWnd.ReChooseAction, new UnityAction(RelfashData));
+-				Common_ShaiXuanWnd shaiXuanWnd2 = m_ShaiXuanWnd;
+-				shaiXuanWnd2.ReChooseAction = (UnityAction)Delegate.Combine(shaiXuanWnd2.ReChooseAction, new UnityAction(RelfashData));
+-			}
++				m_ShaiXuanWnd.ReChooseAction += RelfashData;
+ 		}
+ 
+ 		public override void OnShow(params object[] paralist)
+ 		{
+ 			base.OnShow(paralist);
++			if (m_ShaiXuanWnd?.GameObject == null) InitShaiXuan();
+ 			m_NaJieInitInfo = Singleton<RoleManager>.Instance.RoleBoxDic[10];
+ 			if (paralist.Length != 0)
+ 			{
+@@ -218,30 +212,16 @@
+ 
+ 		private void YiJianLingQu()
+ 		{
+-			if (m_ChooseEntityList.Count > 0)
+-			{
+-				MonoSingleton<GameStart>.Instance.ShowWaitReauestWnd();
+-				if (m_ChooseEntityList == null || m_ChooseEntityList.Count <= 0)
+-				{
+-					return;
+-				}
+-				GameObject gameObject = m_ChooseEntityList[0];
+-				if (!(gameObject == null))
+-				{
+-					UI_GoodsTogItem component = gameObject.GetComponent<UI_GoodsTogItem>();
+-					if (!(component == null))
+-					{
+-						BaseNaJieGoodEntity goods = component.DataSource as BaseNaJieGoodEntity;
+-						SetManyGoodsToNaJie(goods, gameObject);
+-						m_ChooseEntityList.RemoveAt(0);
+-					}
+-				}
+-			}
+-			else
+-			{
+-				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
++			if (collecting) return;
++			m_ChooseEntityList.RemoveAll(row => row == null);
++			if (m_ChooseEntityList.Count == 0)
++			{
+ 				SwitchBottomBtns(ShowOpenNaJieBtn: true);
+-			}
++				return;
++			}
++			var row = m_ChooseEntityList[0];
++			var item = row.GetComponent<UI_GoodsTogItem>();
++			SetManyGoodsToNaJie((BaseNaJieGoodEntity)item.DataSource, row);
+ 		}
+ 
+ 		private void OpenYiJianLingQu()
+@@ -321,6 +301,8 @@
+ 		{
+ 			if (data != null)
+ 			{
++				m_ChooseEntityList.Clear();
++				SwitchBottomBtns(ShowOpenNaJieBtn: true);
+ 				CleraData(Panel.ChuWuXiangListConstant);
+ 				CreateTogData(data);
+ 				GrticalListContentHight();
+@@ -343,7 +325,7 @@
+ 					component.SetValue(data[num], data[num].Name, data[num].FiveElement, data[num].Level, value2, value, null, (bool _isOn, object _obj, GameObject _gameObj) =>
+ 					{
+ 						ChooseTogItem(_obj, _isOn, _gameObj);
+-					});
++					}, num: data[num].GoodsNum);
+ 				}
+ 			}
+ 		}
+@@ -411,10 +393,6 @@
+ 			if (component2 != null)
+ 			{
+ 				GetGoods(component2, wupinList, value2, value);
+-			}
+-			if (!m_ChuWuXiangBoxDic.ContainsKey(wupinList.TemplateId))
+-			{
+-				m_ChuWuXiangBoxDic.Add(wupinList.TemplateId, component2);
+ 			}
+ 		}
+ 
+@@ -576,53 +554,52 @@
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		private void SetManyGoodsToNaJie(BaseNaJieGoodEntity goods, GameObject obj)
+-		{
+-			GetOutSpaceBoxReq_1005023 data = new GetOutSpaceBoxReq_1005023
++		private void SetManyGoodsToNaJie(BaseNaJieGoodEntity goods, GameObject row)
++		{
++			var request = new GetOutSpaceBoxReq_1005023
+ 			{
+ 				GoodsId = goods.GoodsId,
+ 				Location = int.Parse(m_CangKuId),
+ 				Count = goods.GoodsNum
+ 			};
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.GETOUT_SPACEBOX, data, (object _obj) =>
+-			{
+-				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
+-				{
+-					GetOutSpaceBoxResp_1005023 getOutSpaceBoxResp_ = new GetOutSpaceBoxResp_1005023();
+-					getOutSpaceBoxResp_.MergeFrom(byteString);
+-					if (getOutSpaceBoxResp_.IsSuccess)
+-					{
+-						BaseNaJieGoodEntity baseNaJieGoodEntity = goods.Copy();
+-						if (obj != null)
+-						{
+-							UnityEngine.Object.Destroy(obj);
+-						}
+-						if (m_ChuWuXiangBoxDic.ContainsKey(goods.TemplateId))
+-						{
+-							m_ChuWuXiangBoxDic.Remove(goods.TemplateId);
+-						}
+-						if (goods != null)
+-						{
+-							m_DataSource.RemoveGoods(goods.GoodsId, goods.GoodsNum);
+-							baseNaJieGoodEntity.GoodsId = getOutSpaceBoxResp_.GoodsId;
+-							baseNaJieGoodEntity.GoodsNum = goods.GoodsNum;
+-							m_NaJieInitInfo.ApplyStoredMove(baseNaJieGoodEntity);
+-						}
+-						m_DataSource.NowCapacity = getOutSpaceBoxResp_.NowBoxCapacity;
+-						m_NaJieInitInfo.NowCapacity = getOutSpaceBoxResp_.NowRingCapacity;
+-						SetRongLiangProgress();
+-						GrticalListContentHight();
+-						YiJianLingQu();
+-					}
+-					else
+-					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(getOutSpaceBoxResp_.Code);
+-						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-					}
+-				}
+-			}, isShowWaitUI: true);
++			var game = MonoSingleton<GameStart>.Instance;
++			collecting = true;
++			if (Singleton<NetManager>.Instance.TrySendGameRequest(MsgType.GETOUT_SPACEBOX, request, bytes =>
++			{
++				if (!collecting) return;
++				collecting = false;
++				game.HideWaitReauestWnd();
++				if (bytes == null)
++				{
++					CloseBtn();
++					game.PopUpAttention("领取回执未到，请重新打开储物箱核对数量。");
++					return;
++				}
++				var reply = GetOutSpaceBoxResp_1005023.Parser.ParseFrom(bytes);
++				if (!reply.IsSuccess)
++				{
++					game.PopUpAttention(game.GetHintMsgByCode(reply.Code));
++					return;
++				}
++				var received = goods.Copy();
++				received.GoodsId = reply.GoodsId;
++				received.GoodsNum = request.Count;
++				m_DataSource.RemoveGoods(request.GoodsId, request.Count);
++				m_NaJieInitInfo.ApplyStoredMove(received);
++				m_DataSource.NowCapacity = reply.NowBoxCapacity;
++				m_NaJieInitInfo.NowCapacity = reply.NowRingCapacity;
++				m_ChooseEntityList.Remove(row);
++				if (row != null) UnityEngine.Object.Destroy(row);
++				SetRongLiangProgress();
++				GrticalListContentHight();
++				YiJianLingQu();
++			}))
++			{
++				game.ShowWaitReauestWnd();
++				return;
++			}
++			collecting = false;
++			game.PopUpAttention("未连接游戏服，请重连后领取。");
+ 		}
+ 
+ 		private void CleraData(RectTransform rectTransform)
+@@ -636,11 +613,18 @@
+ 		public override void OnDisable()
+ 		{
+ 			base.OnDisable();
+-			Common_ShaiXuanWnd shaiXuanWnd = m_ShaiXuanWnd;
+-			shaiXuanWnd.ReChooseAction = (UnityAction)Delegate.Remove(shaiXuanWnd.ReChooseAction, new UnityAction(RelfashData));
++			if (collecting) MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
++			collecting = false;
++			m_ChooseEntityList.Clear();
++			if (m_ShaiXuanWnd != null)
++			{
++				m_ShaiXuanWnd.ReChooseAction -= RelfashData;
++				if (m_ShaiXuanWnd.GameObject != null)
++					Singleton<UIManager>.Instance.CloseWnd(m_ShaiXuanWnd);
++				m_ShaiXuanWnd = null;
++			}
+ 			CleraData(Panel.NaJieListConstant);
+ 			CleraData(Panel.ChuWuXiangListConstant);
+-			Singleton<UIManager>.Instance.CloseWnd("Common_ShaiXuanWnd.prefab");
+ 		}
+ 	}
+ }

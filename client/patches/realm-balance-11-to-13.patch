@@ -1,0 +1,857 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/GameStart.cs
+@@ -362,6 +362,8 @@
+ 			// These cultivation replies are newer than the bundled message table.
+ 			switch (code)
+ 			{
++			case 4985: return CultivationRouteSheet.BreakthroughTrainingNote();
++			case 4984: return "本层冲关的寿元不足，可先服用本境寿元丹。";
+ 			case 4961: return "此功法需要对应的五行灵根。";
+ 			case 4962: return "请先在纳戒中阅读这本功法书，再来参悟。";
+ 			case 4963: return "这门功法已在参悟书目中，经书仍在纳戒。";
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/LiXianShouYiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/LiXianShouYiWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/LiXianShouYiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/LiXianShouYiWnd.cs
+@@ -56,6 +56,7 @@
+ 
+ 			InkDialogArt.StyleButton(Panel.QueRenBtnClick, "LightAction", InkDialogArt.Ivory);
+ 			InkDialogArt.StyleButton(Panel.FangQiBtnClick, "LightPlaque", InkInterfaceArt.Ink);
++			if (Constants.UsesPackagedTrialData) Panel.FangQiBtnClick.GetComponentInChildren<Text>().text = "关闭";
+ 			((RectTransform)Panel.QueRenBtnClick.transform).SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 42f);
+ 			((RectTransform)Panel.FangQiBtnClick.transform).SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 42f);
+ 		}
+@@ -81,10 +82,10 @@
+ 			if (m_SourceModel != null)
+ 			{
+ 				string text = CommonMethod.parseTimeSeconds(m_SourceModel.OfflineTime);
+-				Panel.LiXianShiJian.text = (m_SourceModel.IsTopValue ? text : (text + "(已达收益上限)"));
++				Panel.LiXianShiJian.text = (m_SourceModel.IsTopValue ? text + "（已达收益上限）" : text);
+ 				Panel.ShenShiZengZhang.text = $"{m_SourceModel.Perception}点";
+ 				Panel.TiPoZengZhang.text = $"{m_SourceModel.Physique}点";
+-				ZhenYuanShow((int)m_SourceModel.SuperAir);
++				ZhenYuanShow(m_SourceModel.SuperAir);
+ 				Panel.ShouYuanZengZhang.text = string.Format("{0}年", m_SourceModel.Age.ToString("0.00"));
+ 				Panel.WuXing.text = $"{m_SourceModel.OfflineClever}点";
+ 				if (m_SourceModel.OfflineVigor.Equals(0))
+@@ -96,7 +97,7 @@
+ 			}
+ 		}
+ 
+-		private void ZhenYuanShow(int value)
++		private void ZhenYuanShow(long value)
+ 		{
+ 			if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 31)
+ 			{
+@@ -106,17 +107,18 @@
+ 			else if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 31 && Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 61)
+ 			{
+ 				Panel.ZhenYuanTitleText.text = "真气:";
+-				Panel.ZhenYuanZengZhang.text = string.Format("{0}点", ((float)value / 100f).ToString("f1"));
++				Panel.ZhenYuanZengZhang.text = string.Format("{0}点", (value / 100d).ToString("f1"));
+ 			}
+ 			else if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 61)
+ 			{
+ 				Panel.ZhenYuanTitleText.text = "真元:";
+-				Panel.ZhenYuanZengZhang.text = string.Format("{0}点", ((float)value / 100f / 100f).ToString("f1"));
++				Panel.ZhenYuanZengZhang.text = string.Format("{0}点", (value / 10000d).ToString("f1"));
+ 			}
+ 		}
+ 
+ 		private void FangQiBtnClick()
+ 		{
++			if (Constants.UsesPackagedTrialData) { Singleton<UIManager>.Instance.CloseWnd(this); return; }
+ 			MonoSingleton<GameStart>.Instance.PopUpAttention("确认放弃离线收益？", () =>
+ 			{
+ 				Singleton<NetManager>.Instance.SendMsg(MsgType.RoleGetOffline, null, (object _obj) =>
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
+@@ -14,6 +14,8 @@
+ 		public ObscuredDouble CurrentBlood;
+ 
+ 		public ObscuredDouble Max_Blood;
++
++		public double RestBloodFractionPerSecond;
+ 
+ 		public ObscuredDouble CurrentJianRen;
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
+@@ -92,30 +92,38 @@
+ 					roleJoinDungeonResp_.MergeFrom(byteString);
+ 					if (roleJoinDungeonResp_.IsSuccess)
+ 					{
+-						BattleLifeModel roleInfo = new BattleLifeModel(roleJoinDungeonResp_) { CurrentHuDun = ReadElixirShield(byteString) };
++						BattleLifeModel roleInfo = ReadEntryRole(roleJoinDungeonResp_, byteString);
+ 						StartBattle(mapModel, battleType, roleInfo, roleJoinDungeonResp_.DungeonId, ipAddress, port);
+ 					}
+ 					else
+ 					{
+ 						MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
++						string hintMsgByCode = roleJoinDungeonResp_.Code == 4290
++							? $"精力不足，本次入场需 {ExpeditionPlace.DungeonVigor(mapId)} 点精力。"
++							: MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
+ 						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 					}
+ 				}
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		// The alchemy room adds an optional shield to the original dungeon-entry message.
+-		internal static int ReadElixirShield(ByteString reply)
++		// Optional extensions supplied by the game server on successful admission.
++		internal static BattleLifeModel ReadEntryRole(RoleJoinDungeonResp_1010002 entry, ByteString reply)
+ 		{
+ 			var input = reply.CreateCodedInput();
++			var role = new BattleLifeModel(entry);
+ 			uint tag;
+ 			while ((tag = input.ReadTag()) != 0)
+ 			{
+-				if (tag == 232) return Math.Max(0, input.ReadInt32());
+-				input.SkipLastField();
+-			}
+-			return 0;
++				switch (tag)
++				{
++				case 232: role.CurrentHuDun = Math.Max(0, input.ReadInt32()); break;
++				case 240: Singleton<RoleManager>.Instance.Role_Entity.CurrentVigor = input.ReadInt32(); break;
++				case 248: role.RestBloodFractionPerSecond = input.ReadInt32() / 1000000.0; break;
++				default: input.SkipLastField(); break;
++				}
++			}
++			return role;
+ 		}
+ 
+ 		public void StartBattle(MapEntity _mapModel, BattleType _battleType, BattleLifeModel _roleInfo, string dungeonId, string address, int port)
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
+@@ -44,6 +44,8 @@
+ 				m_UsingZhenFa = value;
+ 			}
+ 		}
++
++		private float lastAttackTime;
+ 
+ 		public PlayerEntity()
+ 		{
+@@ -193,6 +195,17 @@
+ 		public float GetGongFaPower()
+ 		{
+ 			return m_GongFaPower;
++		}
++
++		public override void TickAILogic()
++		{
++			base.TickAILogic();
++			var life = BattleModel;
++			if (BattleMgr == null || life == null || BaseController == null || BaseController.IsDie ||
++				m_IsInBattleStatus || Time.time - lastAttackTime < 4f || life.RestBloodFractionPerSecond <= 0) return;
++			double current = life.CurrentBlood, max = life.Max_Blood;
++			if (current > 0 && current < max)
++				life.CurrentBlood = System.Math.Min(max, current + max * life.RestBloodFractionPerSecond * Time.deltaTime);
+ 		}
+ 
+ 		public override void RecoverJianRen()
+@@ -676,6 +689,7 @@
+ 
+ 		public override double UnderAttack(int skillIndex, EntityBase _damageFromEntity, double _damage, int _fiveElement)
+ 		{
++			lastAttackTime = Time.time;
+ 			double num = (double)m_BattleModel.CurrentBlood + (double)m_BattleModel.CurrentJianRen;
+ 			if (m_IsWuDi)
+ 			{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/CeHuaWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/CeHuaWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/CeHuaWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Common/CeHuaWnd.cs
+@@ -185,7 +185,10 @@
+ 
+ 		private void PopUpShouYuanDescription()
+ 		{
+-			string text = "漫漫修道路，唯求长生耳。凡人寿数堪堪数十载，练气修士寿元仅百。每突破一个大境界，寿元将翻倍增长。正因此，提升境界成为众修士的终极追求。相传，突破大乘，飞升成仙，可与天地同寿。寿数尽者，皆坠轮回，化为尘埃。";
++			var role = Singleton<RoleManager>.Instance.Role_Entity;
++			int level = role.RoleLevel;
++			int years = level <= 1 || level >= 90 ? 0 : 4 << ((level - 1) / 10);
++			string text = $"现年{role.CurrentAge}岁，寿限{role.MaxAge}岁。本层冲关耗{years}年。三路修行每累计两小时有效行功长一岁，兼修同时只计一份。每升一境，基础寿限翻倍。余寿只够本境冲关时会停下行功，可用历练、修为丹或传功补修为，也可服寿元丹续修。";
+ 			Singleton<UIManager>.Instance.PopUpWnd("XiaoWenHaoWnd.prefab", true, text, "寿元");
+ 		}
+ 
+@@ -239,7 +242,9 @@
+ 
+ 		private void PopUpJingLiDescription()
+ 		{
+-			string text = "修士虽然强大，但精力确是有限的，贵在专精与一道。炼制物品需要消耗大量精力，通过休息恢复精力。在线每五分钟恢复精力一点，百点为上限，购买玄天令后得天道眷顾，上限再次提升一百点。无论是大突破还是小突破，都会将精力恢复至满。离线时，精力依照离线收益时间计算收益。";
++			var role = Singleton<RoleManager>.Instance.Role_Entity;
++			int cost = role.RoleLevel <= 1 || role.RoleLevel >= 90 ? 0 : 2 + (role.RoleLevel - 1) / 10;
++			string text = $"当前精力{role.CurrentVigor}/{role.Vigor}，本层冲关耗{cost}点。在线与离线均每两分钟回复一点，达到上限后停止。制丹、制符、铸器、演法和历练共用精力。用丹回精，或用已掌握的方谱成批生产，可以腾出精力做别的事。";
+ 			Singleton<UIManager>.Instance.PopUpWnd("XiaoWenHaoWnd.prefab", true, text, "精力");
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyRecipeBook.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyRecipeBook.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyRecipeBook.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyRecipeBook.cs
+@@ -176,8 +176,8 @@
+ 				quote.text = plan?.priceText ?? (recipe.minRank > catalog.rank ? $"丹师达 {recipe.minRank} 品可估炉。" : "暂未读到本炉报价。");
+ 				shortage.text = plan?.shortageText ?? "";
+ 				buy.interactable = plan != null && plan.canBuyMissing && plan.shortageCost > 0;
+-				buy.GetComponentInChildren<Text>().text = buy.interactable ? $"购齐本炉缺材 · {plan.shortageCost} 灵石" :
+-					(plan == null ? "暂无本炉报价" : HaveMaterials() ? "本炉材料已齐" : "缺材需按出处取得");
++				buy.GetComponentInChildren<Text>().text = buy.interactable ? $"购齐{batchSize}炉缺材 · {plan.shortageCost} 灵石" :
++					(plan == null ? "暂无本炉报价" : HaveMaterials(batchSize) ? "本批材料已齐" : "缺材需按出处取得");
+ 			};
+ 			refreshLedger();
+ 		}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshop.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshop.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshop.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshop.cs
+@@ -18,11 +18,11 @@
+ 			public int primaryCount, minRank, mastery;
+ 		}
+ 		[Serializable] private class MaterialChoice { public string id, name, elementName, sourceText; public int count, value, buyPrice; }
+-		[Serializable] private class Catalog { public int rank, rankExp, rankLimit, supplyPrice; public string rankName; public bool canClaimStarter; public Recipe[] recipes; public MaterialChoice[] materials; }
++		[Serializable] private class Catalog { public int rank, rankExp, rankLimit, supplyPrice, batchLimit, vigor; public string rankName; public bool canClaimStarter; public Recipe[] recipes; public MaterialChoice[] materials; }
+ 		[Serializable] private class Stage { public string name; public int periodMs, targetBps, windowBps, direction; }
+-		[Serializable] private class Plan { public string runId, quality, effectName, effectBasis, effectText, priceText, shortageText; public bool canBuyMissing; public int minSuccessBps, maxSuccessBps, affinity, effect, sellPrice, shortageCost, poisonCost; public Stage[] stages; }
+-		[Serializable] private class Request { public string action, recipeId, requestId, runId; public string[] auxIds; public int expectedPrice; public int[] taps; }
+-		[Serializable] private class Receipt { public bool brewed; public string recipeName, quality, effectName, effectBasis, effectText, memoryQuality, message; public int effect, quantity, successBps, score, mastery, sellPrice, poisonCost; }
++		[Serializable] private class Plan { public string runId, quality, effectName, effectBasis, effectText, priceText, shortageText; public bool canBuyMissing; public int minSuccessBps, maxSuccessBps, affinity, effect, sellPrice, shortageCost, poisonCost, copyVigor; public Stage[] stages; }
++		[Serializable] private class Request { public string action, recipeId, requestId, runId; public string[] auxIds; public int expectedPrice, quantity; public int[] taps; }
++		[Serializable] private class Receipt { public bool brewed; public string recipeName, quality, effectName, effectBasis, effectText, memoryQuality, message; public int effect, quantity, successBps, score, mastery, sellPrice, poisonCost, batches, vigorSpent, minSellPrice, maxSellPrice; }
+ 		[Serializable] private class Failure { public string error; }
+ 
+ 		private enum Page { Loading, Prep, Playing, Receipt, Pending }
+@@ -37,6 +37,7 @@
+ 		private string pendingKey, notice;
+ 		private bool busy, closed, estimating;
+ 		private int previewVersion, displayedMs;
++		private int batchSize = 1;
+ 		private float previewAt = -1, advanceAt = -1;
+ 		private double stepBegan;
+ 		private string pendingJson;
+@@ -95,6 +96,7 @@
+ 
+ 		private void Prepare()
+ 		{
++			if (string.IsNullOrEmpty(recipe.memoryQuality) || batchSize > catalog.batchLimit) batchSize = 1;
+ 			run = null;
+ 			taps.Clear();
+ 			hits.Clear();
+@@ -136,11 +138,22 @@
+ 		}
+ 
+ 		private int Stock(string id) => Array.Find(catalog.materials, m => m.id == id)?.count ?? 0;
+-		private bool HaveMaterials() => Stock(recipe.primaryId) >= recipe.primaryCount &&
+-			auxiliary.GroupBy(x => x).All(g => Stock(g.Key) >= g.Count());
++		private bool HaveMaterials(int count = 1) => Stock(recipe.primaryId) >= recipe.primaryCount * count &&
++			auxiliary.GroupBy(x => x).All(g => Stock(g.Key) >= g.Count() * count);
++
++		private void CycleBatch()
++		{
++			if (busy) return;
++			int next = batchSize == 1 ? 5 : batchSize == 5 ? 10 : batchSize == 10 ? 20 : 1;
++			batchSize = next <= catalog.batchLimit ? next : 1;
++			notice = null;
++			PrepView();
++			RequestPreview();
++		}
+ 		private Request Order(string action) => new Request
+ 		{
+ 			action = action, recipeId = recipe.id, auxIds = auxiliary.ToArray(),
++			quantity = action == "replay" || action == "plan" || action == "buyMissing" ? batchSize : 0,
+ 			requestId = action == "plan" ? null : Guid.NewGuid().ToString("N")
+ 		};
+ 
+@@ -251,7 +264,7 @@
+ 
+ 		private void Replay()
+ 		{
+-			if (!busy && page == Page.Prep && plan != null && !string.IsNullOrEmpty(recipe.memoryQuality) && HaveMaterials())
++			if (!busy && page == Page.Prep && plan != null && !string.IsNullOrEmpty(recipe.memoryQuality) && HaveMaterials(batchSize))
+ 				Submit(Order("replay"));
+ 		}
+ 
+@@ -309,7 +322,7 @@
+ 					recipe = Array.Find(catalog.recipes, r => r.id == order.recipeId) ?? recipe;
+ 					auxiliary.Clear();
+ 					if (order.auxIds != null) auxiliary.AddRange(order.auxIds);
+-					notice = order.action == "buyMissing" ? $"已花 {order.expectedPrice} 灵石，本炉缺材已入纳戒。" : "炉材已入纳戒。";
++					notice = order.action == "buyMissing" ? $"已花 {order.expectedPrice} 灵石，本批缺材已入纳戒。" : "炉材已入纳戒。";
+ 					Prepare(); return;
+ 				}
+ 				ReceiptView(result, order.action == "replay");
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshopView.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshopView.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshopView.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/AlchemyWorkshopView.cs
+@@ -162,8 +162,10 @@
+ 			wheel.SetIdle();
+ 			metrics = Label("Training", sheet, "", 14, Mist, .018f, .235f, .206f, .419f);
+ 			chances = Label("Affinity", sheet, "", 14, Gold, .765f, .982f, .206f, .419f);
++			if (!string.IsNullOrEmpty(recipe.memoryQuality) && catalog.batchLimit > 1)
++				ButtonAt("BatchSize", sheet, $"切换 · {batchSize}炉", CycleBatch, .352f, .648f, .382f, .447f);
+ 			Line(sheet, .451f);
+-			Label("MainMaterial", sheet, $"主药  {recipe.primaryName} ×{recipe.primaryCount}    ·    持有 {Stock(recipe.primaryId)}",
++			Label("MainMaterial", sheet, $"主药  {recipe.primaryName} ×{recipe.primaryCount * batchSize}    ·    持有 {Stock(recipe.primaryId)}",
+ 				15, Ivory, .045f, .725f, .457f, .504f, TextAnchor.MiddleLeft);
+ 			ButtonAt("RecipeLedger", sheet, "药效与价", OpenLedger, .715f, .965f, .455f, .506f);
+ 			auxSummary = Label("AuxSummary", sheet, "", 14, Gold, .045f, .70f, .506f, .558f, TextAnchor.MiddleLeft);
+@@ -210,9 +212,9 @@
+ 				syncRows.Add(() =>
+ 				{
+ 					int count = auxiliary.Count(id => id == material.id);
+-					qty.text = count.ToString();
++					qty.text = (count * batchSize).ToString();
+ 					plus.interactable = !busy && auxiliary.Count < 3;
+-					qty.color = count > material.count ? (Color)new Color32(255, 175, 135, 255) : Gold;
++					qty.color = count * batchSize > material.count ? (Color)new Color32(255, 175, 135, 255) : Gold;
+ 					minus.interactable = !busy && count > 0;
+ 					bg.color = count > 0 ? (Color)new Color32(44, 69, 59, 255) : PanelInk;
+ 				});
+@@ -222,18 +224,19 @@
+ 		private void UpdatePreparation()
+ 		{
+ 			bool qualified = catalog.rank >= recipe.minRank;
+-			bool stocked = HaveMaterials();
++			bool stocked = HaveMaterials(batchSize);
+ 			bool remembered = !string.IsNullOrEmpty(recipe.memoryQuality);
+ 			metrics.text = $"丹师\n{catalog.rankName}\n\n熟练\n{recipe.mastery} / 100";
+ 			chances.text = $"相性\n{(plan == null ? "—" : plan.affinity.ToString("+0;-0;0"))}\n\n留影\n{(remembered ? recipe.memoryQuality : "未录")}";
+-			auxSummary.text = $"辅材   {auxiliary.Count} / 3   ·   可空置或混搭";
++			auxSummary.text = $"每炉辅材 {auxiliary.Count}/3 · 本批共{auxiliary.Count * batchSize}份";
+ 			formula.text = plan == null ? (qualified ? "估算炉中药性…" : $"此方需 {recipe.minRank} 品丹师") :
+ 				$"成丹 {Rate(plan.minSuccessBps)}–{Rate(plan.maxSuccessBps)}    ·    {(remembered ? recipe.memoryQuality : "中品预估")} {plan.effectName} {Strength(plan.effectBasis, plan.effect)}" + Toxicity(plan.poisonCost);
+-			string hint = !stocked ? (plan != null && plan.canBuyMissing ? $"本炉缺材可花 {plan.shortageCost} 灵石补齐 · 见「药效与价」。" : "本炉尚缺材料 · 点「药效与价」查看来源。") : remembered ? "留影直炼必成，换辅材会改变药力。" : "首炉成功可留下丹影，随后直接复炼。";
+-			status.text = notice ?? hint;
+-			manual.interactable = !busy && !estimating && qualified && (plan == null || stocked);
++			string hint = !stocked ? (plan != null && plan.canBuyMissing ? $"本炉缺材可花 {plan.shortageCost} 灵石补齐 · 见「药效与价」。" : "本炉尚缺材料 · 点「药效与价」查看来源。") : remembered ? "留影必成，换辅材可改变药力。" : "首炉成功可留下丹影，随后直接复炼。";
++			int copyCost = (batchSize + 2) / 3;
++			status.text = notice ?? (remembered && stocked ? $"现有 {catalog.vigor} 精力，手炼1炉耗1，复炼{batchSize}炉耗{copyCost}。" : hint);
++			manual.interactable = !busy && !estimating && qualified && (plan == null || HaveMaterials());
+ 			manual.GetComponentInChildren<Text>().text = plan == null && !estimating && qualified ? "重新估炉" : "开炉手炼";
+-			replay.GetComponentInChildren<Text>().text = remembered ? "留影直炼" : "尚无留影";
++			replay.GetComponentInChildren<Text>().text = remembered ? $"复炼{batchSize}炉" : "尚无留影";
+ 			replay.interactable = !busy && qualified && remembered && stocked && plan != null;
+ 			foreach (var sync in syncRows) sync();
+ 			refreshLedger?.Invoke();
+@@ -279,12 +282,14 @@
+ 			string name = result.recipeName ?? recipe?.name ?? "成丹";
+ 			string outcome = result.brewed ? $"{name} · {result.quality} ×{result.quantity}" : "此炉未成";
+ 			Label("Outcome", sheet, outcome, 21, Ivory, .025f, .975f, .57f, .643f);
+-			string source = recorded ? "留影直炼" : $"火候 {result.score} / 100";
++			string source = recorded ? $"留影 {Math.Max(1,result.batches)} 炉" : $"火候 {result.score} / 100";
++			if (result.vigorSpent > 0) source += $" · 耗精力 {result.vigorSpent}";
+ 			string effect = result.brewed ? $"   ·   {result.effectName} {Strength(result.effectBasis, result.effect)}" : "";
+ 			Label("Process", sheet, $"{source}   ·   成丹率 {Rate(result.successBps)}{effect}", 14, Mist, .03f, .97f, .641f, .704f);
+ 			Line(sheet, .711f);
+ 			string burden = result.brewed ? Toxicity(result.poisonCost) : "";
+ 			string sale = result.brewed && !string.IsNullOrEmpty(result.effectText) ? $"   ·   每粒回收 {result.sellPrice} 灵石" : "";
++			if (result.maxSellPrice > result.minSellPrice) sale = $"   ·   回收 {result.minSellPrice}–{result.maxSellPrice} 灵石/粒";
+ 			string memory = string.IsNullOrEmpty(result.memoryQuality) ? "此方尚无留影" : $"丹影已录 · {result.memoryQuality}";
+ 			Label("Status", sheet, (string.IsNullOrEmpty(result.effectText) ? "" : result.effectText + "\n") + $"{memory}{burden}\n此方熟练  {result.mastery} / 100{sale}", 15, Ivory, .06f, .94f, .724f, .833f);
+ 			ButtonAt("Reopen", sheet, "返回配药", () => { notice = null; LoadCatalog(); }, .20f, .80f, .848f, .948f, true);
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Molds.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Molds.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Molds.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Molds.cs
+@@ -20,7 +20,7 @@
+         private static readonly int[] defaultHeatTargets = { 3, 7, 4, 6 };
+         private int[] HeatTargets => sourcePattern?.heatTargets?.Length == 4 ? sourcePattern.heatTargets : defaultHeatTargets;
+         private Mold activeMold;
+-        private Button moldRack, shapeButton, batchLess, batchMore;
++        private Button moldRack, shapeButton, batchLess, batchMore, batchLessTen, batchMoreTen;
+         private Text batchLabel;
+         private int batchCount = 1;
+         private Receipt castEstimate;
+@@ -41,9 +41,13 @@
+             batchMore = MakeButton(transform, "More", "＋", () => ChangeBatch(1));
+             Left((RectTransform)batchLess.transform, 12, 134, 46, 32);
+             Right((RectTransform)batchMore.transform, 12, 134, 46, 32);
++            batchLessTen = MakeButton(transform, "FewerTen", "−10", () => ChangeBatch(-10));
++            batchMoreTen = MakeButton(transform, "MoreTen", "＋10", () => ChangeBatch(10));
++            Left((RectTransform)batchLessTen.transform, 62, 134, 50, 32);
++            Right((RectTransform)batchMoreTen.transform, 62, 134, 50, 32);
+             batchLabel = Label(transform, "BatchCount", "", 16);
+             batchLabel.alignment = TextAnchor.MiddleCenter;
+-            Top(batchLabel.rectTransform, 60, 60, 134, 32);
++            Top(batchLabel.rectTransform, 116, 116, 134, 32);
+         }
+ 
+         private void InvalidateCast()
+@@ -69,6 +73,8 @@
+             shapeButton.gameObject.SetActive(enabled);
+             batchLess.gameObject.SetActive(cast);
+             batchMore.gameObject.SetActive(cast);
++            batchLessTen.gameObject.SetActive(cast);
++            batchMoreTen.gameObject.SetActive(cast);
+             batchLabel.gameObject.SetActive(cast);
+             workName.gameObject.SetActive(!cast);
+             if (!enabled)
+@@ -93,15 +99,17 @@
+             gradeButton.GetComponentInChildren<Text>(true).text = "模具上限 · " + GradeName(activeMold.gradeId);
+             flameButton.GetComponentInChildren<Text>(true).text = "选火 · " + catalog.flames[flame].name;
+             training.text = Difficulty(activeMold.difficulty, activeMold.difficultyName) + "　" + catalog.smithRankName;
+-            batchLabel.text = $"本炉浇铸　{batchCount} 件";
++            batchLabel.text = $"{batchCount} / {catalog.batchLimit} 件";
+             batchLess.interactable = !Locked && batchCount > 1;
+             batchMore.interactable = !Locked && batchCount < catalog.batchLimit;
++            batchLessTen.interactable = batchLess.interactable;
++            batchMoreTen.interactable = batchMore.interactable;
+             materialTitle.text = $"每件用料　{Total} / {unitCount} 份";
+             estimate.interactable = !Locked && Total == unitCount;
+             estimate.GetComponentInChildren<Text>(true).text = "验料";
+             submit.GetComponentInChildren<Text>(true).text = pending != null ? "重试上一笔" : $"浇铸 ×{batchCount}";
+             submit.interactable = !busy && (pending != null || castEstimate != null && castEstimate.canFit &&
+-                                                                   batchCount <= castEstimate.maxByMaterial);
++                                                                   batchCount <= castEstimate.maxByMaterial && castEstimate.availableVigor >= castEstimate.vigorCost);
+             preparation.text = Total != unitCount ? $"请为每件选足 {unitCount} 份材料。"
+                                : castEstimate == null
+                                    ? "点验料查看成品与整批消耗。"
+@@ -215,8 +223,8 @@
+             var q = castEstimate;
+             var sheet = ReportSheet("CastQuote", "浇铸验料单", CastQuoteText(q), true);
+             var back = MakeButton(sheet,"Back","调整配料",()=>Destroy(sheet.gameObject));
+-            bool enough = q.maxByMaterial >= batchCount && q.canFit;
+-            var pour = MakeButton(sheet,"Pour", enough ? $"浇铸 ×{batchCount}" : !q.canFit ? "纳戒空间不足" : "用料不足",()=>
++            bool enough = q.maxByMaterial >= batchCount && q.canFit && q.availableVigor >= q.vigorCost;
++            var pour = MakeButton(sheet,"Pour", enough ? $"浇铸 ×{batchCount}" : !q.canFit ? "纳戒空间不足" : q.availableVigor < q.vigorCost ? "精力不足" : "用料不足",()=>
+             {
+                 Destroy(sheet.gameObject);
+                 SubmitCast();
+@@ -229,7 +237,7 @@
+ 
+         private void SubmitCast()
+         {
+-            if (castEstimate == null || !castEstimate.canFit || batchCount > castEstimate.maxByMaterial)
++            if (castEstimate == null || !castEstimate.canFit || batchCount > castEstimate.maxByMaterial || castEstimate.availableVigor < castEstimate.vigorCost)
+                 return;
+             var order = BuildOrder();
+             order.requestId = Guid.NewGuid().ToString("N");
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Process.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Process.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Process.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.Process.cs
+@@ -293,7 +293,7 @@
+                 Difficulty(q.difficulty, q.difficultyName) + ExtraLine(q.difficultyText),
+                 Section("本炉控火", q.smithRankName + "　" + q.flameName + ExtraLine(q.castingText)),
+                 Section("整炉耗材" + (q.baseUnits > 0 ? $"　原方 {q.baseUnits} / 实耗 {q.spentUnits} / 节省 {q.savedUnits}" : ""), CostBreakdown(q)),
+-                $"材料最多可铸 {q.maxByMaterial} 件。扣料后有 {q.freeSlots} 格，本炉需 {q.quantity} 格。",
++                $"材料最多可铸 {q.maxByMaterial} 件。扣料后有 {q.freeSlots} 格，本炉需 {q.quantity} 格。\n精力 {q.availableVigor} / 本炉需 {q.vigorCost}。成批研习 +{q.experience}。",
+                 Section("器印 · 五行共鸣", q.effectText), Section("材料纹理", q.materialText), Section("成品词条", q.bonusText));
+         }
+ 
+@@ -305,7 +305,7 @@
+             string costs = q.quantity > 0 ? CostBreakdown(q, true) : q.spentText ?? q.costText;
+             if (q.quantity > 0 && q.baseUnits > 0)
+                 costs = $"原方 {q.baseUnits} / 实耗 {q.spentUnits} / 节省 {q.savedUnits}" + ExtraLine(costs);
+-            return Sections(output, Section("实耗材料", costs), Section("实际返还", q.returnedText),
++            return Sections(output, q.quantity == 0 && q.forged && q.vigorCost > 0 ? $"精力 {q.vigorCost} · 成器估值 {q.appraisal} 灵石 · 纳戒回收 {q.recyclePrice} 灵石" : "", Section("实耗材料", costs), Section("实际返还", q.returnedText),
+                 q.experience > 0 || !string.IsNullOrEmpty(q.trainingText) ? Section("修习与晋阶", $"本炉经验 +{q.experience}" + ExtraLine(q.trainingText)) : "",
+                 Difficulty(q.difficulty, q.difficultyName) + ExtraLine(q.difficultyText),
+                 Section("控火复盘", q.quantity > 0 ? q.flameName + ExtraLine(q.castingText) : q.flameName + ExtraLine(q.controlText) + ControlAdvice(q.controlText)),
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ForgeWorkshop.cs
+@@ -15,7 +15,7 @@
+ 		[Serializable] private class CreateOrder { public string requestId, blankId, flameId, name, patternId; public int gradeId; public Ingredient[] inputs; public int[] strokes; public int quantity; public string moldId; }
+ 		[Serializable] private class SupplyOrder { public string requestId; public int expectedPrice; }
+ 		[Serializable] private class Pending { public int command; public string json; }
+-		[Serializable] private class Receipt { public bool forged, canFit; public int freeSlots, experience, quantity, maxByMaterial, baseAttack, baseDefense; public string moldQuality, moldId, costText, materialText, effectText;
++		[Serializable] private class Receipt { public bool forged, canFit; public int freeSlots, experience, quantity, maxByMaterial, baseAttack, baseDefense, vigorCost, availableVigor, appraisal, recyclePrice; public string moldQuality, moldId, costText, materialText, effectText;
+             public int difficulty, baseUnits, spentUnits, savedUnits, slotType;
+             public string difficultyName, difficultyText, trainingText, controlText, factorText, spentText, castingText, flameName, smithRankName;
+             public CastCost[] costs; public string name, gradeName, elementName, polarityName, qiName, bonusText, processAffixText, message, returnedText; }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs
+@@ -8,18 +8,18 @@
+     internal sealed partial class TalismanStudio : MonoBehaviour
+     {
+         [Serializable] private class Choice { public string id, name, description; }
+-        [Serializable] private class Recipe { public string id, name, cost, output; public bool available; }
++        [Serializable] private class Recipe { public string id, name, cost, output; public int maxSets; public bool available; }
+         [Serializable] private class Material { public string id, name, source; public int count; }
+         [Serializable] private class Good { public string id, name, description; public int count; public bool usable; }
+         [Serializable] private class Plan
+         {
+             public string effect, seal, name, description, cost;
+-            public int power, tolerance; public bool canDraw, learned;
++            public int power, tolerance, mastery; public bool canDraw, learned;
+             public TalismanStroke[] strokes;
+         }
+         [Serializable] private class Catalog
+         {
+-            public int rank, level, brushTier, training, nextRank, realmTier, supplyPrice, ward, battleWard, poison;
++            public int rank, level, brushTier, training, nextRank, realmTier, supplyPrice, ward, battleWard, poison, batchLimit, vigor;
+             public long stones;
+             public string realm, brush, message, supplyText;
+             public Choice[] effects, seals; public Recipe[] recipes; public Material[] materials; public Good[] goods; public Plan plan;
+@@ -27,7 +27,7 @@
+         [Serializable] private class Request
+         {
+             public string action, effect, seal, recipe, goodsId, requestId;
+-            public int expectedPrice; public TalismanStroke[] strokes;
++            public int expectedPrice, quantity; public TalismanStroke[] strokes;
+         }
+         [Serializable] private class Rejection { public string error; }
+         private enum Page { Desk, Stock, Writing, Pouch }
+@@ -36,6 +36,7 @@
+         private readonly List<TalismanStroke> written = new List<TalismanStroke>();
+         private string pendingKey, effect = "ward", seal = "simple", notice, focusGood;
+         private bool pouchOnly, closed, busy;
++        private int batchSize = 1;
+         private Action onClose, onLegacy;
+         private Font font;
+ 
+@@ -108,11 +109,21 @@
+             });
+         }
+ 
++        private void CycleBatch()
++        {
++            if (busy) return;
++            int next = batchSize == 1 ? 5 : batchSize == 5 ? 10 : batchSize == 10 ? 20 : 1;
++            batchSize = next <= data.batchLimit ? next : 1;
++            notice = null;
++            Render();
++        }
++
+         private void Order(string action, string recipeId = null, string goodsId = null)
+         {
+             if (busy || PlayerPrefs.HasKey(pendingKey)) return;
+             var request = new Request { action = action, effect = effect, seal = seal, recipe = recipeId, goodsId = goodsId,
+-                requestId = Guid.NewGuid().ToString("N"), expectedPrice = data.supplyPrice,
++                requestId = Guid.NewGuid().ToString("N"), expectedPrice = data.supplyPrice + (action == "supply" ? (batchSize-1)*36 : 0),
++                quantity = action == "copy" || action == "supply" || (action == "make" && recipeId != "brushKit" && recipeId != "brush") ? batchSize : 0,
+                 strokes = action == "draw" ? written.ToArray() : null };
+             PlayerPrefs.SetString(pendingKey, JsonUtility.ToJson(request)); PlayerPrefs.Save();
+             Resume();
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs
+@@ -161,7 +161,7 @@
+             var trade = data.rank == 0 ? "符道初学" : $"{data.rank}品符师";
+             var rank = $"{data.realm}  ·  {trade}  ·  {data.brush}";
+             Heading("Name",p.name,.100f,.190f,30);
+-            Label(sheet,"Rank",rank,15,Ivory,.072f,.73f,.19f,.244f);
++            Label(sheet,"Rank",rank + $" · 精力 {data.vigor}",15,Ivory,.072f,.73f,.19f,.244f);
+             Trim(sheet,"DeskPanel",Finish.Panel,.029f,.971f,.270f,.884f);
+             float width=.88f/data.effects.Length;
+             for(int i=0;i<data.effects.Length;i++)
+@@ -181,10 +181,16 @@
+             }
+             var sealChoice=Array.Find(data.seals,x=>x.id==seal);
+             Label(sheet,"SealInfo",sealChoice?.description,14,Mist,.075f,.932f,.679f,.734f);
+-            string guidance = p.learned ? "已入符谱，随时可以复写。" : $"共 {p.strokes.Length} 笔。可以逐笔描写，也可随时用辅笔。";
++            int ink = seal == "strong" ? 2 : 1;
++            int copyCost = (batchSize*ink+2)/3;
++            bool hasPaper = Array.Exists(data.materials, m => m.id == "mat.shuanglu_paper" && m.count >= batchSize);
++            bool hasInk = Array.Exists(data.materials, m => m.id == "mat.chenglu_ink" && m.count >= batchSize*ink);
++            string guidance = p.learned ? $"本式熟练 {p.mastery}/100，{batchSize}纸、{batchSize*ink}墨、{copyCost}精力。" : $"共 {p.strokes.Length} 笔。可以逐笔描写，也可随时用辅笔。";
+             if (!p.canDraw) guidance="纸墨尚缺，可先试笔，或前往备纸研墨。";
+             Label(sheet,"Guidance",notice??guidance,14,Ivory,.075f,.932f,.739f,.792f);
+-            Key(sheet,"Copy","照谱复写",()=>Order("copy"),.056f,.486f,.8f,.867f,false,p.canDraw&&p.learned);
++            if (data.batchLimit > 1)
++                Key(sheet,"BatchSize",$"{batchSize}张 ↻",CycleBatch,.056f,.234f,.8f,.867f,false,p.learned);
++            Key(sheet,"Copy",$"复写{batchSize}张",()=>Order("copy"),data.batchLimit>1?.238f:.056f,.486f,.8f,.867f,false,hasPaper&&hasInk&&p.learned);
+             Key(sheet,"Write",written.Count>0?"继续上张":p.canDraw?"展开符纸":"试笔",()=>Navigate(Page.Writing),.494f,.944f,.8f,.867f,true);
+         }
+ 
+@@ -209,11 +215,12 @@
+             var recipes = data.recipes ?? Array.Empty<Recipe>(); var materials = data.materials ?? Array.Empty<Material>();
+             Heading("BenchTitle","纸墨作坊",.103f,.193f);
+             Label(sheet,"Wallet",$"灵石 {data.stones}   ·   {data.brush}",15,Ivory,.072f,.75f,.19f,.245f);
++            if (data.batchLimit > 1) Key(sheet,"StockBatch",$"每次{batchSize}份 ↻",CycleBatch,.67f,.945f,.19f,.25f);
+             Trim(sheet,"MaterialTray",Finish.Panel,.029f,.971f,.269f,.884f);
+             var rows=ScrollRows("StockRows",.286f,.720f,recipes.Length*74+materials.Length*59+117);
+             var training=Row(rows,"Training",0,81);
+             Label(training,"Progress",$"符师修习 {data.training} / {data.nextRank}",16,Gold,.035f,.96f,.035f,.38f);
+-            Label(training,"Technique","境界与符师品阶提高护身、净秽效力。金翎笔扩大运笔容差，三品持笔可多封一重护田。",14,Mist,.035f,.96f,.40f,.97f);
++            Label(training,"Technique","护身、净秽随境界、符师品阶、本式熟练提高。三品执金翎笔或本式熟练圆满，护田多封一重。",14,Mist,.035f,.96f,.40f,.97f);
+             float y=81;
+             foreach(var recipe in recipes)
+             {
+@@ -221,8 +228,8 @@
+                 int cell=recipe.id=="paper"?0:recipe.id=="brush"||recipe.id=="brushKit"?2:1;
+                 Relic(row,cell,.022f,.175f,.11f,.89f);
+                 Label(row,"Name",recipe.name,17,Gold,.19f,.73f,.015f,.38f);
+-                Label(row,"Cost",recipe.cost+" → "+recipe.output,14,Ivory,.19f,.74f,.38f,.96f);
+-                Key(row,"Make_"+recipe.id,"制作",()=>Order("make",recipe.id),.755f,.98f,.20f,.80f,false,recipe.available);
++                Label(row,"Cost","每份 "+recipe.cost+" → "+recipe.output,14,Ivory,.19f,.74f,.38f,.96f);
++                Key(row,"Make_"+recipe.id,recipe.id=="brush"||recipe.id=="brushKit"?"制作":$"制{batchSize}份",()=>Order("make",recipe.id),.755f,.98f,.20f,.80f,false,recipe.available&&(recipe.id=="brush"||recipe.id=="brushKit"||batchSize==1||recipe.maxSets>=batchSize));
+             }
+             Label(Row(rows,"Sources",y,36),"Heading","原料来处",17,Gold,.035f,.96f,0,1);y+=36;
+             foreach(var mat in materials)
+@@ -232,7 +239,8 @@
+                 Label(row,"Source",mat.source,14,Mist,.035f,.98f,.46f,.965f);
+             }
+             Label(sheet,"Message",notice??("料包内含 "+data.supplyText),14,Mist,.067f,.933f,.725f,.791f);
+-            Key(sheet,"Supply",data.supplyPrice==0?"领取入门原料":$"补购原料 · {data.supplyPrice} 灵石",()=>Order("supply"),.057f,.943f,.8f,.867f,true);
++            int price = data.supplyPrice + (batchSize-1)*36;
++            Key(sheet,"Supply",price==0?"领取入门原料":$"购 {batchSize} 包 · {price} 灵石",()=>Order("supply"),.057f,.943f,.8f,.867f,true,data.stones>=price);
+         }
+ 
+         private static TalismanStrokePad AddPad(Transform parent, float left, float right, float top, float bottom)
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
+@@ -114,12 +114,14 @@
+ 					roleJoinDungeonResp_.MergeFrom(byteString);
+ 					if (roleJoinDungeonResp_.IsSuccess)
+ 					{
+-						BattleLifeModel roleInfo = new BattleLifeModel(roleJoinDungeonResp_);
++						BattleLifeModel roleInfo = BattleManager.ReadEntryRole(roleJoinDungeonResp_, byteString);
+ 						Singleton<BattleManager>.Instance.StartBattle(mapModel, BattleType.TongTianTaBattle, roleInfo, dungeonId, ipAddress, port);
+ 					}
+ 					else
+ 					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
++						string hintMsgByCode = roleJoinDungeonResp_.Code == 4290
++							? $"精力不足，本次入场需 {ExpeditionPlace.DungeonVigor(mapId)} 点精力。"
++							: MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
+ 						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 					}
+ 				}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CultivationRouteSheet.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CultivationRouteSheet.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CultivationRouteSheet.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/CultivationRouteSheet.cs
+@@ -139,6 +139,27 @@
+             if (!queued) details.text = "连接已断开，重连后可继续推演。";
+         }
+ 
++        internal static string BreakthroughTrainingNote()
++        {
++            var role = Singleton<RoleManager>.Instance.Role_Entity;
++            int level = role.RoleLevel;
++            if (level < 20 || level >= 90 || level % 10 != 0)
++                return "每大境十层查验神识和体魄，筑基十层起生效。";
++            var levels = Singleton<FacadeManager>.Instance.SelectRoleLevelInfo();
++            if (levels == null || !levels.TryGetValue(level.ToString(), out var row))
++                return "本次破境需同时提升神识和体魄。";
++            int percent = 100 + 2 * (level / 10 - 1);
++            return $"本次破境需神识 {role.Perception}/{Math.Ceiling(row.perception * percent / 100):0}、体魄 {role.Physique}/{Math.Ceiling(row.toughTenacity * percent / 100):0}。";
++        }
++
++        private static string TrainingEstimate(double current, double target, double perCircle)
++        {
++            if (current >= target) return "已满";
++            if (perCircle <= 0) return "暂停";
++            double minutes = Math.Ceiling((target - current) / perCircle) / 30;
++            return minutes < 60 ? $"{Math.Ceiling(minutes):0}分" : $"{minutes/60:0.#}时";
++        }
++
+         private void ShowProjection()
+         {
+             string[] names = { "", preview.PerceptionName, preview.PhysiqueName, preview.SuperairName };
+@@ -149,13 +170,20 @@
+             var lines = new System.Collections.Generic.List<string>();
+             var notes = new System.Collections.Generic.List<string>();
+             int mask = Masks[selected];
++            var levels = Singleton<FacadeManager>.Instance.SelectRoleLevelInfo();
++            RoleLevelModel row = null;
++            levels?.TryGetValue(role.RoleLevel.ToString(), out row);
+             for (int kind = 3; kind >= 1; kind--) {
+                 if ((mask & (1 << (kind-1))) == 0) continue;
+                 int e = names[kind] == equippedNames[kind] ? elements[kind] : 0;
+                 bool known = e >= 1 && e <= 5;
+                 string mark = known ? "金木水火土"[e-1] + " · " : "";
+-                lines.Add(mark + (string.IsNullOrEmpty(names[kind]) ? "基础行功" : names[kind]) +
+-                          "    " + Attributes[kind] + " +" + gain[kind].ToString("0.##"));
++                double target = row == null ? 0 : kind == 1 ? Math.Round(row.perception * 1.4, MidpointRounding.AwayFromZero) :
++                    kind == 2 ? Math.Round(row.toughTenacity * 1.4, MidpointRounding.AwayFromZero) : row.upgradeLimit;
++                double current = kind == 1 ? role.Perception : kind == 2 ? role.Physique : role.SuperAir;
++                string wait = target <= 0 ? "" : " · " + TrainingEstimate(current, target, gain[kind]);
++                if (kind == 3 && role.RoleLevel >= 90) wait = " · 封顶";
++                lines.Add(mark + Attributes[kind] + " +" + gain[kind].ToString("0.##") + wait);
+                 if (!known) continue;
+                 if (roots[e]) notes.Add(Attributes[kind] + "同根 ×1.2");
+                 for (int other = 1; other <= 3; other++) {
+@@ -168,7 +196,7 @@
+             details.text = string.Join("\n", lines);
+             string baseNote = selected <= 3 ? "单修全效" : "双修各七成";
+             effects.text = baseNote + (notes.Count > 0 ? "  /  " + string.Join(" · ", notes) : "") +
+-                           "\n离线沿此路线按八成积累，至境界上限。";
++                           "\n" + BreakthroughTrainingNote();
+         }
+ 
+         private void Apply()
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
+@@ -320,7 +320,7 @@
+ 
+ 		private void WenHaoTogClick()
+ 		{
+-			string text = $"元婴期之前，纳气、锻体、炼神仅可选择一处修行，当修士铸就元婴，便可开启两处修行。虽可以一心二用，但开启两处修行后修行效率降低至原效率的70%。";
++			string text = "纳气积修为，炼神、锻体各可练到本层底值的140%。元婴起可兼修两项，各七成效率，相生一路再乘1.2。离线按所选路线八成积累，每次至多12小时。周天推演可估算各项练满时间。\n" + CultivationRouteSheet.BreakthroughTrainingNote();
+ 			Singleton<UIManager>.Instance.PopUpWnd("XiaoWenHaoWnd.prefab", true, text, "练功房");
+ 		}
+ 
+@@ -1048,6 +1048,7 @@
+ 					if (roleBreakRealmResp_.IsSuccess)
+ 					{
+ 						role_Entity.RoleLevel++;
++						role_Entity.Vigor = Math.Max(role_Entity.Vigor, 100 + role_Entity.RoleLevel * 5);
+ 						TuPoSuccess();
+ 					}
+ 					else
+@@ -1653,49 +1654,35 @@
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		public void KongLingFaZhenBtnClick()
+-		{
+-			KongLingZhenModel kongLingZhenModel = new KongLingZhenModel
+-			{
+-				a = (m_DataSource.ControllerMatrixRank / 4).ToString(),
+-				i = m_DataSource.GetControllerMatrixName(),
+-				j = m_DataSource.ControllerMatrixRank / 4
+-			};
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.OPEN_CONTROLLER_MATRIX, null, (object _obj) =>
+-			{
+-				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
+-				{
+-					OpenControllerMatrixResp_1005014 openControllerMatrixResp_ = new OpenControllerMatrixResp_1005014();
+-					openControllerMatrixResp_.MergeFrom(byteString);
+-					if (openControllerMatrixResp_.IsSuccess)
+-					{
+-						kongLingZhenModel.c = openControllerMatrixResp_.IsOpenGold;
+-						kongLingZhenModel.d = openControllerMatrixResp_.IsOpenWood;
+-						kongLingZhenModel.e = openControllerMatrixResp_.IsOpenWater;
+-						kongLingZhenModel.f = openControllerMatrixResp_.IsOpenFire;
+-						kongLingZhenModel.g = openControllerMatrixResp_.IsOpenEarth;
+-						Singleton<UIManager>.Instance.PopUpWnd("KongLingFaZhenWnd.prefab", true, kongLingZhenModel);
+-					}
+-					else
+-					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(openControllerMatrixResp_.Code);
+-						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-					}
+-				}
+-			}, isShowWaitUI: true);
+-		}
+-
+-		public void JuLingFaZhenBtnClick()
+-		{
+-			JuLingFaZhenModel juLingFaZhenModel = new JuLingFaZhenModel
+-			{
+-				a = (m_DataSource.GatherMatrixRank / 4).ToString(),
+-				b = m_DataSource.GetGatherMatrixName(),
+-				d = m_DataSource.GatherMatrixRank / 4
+-			};
+-			Singleton<UIManager>.Instance.PopUpWnd("JuLingFaZhenWnd.prefab", true, juLingFaZhenModel, m_DataSource.GatherMatrixLessTime);
++		[Serializable] private class MatrixOrder { public string kind; public int target; public long price; }
++		[Serializable] private class MatrixQuote { public string name, description, error; public int target; public long price, stones; public bool canBuy; }
++
++		public void KongLingFaZhenBtnClick() => RequestMatrix(new MatrixOrder {kind = "control"});
++		public void JuLingFaZhenBtnClick() => RequestMatrix(new MatrixOrder {kind = "gather"});
++
++		private void RequestMatrix(MatrixOrder order)
++		{
++			ForgeWire.Send(MsgType.CaveMatrix, JsonUtility.ToJson(order), (ok, json) =>
++			{
++				var quote = string.IsNullOrEmpty(json) ? null : JsonUtility.FromJson<MatrixQuote>(json);
++				if (!ok || quote == null)
++				{
++					MonoSingleton<GameStart>.Instance.PopUpAttention(quote?.error ?? "阵图未能读取，请重试。");
++					return;
++				}
++				if (order.target > 0)
++				{
++					Singleton<RoleManager>.Instance.Role_Entity.ShinyStone = quote.stones;
++					OnShow();
++					MonoSingleton<GameStart>.Instance.PopUpAttention(quote.description, null, null, quote.name);
++					return;
++				}
++				Action buy = null;
++				if (quote.canBuy) buy = () => RequestMatrix(new MatrixOrder { kind=order.kind, target=quote.target, price=quote.price });
++				MonoSingleton<GameStart>.Instance.PopUpAttention(quote.description, buy, null, quote.name);
++				if (buy != null)
++					Singleton<UIManager>.Instance.FindWndByName<AttentionWnd>("AttentionWnd.prefab")?.SetChoices("布阵", "稍后", () => {});
++			});
+ 		}
+ 
+ 		private void LiKaiDongFuBtnClick()
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
+@@ -770,12 +770,14 @@
+ 					roleJoinDungeonResp_.MergeFrom(byteString);
+ 					if (roleJoinDungeonResp_.IsSuccess)
+ 					{
+-						BattleLifeModel roleInfo = new BattleLifeModel(roleJoinDungeonResp_);
++						BattleLifeModel roleInfo = BattleManager.ReadEntryRole(roleJoinDungeonResp_, byteString);
+ 						Singleton<BattleManager>.Instance.StartBattle(mapModel, BattleType.MiJingBattle, roleInfo, dungeonId, ipAddress, port);
+ 					}
+ 					else
+ 					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
++						string hintMsgByCode = roleJoinDungeonResp_.Code == 4290
++							? $"精力不足，本次入场需 {ExpeditionPlace.DungeonVigor(mapId)} 点精力。"
++							: MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
+ 						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 					}
+ 				}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+@@ -1730,7 +1730,10 @@
+ 						}
+ 						m_DataList.Add(text);
+ 						string proportional = ProportionalElixirEffect(byteString, goodsArticleElixirResp_.EffectValue);
++						bool cultivationDose = goodsArticleElixirResp_.EffectType == (int)DanYaoEffect.ZENGZHANG_ZHENYUAN;
+ 						if (proportional != null) m_DataList.Add(proportional);
++						else if (cultivationDose)
++							m_DataList.Add($"可增长修为,{goodsArticleElixirResp_.EffectValue:0} 点,按当前境界与突破缺口结算，服后立即生效，满修为或满级时保留丹药");
+ 						else
+ 						{
+ 							string effectStringValue = GetEffectStringValue("", goodsArticleElixirResp_.EffectType, goodsArticleElixirResp_.EffectValue.ToString());
+@@ -1744,7 +1747,7 @@
+ 								m_DataList.Add(effectStringValue2);
+ 							}
+ 						}
+-						m_DataList.Add(string.Format("{0},{1},{2}", "已服用次数", goodsArticleElixirResp_.EatTime, "每一种丹药使用后都会产生耐药性，每一个类型的耐药性均有区别，当产生耐药性后药效会进行递减，恢复类丹药无耐药性，增长类丹药中需炼化的每多服用一颗降低20%药效，增长寿元、精血、经脉的丹药仅第一颗有效"));
++						if (!cultivationDose) m_DataList.Add(string.Format("{0},{1},{2}", "已服用次数", goodsArticleElixirResp_.EatTime, "每一种丹药使用后都会产生耐药性，每一个类型的耐药性均有区别，当产生耐药性后药效会进行递减，恢复类丹药无耐药性，增长类丹药中需炼化的每多服用一颗降低20%药效，增长寿元、精血、经脉的丹药仅第一颗有效"));
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "等阶", WorldSetting.GetStageChineseName(WorldSetting.GetStageByLevel(level)), "丹药的等级，1级对应练气期，11级对应筑基期，以此类推"));
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "品阶", WorldSetting.GetRankAllName(rank), "基于灵衍值给定的品级，品阶越高则丹药效果越好"));
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "五行", WorldSetting.GetWuXingName((WuXing)fiveElement), "分金、木、水、火、土五行，法术的五行如与灵根不符，则药效会降低80%，请选择适合自身灵根的五行"));
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs
+@@ -42,7 +42,8 @@
+                 string detail = name.Contains("兽王巢") ? "巢穴中可能遭遇领主与精英妖兽。" :
+                     outer ? "沿林口探路，留意游荡的精英妖兽。" :
+                     name.Contains("深处") ? "深入山谷时可能遇到妖兽领主。" : "进入此地与妖兽交手。";
+-                return new ExpeditionPlace(art, terrain, place.IsCleanMap ? "可扫荡" : "可历练", "进入历练", detail);
++                return new ExpeditionPlace(art, terrain, place.IsCleanMap ? "可扫荡" : "可历练", "进入历练",
++                    detail + $" 入场耗 {DungeonVigor(place.Id)} 点精力，首次历练免费。");
+             }
+             if (place.Depth == 4 && (kind == MapLevelType.CITY || kind == MapLevelType.CITY_LOW ||
+                 kind == MapLevelType.CITY_PREFECTURE || kind == MapLevelType.CITY_STATE || kind == MapLevelType.CITY_SUPER))
+@@ -65,6 +66,14 @@
+             return new ExpeditionPlace("FoldedMap", "地点", "未开放", "暂不可去", "此处尚无历练入口。", false);
+         }
+ 
++        internal static int DungeonVigor(string mapId)
++        {
++            if (string.IsNullOrEmpty(mapId)) return 2;
++            int mark = mapId.IndexOf('W');
++            if (mark < 0 || mark + 3 != mapId.Length) return 2;
++            return mapId[mark + 2] == '3' ? 6 : mapId[mark + 2] == '2' ? 4 : 2;
++        }
++
+         internal static string Range(MapEntity place)
+         {
+             int min = Mathf.Max(1, place.MinLevel);
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Network/MsgType.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Network/MsgType.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Network/MsgType.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Network/MsgType.cs
+@@ -405,6 +405,7 @@
+ 		ForgeCast = 4901026,
+ 		ForgeClaimSample = 4901027,
+ 		AlchemyWorkshop = 4901050,
++		CaveMatrix = 4901073,
+ 		TalismanStudio = 4901060,
+ 		SpiritGarden = 4901061,
+ 		BattleEndLeaveReq = 1004037,

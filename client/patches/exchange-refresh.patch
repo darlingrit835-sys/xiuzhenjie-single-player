@@ -1,0 +1,33 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/DuiHuanLingShiNewWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/DuiHuanLingShiNewWnd.cs
+index 2b8b7c7..88bf731 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/DuiHuanLingShiNewWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/DuiHuanLingShiNewWnd.cs
+@@ -15,8 +15,8 @@ namespace XiuZhenJie
+ 		public override void Awake(params object[] paralist)
+ 		{
+ 			base.Awake(paralist);
+-			ShuXing();
+ 			Panel = base.GameObject.GetComponent<DuiHuanLingShiNewPanel>();
++			ShuXing();
+ 			AddButtonClickListener(Panel.TuChu, TuChu);
+ 			AddButtonClickListener(Panel.ShuaXin, ShuaXin);
+ 			AddButtonClickListener(Panel.JiaHao, JiaHaoXiaoGuo);
+@@ -121,7 +121,8 @@ namespace XiuZhenJie
+ 			if (!string.IsNullOrEmpty(Panel.LingYuShu.text))
+ 			{
+ 				string text = Panel.LingYuShu.text;
+-				m_LingYuShu = int.Parse(text);
++				if (!int.TryParse(text, out m_LingYuShu))
++					m_LingYuShu = 0;
+ 			}
+ 			else
+ 			{
+@@ -163,6 +164,8 @@ namespace XiuZhenJie
+ 						Singleton<RoleManager>.Instance.Role_Entity.ShinyJade = shinyJadeExchangeShinyStoneResp_.ShinyJade;
+ 						Singleton<RoleManager>.Instance.Role_Entity.ShinyStone = shinyJadeExchangeShinyStoneResp_.ShinyStone;
+ 						Singleton<UIManager>.Instance.ReFlashAllOpenedWnd();
++						m_LingYuShu = 0;
++						ShuXing();
+ 					}
+ 					else
+ 					{

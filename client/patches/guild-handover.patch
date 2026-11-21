@@ -1,0 +1,120 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Guild/ZongMen_DaDianXieRenWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Guild/ZongMen_DaDianXieRenWnd.cs
+index f1bbedb..01bd31d 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Guild/ZongMen_DaDianXieRenWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Guild/ZongMen_DaDianXieRenWnd.cs
+@@ -9,8 +9,6 @@ namespace XiuZhenJie
+ 
+ 		private GameObject m_BigItem;
+ 
+-		private string roleId;
+-
+ 		public override void Awake(params object[] paralist)
+ 		{
+ 			base.Awake(paralist);
+@@ -19,13 +17,19 @@ namespace XiuZhenJie
+ 			m_BigItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/ZongMen_ZhangLaoItem.prefab");
+ 		}
+ 
++		public override void OnShow(params object[] paralist)
++		{
++			base.OnShow(paralist);
++			HuoQuXingXi();
++		}
++
+ 		private void HuoQuXingXi()
+ 		{
+ 			Singleton<NetManager>.Instance.SendMsg(MsgType.GUILD_ROLE_LIST, null, (object obj) =>
+ 			{
+ 				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+ 				ByteString byteString = obj as ByteString;
+-				if (!(byteString == null))
++				if (byteString != null && GameObject != null)
+ 				{
+ 					GuildRoleListResp_1015008 guildRoleListResp_ = new GuildRoleListResp_1015008();
+ 					guildRoleListResp_.MergeFrom(byteString);
+@@ -49,22 +53,27 @@ namespace XiuZhenJie
+ 			{
+ 				m_BigItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/ZongMen_ZhangLaoItem.prefab");
+ 			}
++			string ownId = Singleton<RoleManager>.Instance.Role_Entity.Id;
++			int candidates = 0;
+ 			foreach (GuildRoleListResp_1015008.Types.GuildRoleInfoResp_1015009 role in xingXi.RoleList)
+ 			{
+-				SetListContentParent(m_Panel.ReNamePanel, m_BigItem).GetComponent<ZongMen_ZhangLaoItem>().SetValues(role.RoleId, role.Sex, role.RoleImage, role.IsOnLine, role.RoleId, role.RoleName, role.ToString(), role.Level, TuiChuZongMenClick);
++				if (string.IsNullOrEmpty(role.RoleId) || role.RoleId == ownId || role.ZhiWei < 0 || role.ZhiWei >= (int)ZhangLaoRenMing.宗主)
++				{
++					continue;
++				}
++				var row = SetListContentParent(m_Panel.ReNamePanel, m_BigItem).GetComponent<ZongMen_ZhangLaoItem>();
++				string office = role.ZhiWei == 0 ? "普通成员" : ((ZhangLaoRenMing)role.ZhiWei).ToString();
++				row.SetValues(role.RoleId, role.Sex, role.RoleImage, role.IsOnLine, role.RoleName,
++					role.ZhanDouLi.ToString(), office, role.Level,
++					(id, _) => MonoSingleton<GameStart>.Instance.PopUpAttention($"确认由{role.RoleName}接任宗主？", () => RenMing(id)));
++				candidates++;
+ 			}
+-			float y = SetVerticalListContentHight(xingXi.RoleList.Count, 90f, 0f, 3f);
++			float y = SetVerticalListContentHight(candidates, 90f, 0f, 3f);
+ 			RectTransform component = m_Panel.ReNamePanel.gameObject.GetComponent<RectTransform>();
+ 			component.sizeDelta = new Vector2(component.sizeDelta.x, y);
+ 		}
+ 
+-		private void TuiChuZongMenClick(string roleIds, GameObject gameObject)
+-		{
+-			roleId = roleIds;
+-			MonoSingleton<GameStart>.Instance.PopUpAttention("是否确认任命该长老为宗主?", RenMing);
+-		}
+-
+-		private void RenMing()
++		private void RenMing(string roleId)
+ 		{
+ 			XieRenReq_1015022 data = new XieRenReq_1015022
+ 			{
+@@ -80,7 +89,7 @@ namespace XiuZhenJie
+ 					xieRenResp_.MergeFrom(byteString);
+ 					if (xieRenResp_.IsSuccess)
+ 					{
+-						HuoQuXingXi();
++						RefreshGuildAfterHandover();
+ 					}
+ 					else
+ 					{
+@@ -91,6 +100,39 @@ namespace XiuZhenJie
+ 			}, isShowWaitUI: true);
+ 		}
+ 
++		private void RefreshGuildAfterHandover()
++		{
++			var ui = Singleton<UIManager>.Instance;
++			ui.CloseWnd(this);
++			if (Singleton<GameMapManager>.Instance.CurrentMapName != "ZongMenScene")
++			{
++				return;
++			}
++			// 大殿、主峰和宗门首页均在打开时缓存宗主权限。
++			ui.CloseWnd(Constants.ZONGMEN_DADIAN_WINDOW);
++			ui.CloseWnd(Constants.ZONGMEN_ZHUFENG_WINDOW);
++			ui.CloseWnd(Constants.ZongMen_Window);
++			Singleton<NetManager>.Instance.SendMsg(MsgType.GUILD_DENTER, null, obj =>
++			{
++				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
++				if (Singleton<GameMapManager>.Instance.CurrentMapName != "ZongMenScene")
++				{
++					return;
++				}
++				if (obj is ByteString bytes)
++				{
++					var guild = GuildEnterResp_1015005.Parser.ParseFrom(bytes);
++					if (guild.IsSuccess)
++					{
++						var role = Singleton<RoleManager>.Instance.Role_Entity;
++						ui.PopUpWnd(Constants.ZongMen_Window, true, role.ZongMenId, role.ZongMenName, guild);
++						return;
++					}
++				}
++				Singleton<GameMapManager>.Instance.LoadScene("LoadingWnd.prefab", "MainScene");
++			}, isShowWaitUI: true);
++		}
++
+ 		private void LiKaiBtn()
+ 		{
+ 			Singleton<UIManager>.Instance.CloseWnd(this);

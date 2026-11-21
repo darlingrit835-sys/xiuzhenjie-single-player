@@ -1,0 +1,2054 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs
+index 663cba6..2b66432 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs
+@@ -400,37 +400,40 @@ namespace XiuZhenJie
+ 			return result;
+ 		}
+ 
+-		private void ContinueReqMonsterXST(int floor)
+-		{
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.ENTER_TOWER_NEXT_LEVEL, null, (object _obj) =>
+-			{
+-				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
+-				{
+-					EnterTowerNextLevelResp_8001009 enterTowerNextLevelResp_ = new EnterTowerNextLevelResp_8001009();
+-					enterTowerNextLevelResp_.MergeFrom(byteString);
+-					if (enterTowerNextLevelResp_.IsSuccess)
+-					{
+-						AliveMonsterModelDic.Clear();
+-						m_DeadMonsterList.Clear();
+-						DeadMonsterModelDic.Clear();
+-						{
+-							foreach (EnterTowerNextLevelResp_8001009.Types.ObjectInfoResp_8001010 @object in enterTowerNextLevelResp_.Objects)
+-							{
+-								BattleLifeModel item = new BattleLifeModel(@object);
+-								AllMonsterInBattle.Enqueue(item);
+-								m_OverTime = (float)enterTowerNextLevelResp_.OverTime / 1000f;
+-								m_RecordTimeBegin = true;
+-							}
+-							return;
+-						}
+-					}
+-					string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(enterTowerNextLevelResp_.Code);
+-					MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-				}
+-			}, isShowWaitUI: true, ServerType.BattleServer);
+-		}
++        private bool pendingTowerFloor;
++
++        private void ContinueReqMonsterXST(int floor)
++        {
++            if (pendingTowerFloor) return;
++            pendingTowerFloor = true;
++            var expected = new Google.Protobuf.WellKnownTypes.Int32Value { Value=floor };
++            Singleton<NetManager>.Instance.SendMsg(MsgType.ENTER_TOWER_NEXT_LEVEL, expected, (object data) =>
++            {
++                pendingTowerFloor = false;
++                MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
++                if (this == null || m_BattleWnd == null) return;
++                var raw = data as ByteString;
++                var result = new EnterTowerNextLevelResp_8001009();
++                if (raw != null) result.MergeFrom(raw);
++                if (!result.IsSuccess || result.Objects.Count == 0)
++                {
++                    MonoSingleton<GameStart>.Instance.PopUpAttention("本层尚未结算或塔门已闭，请重试或回城查看成绩。");
++                    return;
++                }
++                m_MapDataSource.Id = floor.ToString();
++                m_MapDataSource.MapName = $"虚神塔{floor}层";
++                AliveMonsterModelDic.Clear();
++                m_DeadMonsterList.Clear();
++                DeadMonsterModelDic.Clear();
++                if (FieldView == null) m_MapManager.ReSetMonsterPosQue();
++                SelfPlayerEntity.RecoverAllSuperAir();
++                foreach (var guard in result.Objects) AllMonsterInBattle.Enqueue(new BattleLifeModel(guard));
++                m_KillProgress = 0f;
++                m_OverTime = result.OverTime / 1000f;
++                m_RecordTimeBegin = true;
++                m_BattleWnd.AcknowledgeTowerFloor(m_MapDataSource.MapName);
++            }, isShowWaitUI: true, ServerType.BattleServer);
++        }
+ 
+ 		private void ScreeningMonster(MonsterModel item)
+ 		{
+@@ -1276,16 +1279,7 @@ namespace XiuZhenJie
+ 
+ 		public void TongTianTaNextFloor()
+ 		{
+-			MapEntity mapEntity = new MapEntity();
+-			int result = 0;
+-			int.TryParse(m_MapDataSource.Id, out result);
+-			result++;
+-			mapEntity.Id = result.ToString();
+-			mapEntity.MapName = $"虚神塔{result}层";
+-			m_MapDataSource = mapEntity;
+-			if (FieldView == null) m_MapManager.ReSetMonsterPosQue();
+-			SelfPlayerEntity.RecoverAllSuperAir();
+-			ContinueReqMonsterXST(result);
++            if (int.TryParse(m_MapDataSource.Id, out int floor)) ContinueReqMonsterXST(floor + 1);
+ 		}
+ 
+ 		public void TimeOver()
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs
+index 8aa8d68..96d2910 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs
+@@ -434,7 +434,8 @@ namespace XiuZhenJie
+ 		private void LiKaiBtnClick()
+ 		{
+ 			Time.timeScale = 0f;
+-			if (Singleton<RoleManager>.Instance.Role_Entity.BattleGuideVal != 100 && Singleton<GuideManager>.Instance.YinDaoJilu1.YinDaoShu < 16)
++			if (Singleton<BattleManager>.Instance.m_BattleSceneMgr?.CurrentBattleType != BattleType.TongTianTaBattle &&
++                Singleton<RoleManager>.Instance.Role_Entity.BattleGuideVal != 100 && Singleton<GuideManager>.Instance.YinDaoJilu1.YinDaoShu < 16)
+ 			{
+ 				MonoSingleton<GameStart>.Instance.PopUpAttention("刘老六说地图进度需要打到35%后击杀领主，还是先别离开此地了吧", () =>
+ 				{
+@@ -1080,36 +1081,37 @@ namespace XiuZhenJie
+ 		public void ChuangTaSuccessNextFloorBtnClick()
+ 		{
+ 			Singleton<BattleManager>.Instance.m_BattleSceneMgr.TongTianTaNextFloor();
+-			Panel.ChuangTaSuccess.gameObject.SetActive(value: false);
+-			Panel.MapNameText.text = Singleton<BattleManager>.Instance.m_BattleSceneMgr.GetMapName();
+-		}
+-
+-		public void ChuangTaSuccessNextFloorLiKaiBtnClick()
+-		{
+-			if (Singleton<GameMapManager>.Instance.CurrentMapName == "FightingScene")
+-			{
+-				Singleton<UIManager>.Instance.CloseWnd(this);
+-				Singleton<GameMapManager>.Instance.LoadScene("LoadingWnd.prefab", "MainScene");
+-			}
+-			else
+-			{
+-				Singleton<UIManager>.Instance.CloseWnd(this);
+ 			}
+-		}
+ 
+-		public void ChuangTaFailBtnClick()
+-		{
+-			if (Singleton<GameMapManager>.Instance.CurrentMapName == "FightingScene")
+-			{
+-				Singleton<UIManager>.Instance.CloseWnd(this);
+-				Singleton<GameMapManager>.Instance.LoadScene("LoadingWnd.prefab", "MainScene");
+-			}
+-			else
+-			{
+-				Singleton<UIManager>.Instance.CloseWnd(this);
+-			}
++        internal void AcknowledgeTowerFloor(string name)
++        {
++            ReflashDeadMonsterNum(0f);
++            Panel.ChuangTaSuccess.gameObject.SetActive(value: false);
++			Panel.MapNameText.text = name;
+ 		}
+ 
++        public void ChuangTaSuccessNextFloorLiKaiBtnClick()
++        {
++            LeaveTowerResult();
++        }
++
++        public void ChuangTaFailBtnClick()
++        {
++            LeaveTowerResult();
++        }
++
++        private void LeaveTowerResult()
++        {
++            bool inBattle = Singleton<GameMapManager>.Instance.CurrentMapName == "FightingScene";
++            Singleton<UIManager>.Instance.CloseWnd(this);
++            if (!inBattle) return;
++            var network = Singleton<NetManager>.Instance;
++            if (network.BattleServerIsAlive())
++                network.SendMsg(MsgType.ROLE_LEAVE_DUNGEON, new RoleLeaveDungeonReq_8001008 { RoleIndex = 1 },
++                    null, isShowWaitUI: false, ServerType.BattleServer);
++            Singleton<BattleManager>.Instance.ExitBattle();
++        }
++
+ 		public void QingLiYaoShouCompelete()
+ 		{
+ 			Panel.ContinueClearYaoSou.gameObject.SetActive(value: true);
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskClient.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskClient.cs
+new file mode 100644
+index 0000000..2ef7a26
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskClient.cs
+@@ -0,0 +1,64 @@
++using System;
++using UnityEngine;
++
++namespace XiuZhenJie
++{
++    internal static class ConcordDeskClient
++    {
++        [Serializable] internal class Order { public string action, main, second, quote, requestId; public long revision; }
++        [Serializable] internal class Book { public string id, name, kind, element, note; public int grade; public long count, free; }
++        [Serializable] internal class Receipt { public string text, relation; public int pills, ink, points; }
++        [Serializable] internal class Reply
++        {
++            public string error, quote, relation, primerText;
++            public bool retry, affordable;
++            public long stones, revision;
++            public int copyCost, bonus, points, pills, ink;
++            public Book main, second;
++            public Book[] books;
++            public Receipt receipt;
++        }
++        static string Scope()
++        {
++            var r = Singleton<RoleManager>.Instance;
++            return "ConcordDesk|" + Constants.LoginServerIP + "|" + Constants.LoginServerPort + "|" + r.ServerId + "|" + r.UserId + "|" + r.currentRoleId;
++        }
++        internal static Order Pending()
++        {
++            var json = PlayerPrefs.GetString(Scope(), "");
++            if (json.Length == 0) return null;
++            try { return JsonUtility.FromJson<Order>(json); } catch (ArgumentException) { return null; }
++        }
++        internal static void Send(Order order, Action<Reply, string> done)
++        {
++            var key = Scope();
++            bool write = order.action == "commit" || order.action == "copy";
++            if (write && string.IsNullOrEmpty(order.requestId)) order.requestId = Guid.NewGuid().ToString("N");
++            string json = JsonUtility.ToJson(order);
++            if (write)
++            {
++                string saved = PlayerPrefs.GetString(key, "");
++                if (saved.Length > 0 && saved != json) { done(null, "请先核对上一笔回执"); return; }
++                PlayerPrefs.SetString(key, json); PlayerPrefs.Save();
++            }
++            ForgeWire.Send((MsgType)4901072, json, (ok, raw) =>
++            {
++                Reply reply = null;
++                if (!string.IsNullOrEmpty(raw)) { try { reply = JsonUtility.FromJson<Reply>(raw); } catch (ArgumentException) { } }
++                if (write && reply != null && (ok || (!reply.retry && !string.IsNullOrEmpty(reply.error))) && PlayerPrefs.GetString(key) == json)
++                { PlayerPrefs.DeleteKey(key); PlayerPrefs.Save(); }
++                if (key != Scope()) { done(null, "道籍已更换，请重新打开合道台"); return; }
++                if (!ok || reply == null) { done(null, reply?.error ?? (write ? "尚未收到回执，核对上次操作即可重试。" : "暂未连上书案，请刷新。")); return; }
++                if (write)
++                {
++                    var role = Singleton<RoleManager>.Instance;
++                    if (role.Role_Entity != null) role.Role_Entity.ShinyStone = reply.stones;
++                    Singleton<UIManager>.Instance.FindWndByName<MainTitleWnd>("MainTitleWnd.prefab")?.ReFlashData();
++                    if (role.RoleBoxDic != null && role.RoleBoxDic.TryGetValue(10, out var ring))
++                        ring.GetAllGoods(() => Singleton<UIManager>.Instance.FindWndByName<NaJieSpaceWnd>("NaJieSpaceWnd.prefab")?.FlashData(), false);
++                }
++                done(reply, null);
++            });
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskClient.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskClient.cs.meta
+new file mode 100644
+index 0000000..09596cc
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskClient.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: 36570f441e9f48bfa5fccb4794bcd50a
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskView.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskView.cs
+new file mode 100644
+index 0000000..3ec9d69
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskView.cs
+@@ -0,0 +1,225 @@
++using System;
++using System.Linq;
++using UnityEngine;
++using UnityEngine.UI;
++using Book = XiuZhenJie.ConcordDeskClient.Book;
++using Order = XiuZhenJie.ConcordDeskClient.Order;
++using Reply = XiuZhenJie.ConcordDeskClient.Reply;
++
++namespace XiuZhenJie
++{
++    internal sealed class ConcordDeskView : MonoBehaviour
++    {
++        static readonly Color Ink = new Color32(36,57,50,255), Muted = new Color32(83,97,75,255),
++            Jade = new Color32(33,75,65,255), Deep = new Color32(27,48,43,248),
++            Gold = new Color32(209,175,112,255), Cream = new Color32(255,245,218,255),
++            Sheet = new Color32(240,231,205,255), Clay = new Color32(118,69,46,255);
++        Font font;
++        Action leave;
++        RectTransform controls, body;
++        VoidRealmLight lightFx;
++        Reply state, trial;
++        Book first, second;
++        string feedback = "", confirm = "";
++        int picker, ticket;
++        bool busy, suspended;
++
++        internal static ConcordDeskView Open(Transform parent, Sprite art, Font font, Action leave)
++        {
++            var root = Node(parent, "合道台 · 书卷合参", 0,0,1,1);
++            Fill(root, Deep, true);
++            var self = root.gameObject.AddComponent<ConcordDeskView>();
++            self.font = font ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
++            self.leave = leave;
++            var hero = Node(root,"合道山台",0,.59f,1,1);
++            hero.gameObject.AddComponent<RectMask2D>();
++            var painting = Node(hero,"山台原画",0,0,1,1);
++            var image = Fill(painting,Color.white);
++            image.sprite = art ?? InkInterfaceArt.Get("MountainHall");
++            if (image.sprite != null)
++            {
++                var fit = painting.gameObject.AddComponent<AspectRatioFitter>();
++                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
++                fit.aspectRatio = image.sprite.rect.width / image.sprite.rect.height;
++            }
++            Fill(Node(hero,"远山薄墨",0,0,1,1),new Color(0.06f,.15f,.12f,.30f));
++            self.lightFx = VoidRealmLight.Mount(hero,painting,4,true);
++            self.controls = Node(hero,"书案",0,0,1,1);
++            var paper = Node(root,"经笺",0,0,1,.59f);
++            var paperImage = Fill(paper,Sheet,true);
++            paperImage.sprite = InkInterfaceArt.Get("InkLedgerPaper");
++            Fill(Node(paper,"鎏金界线",0,.992f,1,1),Gold);
++            self.body = Node(paper,"书案内容",.035f,.01f,.965f,.985f);
++            return self;
++        }
++
++        static RectTransform Node(Transform parent,string name,float x,float y,float x2,float y2)
++        {
++            var o = new GameObject(name,typeof(RectTransform)); o.layer=parent.gameObject.layer;
++            var r=(RectTransform)o.transform; r.SetParent(parent,false);
++            r.anchorMin=new Vector2(x,y);r.anchorMax=new Vector2(x2,y2);r.offsetMin=r.offsetMax=Vector2.zero;
++            return r;
++        }
++        static Image Fill(RectTransform r,Color color,bool hit=false)
++        {
++            var im=r.gameObject.AddComponent<Image>();im.color=color;im.raycastTarget=hit;return im;
++        }
++        Text Label(Transform p,string text,float x,float y,float x2,float y2,int size,Color color,TextAnchor align=TextAnchor.MiddleLeft)
++        {
++            var rt=Node(p,"题字",x,y,x2,y2);var t=rt.gameObject.AddComponent<Text>();
++            t.font=font;t.text=text;t.color=color;t.fontSize=size;t.alignment=align;t.raycastTarget=false;
++            t.supportRichText=false;t.resizeTextForBestFit=true;t.resizeTextMinSize=Mathf.Min(12,size);t.resizeTextMaxSize=size;
++            t.verticalOverflow=VerticalWrapMode.Truncate;t.horizontalOverflow=HorizontalWrapMode.Wrap;
++            return t;
++        }
++        Button Pad(Transform p,string title,float x,float y,float x2,float y2,Color color,Action tap)
++        {
++            var r=Node(p,title,x,y,x2,y2);var im=Fill(r,color,true);
++            var b=r.gameObject.AddComponent<Button>();b.targetGraphic=im;b.interactable=tap!=null;
++            if(tap!=null)b.onClick.AddListener(()=>tap());
++            return b;
++        }
++        void ButtonText(Transform p,string title,float x,float y,float x2,float y2,Color color,Action tap,int size=19)
++        {
++            var button=Pad(p,title,x,y,x2,y2,color,tap);
++            Label(button.transform,title,.025f,.04f,.975f,.96f,size,Cream,TextAnchor.MiddleCenter);
++        }
++        static void Clear(RectTransform r)
++        {
++            for(int i=r.childCount-1;i>=0;i--){var item=r.GetChild(i).gameObject;item.SetActive(false);Destroy(item);}
++        }
++        internal void Suspend(){suspended=true;busy=false;++ticket;}
++        internal void Refresh()
++        {
++            suspended=false;picker=0;confirm="";state=null;trial=null;first=second=null;
++            Query(new Order{action="list"},r=>{state=r;feedback="";});
++        }
++        void Query(Order order,Action<Reply> accept)
++        {
++            int mine=++ticket;busy=true;Render();
++            ConcordDeskClient.Send(order,(r,error)=>
++            {
++                if(this==null||suspended||mine!=ticket)return;
++                busy=false;
++                if(r==null) {feedback=error;confirm="";}
++                else accept(r);
++                Render();
++            });
++        }
++        void Render()
++        {
++            Clear(controls);Clear(body);
++            Label(controls,"合道台",.05f,.82f,.59f,.98f,31,Cream);
++            if (state != null && !busy && ConcordDeskClient.Pending() == null) ButtonText(controls,"刷新",.60f,.82f,.76f,.96f,Deep,Refresh,16);
++            ButtonText(controls,"离开",.79f,.82f,.96f,.96f,Deep,leave,17);
++            Label(controls,"书 卷 合 参",.05f,.71f,.72f,.83f,16,Gold);
++            Slot(1,first,.07f,.43f);Slot(2,second,.57f,.93f);
++            Label(controls,"合",.43f,.26f,.57f,.48f,29,Gold,TextAnchor.MiddleCenter);
++            if(picker!=0){DrawPicker();return;}
++            if(state==null)
++            {
++                Label(body,busy?"正在取纳戒书册…":feedback,.03f,.66f,.96f,.89f,20,Ink);
++                if(!busy)ButtonText(body,"重新取册",.15f,.25f,.85f,.41f,Jade,Refresh);return;
++            }
++            if(ConcordDeskClient.Pending()!=null && !busy){DrawPending();return;}
++            if(confirm=="copy"||confirm=="commit"){DrawConfirm();return;}
++            DrawDesk();
++        }
++        void Slot(int number,Book book,float x,float x2)
++        {
++            var b=Pad(controls,number==1?"主卷":"参卷",x,.065f,x2,.665f,number==1?Jade:Clay,
++                !busy&&state!=null&&ConcordDeskClient.Pending()==null?(Action)(()=>{picker=number;confirm="";feedback="";Render();}):null);
++            Fill(Node(b.transform,"装订",.07f,.07f,.08f,.93f),Gold);
++            Label(b.transform,number==1?"主 卷":"参 卷",.15f,.67f,.96f,.95f,16,Gold);
++            Label(b.transform,book?.name??"选取书卷",.15f,.26f,.95f,.71f,23,Cream);
++            Label(b.transform,book!=null?book.element+"行 · "+book.grade+"品":"点此开纳戒",.15f,.05f,.96f,.28f,14,Cream);
++        }
++        void DrawDesk()
++        {
++            Label(body,trial?.relation??"两卷并读",.02f,.83f,.66f,.98f,26,Ink);
++            Label(body,"灵石 "+state.stones,.64f,.84f,.98f,.97f,16,Muted,TextAnchor.MiddleRight);
++            if(trial!=null)
++            {
++                Label(body,"主卷 "+trial.main.grade+"  ＋  参卷 "+trial.second.grade+"  ＋  "+trial.relation+" "+trial.bonus+" ＝ "+trial.points+" 道意",.02f,.65f,.98f,.82f,19,Ink);
++                Label(body,"各用一册 · 墨钱 "+trial.ink+" 灵石\n所得禅悟丹 ×"+trial.pills+"，每枚服用可恢复100悟性。",.02f,.40f,.98f,.65f,18,Ink);
++            }
++            else
++            {
++                int n=state.books==null?0:state.books.Count(b=>b.free>0);
++                Label(body,n==0?"纳戒暂无可投入的典籍。可先抄两本基础功法，再回书案选卷。":
++                    "从纳戒各置一册。主卷生参卷得三点道意，同源得两点，逆序相生得一点。",.02f,.49f,.98f,.81f,19,Ink);
++            }
++            string note=feedback.Length>0?feedback:(busy?"正在核对书案…":trial!=null?"每五点道意多得一枚禅悟丹。":"功法、丹方、器图等均可合参。珍本与《启灵经》保留末本。");
++            Label(body,note,.02f,.23f,.98f,.43f,16,feedback.Length>0?Clay:Muted);
++            bool canCopy = !string.IsNullOrEmpty(state.primerText);
++            ButtonText(body,canCopy?"抄录两册":"抄本暂缺",.01f,.045f,.33f,.21f,Clay,!busy && canCopy?(Action)(()=>{confirm="copy";Render();}):null);
++            Action primary=null;string title="选择主卷";
++            if(first==null){primary=()=>{picker=1;Render();};}
++            else if(second==null){title="选择参卷";primary=()=>{picker=2;Render();};}
++            else if(trial==null){title="试读两卷";primary=Preview;}
++            else {title=trial.affordable?"合参 · 禅悟丹 ×"+trial.pills:"墨钱不足";if(trial.affordable)primary=()=>{confirm="commit";Render();};}
++            ButtonText(body,busy?"正在核对…":title,.36f,.045f,.99f,.21f,Jade,busy?null:primary);
++        }
++        void DrawPicker()
++        {
++            Label(body,picker==1?"选择主卷":"选择参卷",.02f,.83f,.66f,.98f,24,Ink);
++            ButtonText(body,"返回",.76f,.84f,.98f,.97f,Jade,()=>{picker=0;Render();},16);
++            var list=state?.books??Array.Empty<Book>();
++            if(list.Length==0)
++            {
++                Label(body,"纳戒中还没有书卷。抄录两册基础功法可开始第一次合参。",.03f,.46f,.97f,.77f,19,Ink);
++                bool canCopy = !string.IsNullOrEmpty(state.primerText);
++                ButtonText(body,canCopy?"前往抄录":"抄本暂缺",.12f,.14f,.88f,.35f,Clay,canCopy?(Action)(()=>{picker=0;confirm="copy";Render();}):null);return;
++            }
++            var frame=Node(body,"纳戒书目",0,.015f,1,.81f);frame.gameObject.AddComponent<RectMask2D>();
++            Fill(frame,new Color(0,0,0,.001f),true);
++            var listScroll=frame.gameObject.AddComponent<ScrollRect>();listScroll.horizontal=false;
++            listScroll.movementType=ScrollRect.MovementType.Clamped;listScroll.viewport=frame;
++            var content=Node(frame,"书册",0,1,1,1);content.pivot=new Vector2(.5f,1);content.sizeDelta=new Vector2(0,list.Length*56);
++            listScroll.content=content;var other=picker==1?second:first;
++            for(int i=0;i<list.Length;i++)
++            {
++                var b=list[i];long free=b.free-(other!=null&&other.id==b.id?1:0);
++                var row=Pad(content,b.name,0,1,1,1,free>0?Sheet:new Color32(217,213,193,255),free>0?(Action)(()=>Pick(b)):null);
++                var rt=(RectTransform)row.transform;rt.pivot=new Vector2(.5f,1);rt.offsetMin=new Vector2(0,-(i+1)*56+3);rt.offsetMax=new Vector2(0,-i*56);
++                Fill(Node(rt,"行标",0,.1f,.012f,.9f),free>0?Jade:Muted);
++                Label(rt,b.name,.04f,.41f,.68f,.96f,20,Ink);
++                Label(rt,b.kind+" · "+b.grade+"品 · "+b.element+"行",.04f,.04f,.68f,.45f,14,Muted);
++                Label(rt,free>0?"可用 "+free:!string.IsNullOrEmpty(b.note)?b.note:"已选用",.67f,.12f,.97f,.88f,15,Muted,TextAnchor.MiddleRight);
++            }
++        }
++        void Pick(Book b)
++        {
++            if(picker==1)first=b;else second=b;picker=0;trial=null;confirm="";feedback="";
++            if(first!=null&&second!=null)Preview();else Render();
++        }
++        void Preview()
++        {
++            Query(new Order{action="preview",main=first.id,second=second.id},r=>{trial=r;feedback="";lightFx.Burst(true,(first.grade+second.grade)/2);});
++        }
++        void DrawConfirm()
++        {
++            bool copying=confirm=="copy";
++            Label(body,copying?"抄录基础典籍":"落印合参",.02f,.80f,.98f,.98f,26,Ink);
++            string text=copying?"支出 "+state.copyCost+" 灵石，将"+state.primerText+"抄入纳戒。":
++                "投入《"+first.name+"》与《"+second.name+"》各一册，支出 "+trial.ink+" 灵石，所得禅悟丹 ×"+trial.pills+"。";
++            Label(body,text,.02f,.44f,.98f,.78f,20,Ink);
++            Label(body,copying?"两本均可用来合参或练功。":"所选两册将从纳戒扣除。",.02f,.27f,.98f,.44f,16,Muted);
++            ButtonText(body,"返回",.01f,.05f,.32f,.22f,Clay,!busy?(Action)(()=>{confirm="";Render();}):null);
++            bool enough=!copying||state.stones>=state.copyCost;
++            ButtonText(body,busy?"正在登记…":!enough?"灵石不足":copying?"确认抄录":"确认用卷",.36f,.05f,.99f,.22f,Jade,!busy&&enough?(Action)(()=>Write(copying?new Order{action="copy",quote=state.primerText,revision=state.revision}:new Order{action="commit",revision=state.revision,main=first.id,second=second.id,quote=trial.quote})):null);
++        }
++        void DrawPending()
++        {
++            Label(body,"上次书案回执",.02f,.72f,.98f,.94f,25,Ink);
++            Label(body,feedback.Length>0?feedback:"有一笔操作尚待核对。按原单查询即可确认结果。",.02f,.40f,.98f,.72f,18,Muted);
++            ButtonText(body,"核对上次操作",.10f,.09f,.90f,.28f,Jade,()=>Write(ConcordDeskClient.Pending()));
++        }
++        void Write(Order order)
++        {
++            if(order==null)return;
++            Query(order,r=>{state=r;trial=null;confirm="";first=second=null;picker=0;
++                feedback=r.receipt?.text??"书案已登记。";lightFx.Burst(true,order.action=="copy"?2:7);});
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskView.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskView.cs.meta
+new file mode 100644
+index 0000000..b971f15
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/ConcordDeskView.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: addabbf890514d89afd27d87ad7a8b3d
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/HeDaoTaiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/HeDaoTaiWnd.cs
+index d4aef4d..d8592f7 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/HeDaoTaiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/HeDaoTaiWnd.cs
+@@ -1,225 +1,43 @@
+-using System;
+-using System.Collections.Generic;
+-using DG.Tweening;
+-using DG.Tweening.Core;
+-using DG.Tweening.Plugins.Options;
++using System.Linq;
+ using UnityEngine;
+ using UnityEngine.UI;
+ 
+ namespace XiuZhenJie
+ {
+-	public class HeDaoTaiWnd : Window
+-	{
+-		public HeDaoTaiPanel Panel;
+-
+-		private GameObject m_UiGoodsItem;
+-
+-		private GameObject m_UiGoodsTogItem;
+-
+-		public Dictionary<int, Sprite> m_GoodsIconSprite;
+-
+-		public Dictionary<int, Sprite> m_RankBgSprite;
+-
+-		private Dictionary<string, BaseNaJieGoodEntity> m_GoodsListDic = new Dictionary<string, BaseNaJieGoodEntity>();
+-
+-		private List<BaseNaJieGoodEntity> m_ChooseGoods = new List<BaseNaJieGoodEntity>();
+-
+-		public override void Awake(params object[] paralist)
+-		{
+-			base.Awake(paralist);
+-			Panel = base.GameObject.GetComponent<HeDaoTaiPanel>();
+-			m_UiGoodsItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/UI_GoodsItem.prefab");
+-			m_UiGoodsTogItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/UI_GoodsTogItem.prefab");
+-			m_GoodsIconSprite = Singleton<FacadeManager>.Instance.SelectGoodsSprite();
+-			m_RankBgSprite = Singleton<FacadeManager>.Instance.SelectGoodsRankBg();
+-			GetNaJieData();
+-			AddButtonClickListener(Panel.LiKaiBtn, CloseWindow);
+-			AddButtonClickListener(Panel.AddBtn, AddGoods);
+-			AddButtonClickListener(Panel.XianJiBtn, XianJiBtnClick);
+-			AddButtonClickListener(Panel.NaJieCompeleteBtn, CloseNaJie);
+-			AddButtonClickListener(Panel.NaJieMaskBtn, CloseNaJie);
+-		}
+-
+-		private void GetNaJieData()
+-		{
+-			Singleton<RoleManager>.Instance.RoleBoxDic[10].GetAllGoods(() =>
+-			{
+-				foreach (BaseNaJieGoodEntity goods in Singleton<RoleManager>.Instance.RoleBoxDic[10].GoodsList)
+-				{
+-					if (goods.Type == 1 || goods.Type == 2 || ((goods.Type == 4) | (goods.Type == 17)) || goods.Type == 18 || goods.Type == 3 || goods.Type == 5 || goods.Type == 6)
+-					{
+-						m_GoodsListDic.Add(goods.GoodsId, goods.Copy());
+-					}
+-				}
+-			});
+-		}
+-
+-		private void SetItemTextValue(List<string> details)
+-		{
+-			for (int i = 0; i < details.Count; i++)
+-			{
+-				Panel.Item_1_Texts[i].text = InkCraftHalls.FormatAltarEffect(details[i]);
+-			}
+-		}
+-
+-		private void AddGoods()
+-		{
+-			OpenNaJie();
+-		}
+-
+-		private void OpenNaJie()
+-		{
+-			NaJieDataInit();
+-			TweenerCore<Vector2, Vector2, VectorOptions> tweenerCore = DOTween.To(() => Panel.NaJiePanel.anchoredPosition, (Vector2 v) =>
+-			{
+-				Panel.NaJiePanel.anchoredPosition = v;
+-			}, new Vector2(0f, -1.5f), 0.5f);
+-			tweenerCore.onComplete = (TweenCallback)Delegate.Combine(tweenerCore.onComplete, (TweenCallback)(() =>
+-			{
+-				Panel.NaJieMaskBtn.gameObject.SetActive(value: true);
+-			}));
+-		}
+-
+-		private void NaJieDataInit()
+-		{
+-			CleraData(Panel.NaJieGoodsContent);
+-			foreach (KeyValuePair<string, BaseNaJieGoodEntity> item in m_GoodsListDic)
+-			{
+-				CreateItem(item.Value);
+-			}
+-		}
+-
+-		private void CreateItem(BaseNaJieGoodEntity goods)
+-		{
+-			Sprite value = null;
+-			m_GoodsIconSprite.TryGetValue(goods.Type, out value);
+-			int levelByRank = WorldSetting.GetLevelByRank(goods.Rank);
+-			Sprite value2 = null;
+-			m_RankBgSprite.TryGetValue(levelByRank, out value2);
+-			UI_GoodsItem component = SetListContentParent(Panel.NaJieGoodsContent, m_UiGoodsItem).GetComponent<UI_GoodsItem>();
+-			Panel.NaJieGoodsContent.GetComponent<ToggleGroup>();
+-			component.SetItem(goods, goods.Name, goods.FiveElement, goods.Level, value2, value, GoodsItemChoose, isUsing: false, goods.GoodsNum);
+-		}
+-
+-		private void GoodsItemChoose(object dataSource, GameObject itemObj)
+-		{
+-			BaseNaJieGoodEntity baseNaJieGoodEntity = dataSource as BaseNaJieGoodEntity;
+-			UI_GoodsItem ui_Item = itemObj.GetComponent<UI_GoodsItem>();
+-			if (baseNaJieGoodEntity.GoodsNum > 1)
+-			{
+-				Common_ChooseNumEntity common_ChooseNumEntity = new Common_ChooseNumEntity
+-				{
+-					Goods = baseNaJieGoodEntity,
+-					QueRenCallBack = (int num) =>
+-					{
+-						if (num + m_ChooseGoods.Count > 10)
+-						{
+-							MonoSingleton<GameStart>.Instance.PopUpAttention("最多允许献祭10本书籍");
+-						}
+-						else
+-						{
+-							BaseNaJieGoodEntity baseNaJieGoodEntity2 = baseNaJieGoodEntity.Copy();
+-							baseNaJieGoodEntity2.GoodsNum = num;
+-							if (num >= baseNaJieGoodEntity.GoodsNum)
+-							{
+-								m_GoodsListDic.Remove(baseNaJieGoodEntity.GoodsId);
+-								UnityEngine.Object.Destroy(itemObj);
+-							}
+-							else
+-							{
+-								baseNaJieGoodEntity.GoodsNum -= num;
+-								ui_Item.ResetNum(baseNaJieGoodEntity.GoodsNum);
+-							}
+-							for (int i = 0; i < num; i++)
+-							{
+-								baseNaJieGoodEntity2.Copy();
+-								baseNaJieGoodEntity2.GoodsNum = 1;
+-								m_ChooseGoods.Add(baseNaJieGoodEntity2);
+-							}
+-						}
+-					}
+-				};
+-				Singleton<UIManager>.Instance.PopUpWnd("Common_ChooseGoodsNumWnd.prefab", true, common_ChooseNumEntity);
+-			}
+-			else if (1 + m_ChooseGoods.Count > 10)
+-			{
+-				MonoSingleton<GameStart>.Instance.PopUpAttention("最多允许献祭10本书籍");
+-			}
+-			else
+-			{
+-				m_GoodsListDic.Remove(baseNaJieGoodEntity.GoodsId);
+-				UnityEngine.Object.Destroy(itemObj);
+-				m_ChooseGoods.Add(baseNaJieGoodEntity);
+-			}
+-		}
+-
+-		private void CleraData(RectTransform rectTransform)
+-		{
+-			for (int i = 0; i < rectTransform.transform.childCount; i++)
+-			{
+-				UnityEngine.Object.Destroy(rectTransform.transform.GetChild(i).gameObject);
+-			}
+-		}
+-
+-		private void CreateChooseItem(BaseNaJieGoodEntity goods)
+-		{
+-			Sprite value = null;
+-			m_GoodsIconSprite.TryGetValue(goods.Type, out value);
+-			int levelByRank = WorldSetting.GetLevelByRank(goods.Rank);
+-			Sprite value2 = null;
+-			m_RankBgSprite.TryGetValue(levelByRank, out value2);
+-			SetListContentParent(Panel.GoodsContent, m_UiGoodsItem).GetComponent<UI_GoodsItem>().SetItem(goods, goods.Name, goods.FiveElement, goods.Level, value2, value, CancleGoodsItemChoose, isUsing: false, goods.GoodsNum);
+-		}
+-
+-		private void CancleGoodsItemChoose(object dataSource, GameObject itemObj)
+-		{
+-			BaseNaJieGoodEntity baseNaJieGoodEntity = dataSource as BaseNaJieGoodEntity;
+-			if (m_ChooseGoods.Contains(baseNaJieGoodEntity))
+-			{
+-				m_ChooseGoods.Remove(baseNaJieGoodEntity);
+-			}
+-			BaseNaJieGoodEntity value = null;
+-			if (m_GoodsListDic.TryGetValue(baseNaJieGoodEntity.GoodsId, out value))
+-			{
+-				m_GoodsListDic[baseNaJieGoodEntity.GoodsId].GoodsNum++;
+-			}
+-			else
+-			{
+-				m_GoodsListDic.Add(baseNaJieGoodEntity.GoodsId, baseNaJieGoodEntity);
+-			}
+-			UnityEngine.Object.Destroy(itemObj);
+-			if (m_ChooseGoods.Count <= 0)
+-			{
+-				Panel.AddBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
+-			}
+-		}
+-
+-		private void CloseNaJie()
+-		{
+-			CleraData(Panel.NaJieGoodsContent);
+-			CleraData(Panel.GoodsContent);
+-			for (int i = 0; i < m_ChooseGoods.Count; i++)
+-			{
+-				CreateChooseItem(m_ChooseGoods[i]);
+-			}
+-			SetGrticalListContentHight(m_ChooseGoods.Count, Panel.GoodsContent, Panel.GoodsContent.GetComponent<GridLayoutGroup>());
+-			if (m_ChooseGoods.Count > 0)
+-			{
+-				Panel.AddBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 140f);
+-			}
+-			else
+-			{
+-				Panel.AddBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
+-			}
+-			DOTween.To(() => Panel.NaJiePanel.anchoredPosition, (Vector2 v) =>
+-			{
+-				Panel.NaJiePanel.anchoredPosition = v;
+-			}, new Vector2(0f, -522.22f), 0.5f);
+-			Panel.NaJieMaskBtn.gameObject.SetActive(value: false);
+-		}
+-
+-		private void XianJiBtnClick()
+-		{
+-		}
+-	}
++    public class HeDaoTaiWnd : Window
++    {
++        public HeDaoTaiPanel Panel;
++        private ConcordDeskView view;
++
++        public override void Awake(params object[] args)
++        {
++            base.Awake(args);
++            Panel = GameObject.GetComponent<HeDaoTaiPanel>();
++        }
++
++        public override void OnShow(params object[] args)
++        {
++            base.OnShow(args);
++            if (view == null)
++            {
++                var art = Resources.FindObjectsOfTypeAll<Sprite>().FirstOrDefault(sprite => sprite.name == "Bg_HeDaoTai")
++                    ?? Panel.transform.Find("BG")?.GetComponent<Image>()?.sprite;
++                var font = Panel.GetComponentInChildren<Text>(true)?.font;
++                view = ConcordDeskView.Open(Panel.transform, art, font, () => Singleton<UIManager>.Instance.CloseWnd(this));
++            }
++            view.Refresh();
++        }
++
++        public override void OnDisable()
++        {
++            if (view != null) view.Suspend();
++            base.OnDisable();
++        }
++
++        public override void OnClose()
++        {
++            if (view != null) { view.gameObject.SetActive(false); Object.Destroy(view.gameObject); view = null; }
++            base.OnClose();
++        }
++    }
+ }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarIncense.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarIncense.cs
+new file mode 100644
+index 0000000..ddef97f
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarIncense.cs
+@@ -0,0 +1,60 @@
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace XiuZhenJie
++{
++    [RequireComponent(typeof(CanvasRenderer))]
++    internal sealed class VoidAltarIncense : MaskableGraphic
++    {
++        private static readonly Color32 Amber=new Color32(255,191,91,255), Smoke=new Color32(225,230,194,255);
++        private int lit;
++        private float flash=-10,nextFrame,clock;
++        private RectTransform burner;
++
++        internal void Bind(RectTransform target){burner=target;}
++        internal void Set(int amount,bool ignition)
++        { lit=Mathf.Clamp(amount,0,8);if(ignition) flash=Time.unscaledTime;SetVerticesDirty(); }
++
++        private void Update()
++        {if(Time.unscaledTime<nextFrame)return;clock=Time.unscaledTime;nextFrame=clock+.05f;SetVerticesDirty();}
++
++        protected override void OnPopulateMesh(VertexHelper mesh)
++        {
++            mesh.Clear();if(burner==null)return;
++            var bounds=burner.rect;if(bounds.width<1)return;
++            var rim=(Vector2)rectTransform.InverseTransformPoint(burner.TransformPoint(new Vector2(bounds.center.x,bounds.yMin+bounds.height*.65f)));
++            float size=bounds.width,burst=Mathf.Clamp01(1-(clock-flash)/1.7f);
++            for(int i=0;i<8;i++)
++            {
++                float a=2*Mathf.PI*i/8+clock*.13f,radius=size*(.40f+burst*.10f);
++                var point=rim+new Vector2(Mathf.Cos(a)*radius,Mathf.Sin(a)*radius*.32f-size*.21f);
++                Glow(mesh,point,size*(i<lit?.025f:.010f),Amber,i<lit?.90f:.32f);
++            }
++            for(int i=0;i<3;i++){
++                Vector2 previous=rim;float phase=i*Mathf.PI*2/3;
++                for(int n=1;n<=13;n++){
++                    float t=n/13f;var point=rim+new Vector2(size*(.025f+.11f*t)*Mathf.Sin(t*7-clock*1.2f+phase),
++                        size*t*(.52f+.14f*burst));
++                    Strip(mesh,previous,point,size*(.006f+.018f*t),Smoke,(1-t)*(.14f+burst*.21f));previous=point;
++                }
++            }
++            for(int i=0;i<13;i++){
++                float p=Mathf.Repeat(clock*(.21f+i%3*.025f)+i*.618f,1);
++                var point=rim+new Vector2(size*(.04f+.23f*p)*Mathf.Sin(8*p+i),size*p*(.40f+burst*.27f));
++                Glow(mesh,point,size*(.010f+burst*.012f),Amber,Mathf.Sin(p*Mathf.PI)*(.42f+burst*.48f));
++            }
++            Glow(mesh,rim,size*(.19f+.14f*burst),Amber,.12f+.34f*burst+.03f*Mathf.Sin(clock*3));
++        }
++        private static void Glow(VertexHelper m,Vector2 v,float radius,Color color,float alpha)
++        {
++            int first=m.currentVertCount;color.a=alpha;m.AddVert(v,color,Vector2.zero);color.a=0;
++            for(int k=0;k<=12;k++){float a=k*Mathf.PI/6;m.AddVert(v+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*radius,color,Vector2.zero);if(k>0)m.AddTriangle(first,first+k,first+k+1);}
++        }
++        private static void Strip(VertexHelper m,Vector2 a,Vector2 b,float radius,Color color,float alpha)
++        {
++            var d=(b-a).normalized;var side=new Vector2(-d.y,d.x)*radius;int k=m.currentVertCount;
++            color.a=alpha;m.AddVert(a-side,color,Vector2.zero);m.AddVert(a+side,color,Vector2.zero);
++            m.AddVert(b+side,color,Vector2.zero);m.AddVert(b-side,color,Vector2.zero);m.AddTriangle(k,k+1,k+2);m.AddTriangle(k,k+2,k+3);
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarIncense.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarIncense.cs.meta
+new file mode 100644
+index 0000000..9d0d103
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarIncense.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: 3ee2ebc5878b421fb3a9ef044d2ff801
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarView.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarView.cs
+new file mode 100644
+index 0000000..561acf1
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarView.cs
+@@ -0,0 +1,245 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace XiuZhenJie
++{
++    internal sealed class VoidAltarView : MonoBehaviour
++    {
++        [Serializable] private class Pick { public string goodsId; public int count; }
++        [Serializable] private class Order { public string action, quoteId, requestId; public int grade; public Pick[] altarItems; }
++        [Serializable] private class Book { public string goodsId, name; public int grade, worth, count; }
++        [Serializable] private class Reply
++        {
++            public string error, quoteId;
++            public int before, after, copies, incense, count, grade, cap;
++            public int[] balances;
++            public Book[] books;
++        }
++        private static readonly Color Paper=new Color32(246,236,208,255), Ink=new Color32(52,64,52,255),
++            Soft=new Color32(107,105,83,255), Pine=new Color32(48,77,67,255), Gold=new Color32(205,164,92,255),
++            Cinnabar=new Color32(130,65,48,255), Fog=new Color32(229,219,190,255);
++        private readonly Dictionary<string,int> chosen=new Dictionary<string,int>(StringComparer.Ordinal);
++        private Font face;
++        private Action close;
++        private RectTransform hero, body, footer;
++        private Text stageMark, status;
++        private ScrollRect scroll;
++        private VoidAltarIncense incense;
++        private Reply ledger, quote;
++        private int grade, epoch;
++        private bool waiting;
++        private string key;
++
++        internal static VoidAltarView Create(Transform parent, Font font, Action exit)
++        {
++            var root=Node(parent,"虚神祭坛"); Set(root,0,0,1,1);
++            var view=root.gameObject.AddComponent<VoidAltarView>();
++            view.face=font??Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");view.close=exit;
++            view.Build(root);return view;
++        }
++
++        private static RectTransform Node(Transform parent,string name)
++        {
++            var rect=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();
++            rect.SetParent(parent,false);rect.gameObject.layer=parent.gameObject.layer;return rect;
++        }
++
++        private static void Set(RectTransform r,float x1,float y1,float x2,float y2,float left=0,float bottom=0,float right=0,float top=0)
++        {
++            r.anchorMin=new Vector2(x1,y1);r.anchorMax=new Vector2(x2,y2);
++            r.offsetMin=new Vector2(left,bottom);r.offsetMax=new Vector2(-right,-top);
++        }
++
++        private static Image Fill(RectTransform r,Color c,bool hit=false)
++        {var im=r.gameObject.AddComponent<Image>();im.color=c;im.raycastTarget=hit;return im;}
++
++        private Text Label(RectTransform r,string words,int size,Color color,TextAnchor anchor)
++        {
++            var txt=r.gameObject.AddComponent<Text>();txt.font=face;txt.text=words;txt.supportRichText=false;txt.color=color;
++            txt.fontSize=size;txt.alignment=anchor;txt.raycastTarget=false;txt.resizeTextForBestFit=true;
++            txt.resizeTextMinSize=Mathf.Min(11,size);txt.resizeTextMaxSize=size;return txt;
++        }
++
++        private Text Place(RectTransform parent,string name,string words,int size,Color color,
++            float x1,float y1,float x2,float y2,TextAnchor alignment=TextAnchor.MiddleLeft)
++        {
++            var r=Node(parent,name);Set(r,x1,y1,x2,y2);return Label(r,words,size,color,alignment);
++        }
++
++        private void Build(RectTransform root)
++        {
++            var paper=Fill(root,Paper,true);var pageArt=ReleasedResources.Load<Sprite>("InkInterface/InkLedgerPaper");
++            if(pageArt!=null){paper.sprite=pageArt;paper.color=Color.white;}
++            hero=Node(root,"祭台画幅");Set(hero,0,.63f,1,1);Fill(hero,Pine);hero.gameObject.AddComponent<RectMask2D>();
++            var cover=Node(hero,"炉台山色");Set(cover,0,0,1,1);
++            var art=Fill(cover,Color.white);
++            art.sprite=XiuZhenJie.Client.Release.ReleaseRuntime.LoadContent("assets/gamedata/textures/xushendian/bg_hedaotai.asset",typeof(Sprite)) as Sprite;
++            if(art.sprite==null) art.sprite=root.parent.Find("BG")?.GetComponent<Image>()?.sprite??ReleasedResources.Load<Sprite>("InkInterface/MountainHall");
++            if(art.sprite!=null){var fit=cover.gameObject.AddComponent<AspectRatioFitter>();fit.aspectMode=AspectRatioFitter.AspectMode.EnvelopeParent;fit.aspectRatio=art.sprite.rect.width/art.sprite.rect.height;}
++            var shadow=Node(hero,"翠绢");Set(shadow,0,0,.23f,1);Fill(shadow,new Color32(29,51,45,187));
++            Place(hero,"坛额","虚\n神\n祭\n坛",32,Paper,.015f,.19f,.185f,.9f,TextAnchor.MiddleCenter);
++            var seal=Node(hero,"祭坛朱印");Set(seal,.175f,.36f,.222f,.73f);Fill(seal,Cinnabar);
++            Place(seal,"朱印题字","焚\n卷\n求\n经",10,Paper,0,0,1,1,TextAnchor.MiddleCenter);
++            var horizon=Node(hero,"金线");Set(horizon,0,0,1,0,0,0,0,-2);Fill(horizon,Gold);
++            var foot=Node(hero,"炉刻");Set(foot,.25f,0,1,.18f);Fill(foot,new Color32(29,49,43,192));
++            stageMark=Place(foot,"炉境","",17,Paper,.04f,0,.97f,1,TextAnchor.MiddleRight);
++            var mount=Node(hero,"青铜炉台");Set(mount,.48f,.21f,.82f,.85f);var relic=Node(mount,"青铜香炉");Set(relic,0,0,1,1);
++            var relicFit=relic.gameObject.AddComponent<AspectRatioFitter>();relicFit.aspectMode=AspectRatioFitter.AspectMode.FitInParent;relicFit.aspectRatio=1;
++            var raw=relic.gameObject.AddComponent<RawImage>();raw.texture=ReleasedResources.Load<Texture2D>("VoidRealm/profession-relics");raw.uvRect=new Rect(.001f,2f/3+.001f,1f/3-.002f,1f/3-.002f);raw.raycastTarget=false;raw.enabled=raw.texture!=null;
++            var fx=Node(hero,"皈香流火");Set(fx,0,0,1,1);incense=fx.gameObject.AddComponent<VoidAltarIncense>();incense.raycastTarget=false;incense.Bind(relic);
++            var rail=Node(root,"祭书册页");Set(rail,0,0,1,.63f,9,83,9,5);
++            Fill(rail,new Color(1,1,1,.025f),true);rail.gameObject.AddComponent<RectMask2D>();
++            scroll=rail.gameObject.AddComponent<ScrollRect>();scroll.horizontal=false;scroll.viewport=rail;
++            scroll.movementType=ScrollRect.MovementType.Clamped;scroll.scrollSensitivity=28;
++            body=Node(rail,"卷目");body.anchorMin=new Vector2(0,1);body.anchorMax=Vector2.one;body.pivot=new Vector2(.5f,1);body.sizeDelta=Vector2.zero;
++            var layout=body.gameObject.AddComponent<VerticalLayoutGroup>();layout.spacing=4;layout.padding=new RectOffset(4,4,2,8);
++            layout.childForceExpandHeight=false;layout.childControlHeight=true;
++            body.gameObject.AddComponent<ContentSizeFitter>().verticalFit=ContentSizeFitter.FitMode.PreferredSize;scroll.content=body;
++            footer=Node(root,"坛前操作");Set(footer,0,0,1,0,9,9,9,-51);
++            var msg=Node(root,"本炉状态");Set(msg,0,0,1,0,15,50,15,-82);status=Label(msg,"",13,Soft,TextAnchor.MiddleCenter);
++        }
++
++        internal void Open()
++        {
++            Cancel();grade=1;ledger=null;quote=null;chosen.Clear();
++            var role=Singleton<RoleManager>.Instance;
++            key="xzj.void.altar|"+Constants.LoginServerIP+":"+Constants.LoginServerPort+"|"+role.ServerId+"|"+role.currentRoleId;
++            Reload();
++        }
++        internal void Cancel(){epoch++;waiting=false;}
++        private void OnDisable(){Cancel();}
++
++        private void Fetch(Order order,Action<Reply> done,Action retry)
++        {
++            if(waiting)return;
++            int token=++epoch;waiting=true;status.text="正在核对炉册…";
++            ForgeWire.Send((MsgType)4901070,JsonUtility.ToJson(order),(success,json)=>{
++                if(this==null || !isActiveAndEnabled || token!=epoch)return;
++                waiting=false;
++                Reply result=null;
++                try {if(!string.IsNullOrEmpty(json))result=JsonUtility.FromJson<Reply>(json);}catch(ArgumentException){}
++                if(!success || result==null)
++                {
++                    status.text=result?.error??"炉册暂未应答，可重试。";
++                    if(order.action=="altarOffer" && result!=null){PlayerPrefs.DeleteKey(key);PlayerPrefs.Save();quote=null;}
++                    if(order.action=="altarOffer" && result==null) Controls("离坛",close,"重取本炉回执",()=>Submit(order));
++                    else Controls("离坛",close,"重新核对",retry);
++                    return;
++                }
++                status.text="";done(result);
++            });
++        }
++        private void Reload()
++        {
++            quote=null;
++            Controls("离坛",close,"重读炉册",Reload);
++            Fetch(new Order{action="altar"},result=>{
++                ledger=result;
++                grade=Mathf.Clamp(grade,1,Mathf.Max(1,ledger.cap));
++                var remaining=ledger.books??Array.Empty<Book>();
++                foreach(var id in chosen.Keys.ToArray()){
++                    var book=Array.Find(remaining,b=>b.goodsId==id && b.grade>=grade);
++                    if(book==null)chosen.Remove(id);else chosen[id]=Math.Min(chosen[id],book.count);
++                }
++                ShowShelf(true);
++                if(PlayerPrefs.HasKey(key)){
++                    Order pending=null;try{pending=JsonUtility.FromJson<Order>(PlayerPrefs.GetString(key));}catch(ArgumentException){}
++                    if(pending!=null && pending.action=="altarOffer" && !string.IsNullOrEmpty(pending.requestId)){
++                        Clear(body);Heading("上炉回执");Copy("上次点火后回执未送达，请先取回本炉记录。",15,2);status.text="上炉回执尚待核对。";Controls("离坛",close,"重取上炉回执",()=>Submit(pending));
++                    }
++                }
++            },Reload);
++        }
++
++        private static void Clear(RectTransform parent)
++        {for(int i=parent.childCount-1;i>=0;i--){var go=parent.GetChild(i).gameObject;go.SetActive(false);Destroy(go);}}
++
++        private RectTransform Line(string name,float height)
++        {var r=Node(body,name);r.gameObject.AddComponent<LayoutElement>().preferredHeight=height;return r;}
++        private void Heading(string words)
++        {var r=Line(words,34);Label(r,words,22,Ink,TextAnchor.MiddleLeft);}
++        private void Copy(string words,int size=15,int rows=2)
++        {var r=Line("卷文",rows*20+2);Label(r,words,size,Soft,TextAnchor.MiddleLeft);}
++        private void Button(RectTransform parent,string text,Action action,float a,float b,Color tone)
++        {
++            var r=Node(parent,text);Set(r,a,0,b,1,2,1,2,1);var bg=Fill(r,tone,true);
++            var button=r.gameObject.AddComponent<Button>();button.targetGraphic=bg;button.interactable=action!=null;
++            if(action!=null)button.onClick.AddListener(()=>{if(!waiting||action==close)action();});
++            var t=Node(r,"按钮名");Set(t,0,0,1,1,2,1,2,1);Label(t,text,16,Paper,TextAnchor.MiddleCenter);
++        }
++        private void Controls(string a,Action first,string b,Action second)
++        {Clear(footer);Button(footer,a,first,0,.35f,Pine);Button(footer,b,second,.36f,1,second==null?Soft:Cinnabar);}
++        private static string Tier(int n)=>VoidRealmCatalog.Stage(n);
++        private int Balance=>ledger?.balances!=null && grade<=ledger.balances.Length?ledger.balances[grade-1]:0;
++        private int Count=>chosen.Values.Sum();
++        private int Added=>ledger?.books==null?0:ledger.books.Sum(b=>chosen.TryGetValue(b.goodsId,out int n)?n*b.worth:0);
++        private void Meter(int amount)
++        {
++            var line=Line("八瓣炉盘",12);
++            for(int i=0;i<8;i++){var light=Node(line,"香瓣");Set(light,i/8f,0,(i+1)/8f,1,1,2,1,2);Fill(light,i<amount?Gold:Fog);}
++        }
++        private void ShowShelf(bool top)
++        {
++            quote=null;Clear(body);if(top)scroll.verticalNormalizedPosition=1;
++            stageMark.text=Tier(grade)+"经炉　·　"+Balance+"/8 余香";incense.Set(Balance+Added,false);
++            Heading("择卷入坛");
++            Copy("同阶及更高境界的旧书可入炉。黄、玄、地、天阶每册各生一至四点香，八点凝成一部同阶德经。",14,2);
++            var tier=Line("炉阶",36);Button(tier,"−",grade>1?(Action)(()=>ChangeGrade(-1)):null,0,.14f,Pine);
++            Place(tier,"炉铭",Tier(grade)+"炉　·　余香 "+Balance+" / 8",16,Ink,.15f,0,.84f,1,TextAnchor.MiddleCenter);
++            Button(tier,"＋",grade<ledger.cap?(Action)(()=>ChangeGrade(1)):null,.85f,1,Pine);Meter(Balance);
++            var available=(ledger.books??Array.Empty<Book>()).Where(b=>b.grade>=grade).ToList();
++            if(available.Count==0)Copy(grade==1?"一阶祭书可在虚神界的合道台抄录，每次 120 灵石得两册。也可从奇珍阁竞得经卷。":"可在奇珍阁购买同境或更高境界的经卷，或至纳戒解锁闲置图谱。",15,3);
++            else foreach(var book in available){
++                chosen.TryGetValue(book.goodsId,out int count);var row=Line(book.name,45);
++                Place(row,"书名",book.name,16,Ink,0,.39f,.56f,1);
++                Place(row,"卷价",Tier(book.grade)+" · 每册 "+book.worth+" 香 · 存 "+book.count,13,Soft,0,0,.57f,.48f);
++                Button(row,"−",count>0?(Action)(()=>Adjust(book,-1)):null,.58f,.71f,Pine);
++                Place(row,"数量",count.ToString(),17,Ink,.71f,0,.84f,1,TextAnchor.MiddleCenter);
++                Button(row,"＋",count<book.count&&Count<10?(Action)(()=>Adjust(book,1)):null,.85f,1,Pine);
++            }
++            status.text=Count==0?"一炉可选一至十册。":"已选 "+Count+" / 10 册　·　添香 "+Added+" 点";
++            Controls("离坛",close,"核香预览",Count>0?(Action)Preview:null);
++        }
++        private void ChangeGrade(int delta){grade+=delta;chosen.Clear();ShowShelf(true);}
++        private void Adjust(Book b,int delta)
++        {
++            float pos=scroll.verticalNormalizedPosition;chosen.TryGetValue(b.goodsId,out int n);
++            if(n+delta>0)chosen[b.goodsId]=n+delta;else chosen.Remove(b.goodsId);
++            ShowShelf(false);Canvas.ForceUpdateCanvases();scroll.verticalNormalizedPosition=pos;
++        }
++        private Order OrderFor(string action)=>new Order{action=action,grade=grade,
++            altarItems=chosen.OrderBy(p=>p.Key,StringComparer.Ordinal).Select(p=>new Pick{goodsId=p.Key,count=p.Value}).ToArray()};
++        private void Preview()
++        {
++            Fetch(OrderFor("altarPreview"),r=>{quote=r;ShowResult(r,false);},Reload);
++        }
++        private void ShowResult(Reply result,bool offered)
++        {
++            Clear(body);scroll.verticalNormalizedPosition=1;incense.Set(result.before+result.incense,offered);
++            stageMark.text=offered?"祭火已歇　·　余香入炉":"卷册已齐　·　待点祭火";
++            Heading(offered?"祭坛回执":"核香清单");
++            Copy(result.count+" 册旧书　·　原有 "+result.before+" 香 ＋ 本炉 "+result.incense+" 香",16,1);
++            Meter(result.after);
++            Heading(result.copies>0?Tier(result.grade)+"德经 × "+result.copies:"余香 "+result.after+" / 8");
++            Copy(result.copies>0?(offered?"德经已收入纳戒。":"点火后德经将收入纳戒。")+" 可在参悟功法时使用同境德经，提升灵衍与品阶。":"此炉尚未满八点，余香会留在本阶炉中。",15,2);
++            if(!offered){foreach(var b in ledger.books??Array.Empty<Book>()){if(chosen.TryGetValue(b.goodsId,out int n))Copy(b.name+"　× "+n,14,1);}}
++            status.text="此炉结算后留香 "+result.after+" / 8";
++            if(offered){Controls("离坛",close,"再择一炉",Reload);return;}
++            Controls("返回择卷",()=>ShowShelf(false),"点火献卷",()=>{
++                if(quote==null)return;var order=OrderFor("altarOffer");order.quoteId=quote.quoteId;order.requestId=Guid.NewGuid().ToString("N");
++                PlayerPrefs.SetString(key,JsonUtility.ToJson(order));PlayerPrefs.Save();Submit(order);
++            });
++        }
++        private void Submit(Order order)
++        {
++            Fetch(order,result=>{
++                PlayerPrefs.DeleteKey(key);PlayerPrefs.Save();chosen.Clear();quote=null;
++                if(Singleton<RoleManager>.Instance.RoleBoxDic.TryGetValue(10,out var bag))bag.GetAllGoods(null,false);
++                ShowResult(result,true);
++            },Reload);
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarView.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarView.cs.meta
+new file mode 100644
+index 0000000..c3f6706
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidAltarView.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: 06d24bf7cb7d4aa8a5b8209654cc5ddf
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidFacilityPage.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidFacilityPage.cs
+new file mode 100644
+index 0000000..16b1f46
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidFacilityPage.cs
+@@ -0,0 +1,119 @@
++using System;
++using UnityEngine;
++using UnityEngine.UI;
++
++namespace XiuZhenJie
++{
++    internal sealed class VoidFacilityPage
++    {
++        [Serializable] internal class Query { public string action, hall, mode; public int brief, answer, stage, page; }
++        [Serializable] internal class Hall { public string id; public int rank,seals; }
++        [Serializable] internal class Work { public string id,name,hallId; public int grade,score; }
++        [Serializable] internal class Rank { public string Name,Faction; public int Level,Age,TierNum; }
++        [Serializable] internal class Reply
++        {
++            public string error,name,hint,teaching,question;
++            public int stage,best,next,mine,count;
++            public bool passed,correct,more;
++            public string[] choices;
++            public Hall[] halls;
++            public Work[] works;
++            public Rank[] ranks;
++        }
++
++        private readonly Window owner;
++        private readonly Font font;
++        private readonly bool tower;
++        private RectTransform root,body;
++        private int epoch;
++        private bool waiting;
++        private static readonly Color Paper=new Color32(236,226,199,255), Ink=new Color32(53,45,29,255);
++        private static readonly Color Jade=new Color32(41,74,66,255), Gold=new Color32(213,181,117,255);
++
++        internal VoidFacilityPage(Window window,bool isTower)
++        {
++            owner=window;tower=isTower;
++            font=window.GameObject.GetComponentInChildren<Text>(true)?.font ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
++        }
++        private static RectTransform Node(Transform parent,string name)
++        {
++            var o=new GameObject(name,typeof(RectTransform)); var r=(RectTransform)o.transform; r.SetParent(parent,false); return r;
++        }
++        private static void Place(RectTransform r,float x,float y,float X,float Y,float l=0,float b=0,float e=0,float t=0)
++        {
++            r.anchorMin=new Vector2(x,y); r.anchorMax=new Vector2(X,Y);r.offsetMin=new Vector2(l,b);r.offsetMax=new Vector2(-e,-t);
++        }
++        private static Image Paint(RectTransform r,Color color)
++        {
++            var i=r.gameObject.AddComponent<Image>();i.color=color;i.raycastTarget=false;return i;
++        }
++        private Text TextOn(RectTransform rect,string words,int size,Color color,TextAnchor anchor=TextAnchor.MiddleLeft)
++        {
++            var tx=rect.gameObject.AddComponent<Text>();tx.font=font;tx.fontSize=size;tx.text=words;tx.color=color;
++            tx.alignment=anchor;tx.raycastTarget=false;tx.supportRichText=false;return tx;
++        }
++        internal void Cancel(){epoch++;waiting=false;}
++        internal void Hide()
++        {
++            Cancel();
++            if(root!=null){root.gameObject.SetActive(false);UnityEngine.Object.Destroy(root.gameObject);root=null;}
++        }
++        internal void Begin(string title,string subtitle,Action back)
++        {
++            Hide();
++            root=Node(owner.GameObject.transform,title);Place(root,0,0,1,1);
++            var paper=Paint(root,Paper);paper.sprite=InkInterfaceArt.Get("Paper");paper.raycastTarget=true;
++            var hero=Node(root,"殿景");Place(hero,0,.68f,1,1);hero.gameObject.AddComponent<RectMask2D>();
++            var picture=Node(hero,"山水");Place(picture,0,0,1,1);
++            var art=Paint(picture,Color.white);art.sprite=ReleasedResources.Load<Sprite>("VoidRealm/"+(tower?"studio":"hall"));
++            if(art.sprite!=null){
++                var fit=picture.gameObject.AddComponent<AspectRatioFitter>();fit.aspectMode=AspectRatioFitter.AspectMode.EnvelopeParent;
++                fit.aspectRatio=art.sprite.rect.width/art.sprite.rect.height;
++            }
++            var band=Node(hero,"墨漆题签");Place(band,0,0,1,0,0,0,0,-60);Paint(band,new Color32(21,41,37,232));
++            var h=Node(band,"篇名");Place(h,0,0,1,1,14,21,5,2);TextOn(h,title,22,Paper);
++            var sub=Node(band,"小题");Place(sub,0,0,1,0,15,4,4,-22);TextOn(sub,subtitle,12,Gold);
++            var ret=Node(hero,"返回");Place(ret,0,1,0,1,9,-35,-63,7);MakeButton(ret,"返回",back,true);
++            var viewport=Node(root,"卷轴");Place(viewport,0,0,1,.68f,5,0,5,0);
++            var surface=Paint(viewport,new Color(1,1,1,.001f));surface.raycastTarget=true;
++            viewport.gameObject.AddComponent<RectMask2D>();var scroll=viewport.gameObject.AddComponent<ScrollRect>();
++            scroll.viewport=viewport;scroll.horizontal=false;scroll.movementType=ScrollRect.MovementType.Clamped;
++            body=Node(viewport,"卷页");body.anchorMin=new Vector2(0,1);body.anchorMax=Vector2.one;body.pivot=new Vector2(.5f,1);body.sizeDelta=Vector2.zero;
++            var layout=body.gameObject.AddComponent<VerticalLayoutGroup>();layout.spacing=5;layout.padding=new RectOffset(9,9,8,12);
++            layout.childControlWidth=true;layout.childControlHeight=true;layout.childForceExpandHeight=false;
++            body.gameObject.AddComponent<ContentSizeFitter>().verticalFit=ContentSizeFitter.FitMode.PreferredSize;scroll.content=body;
++        }
++        internal void Copy(string words)
++        {
++            var line=Node(body,"札记");var tx=TextOn(line,words,14,Ink);
++            tx.horizontalOverflow=HorizontalWrapMode.Wrap;tx.verticalOverflow=VerticalWrapMode.Overflow;
++            line.gameObject.AddComponent<LayoutElement>().minHeight=25;
++        }
++        internal void Action(string text,Action click,bool primary=false)
++        {
++            var row=Node(body,text);row.gameObject.AddComponent<LayoutElement>().preferredHeight=37;MakeButton(row,text,click,primary);
++        }
++        private void MakeButton(RectTransform row,string text,Action click,bool primary)
++        {
++            var bg=Paint(row,primary?Jade:new Color32(221,207,173,255));bg.raycastTarget=true;
++            var rule=Node(row,"金边");Place(rule,0,0,1,0,0,0,0,-1);Paint(rule,Gold);
++            var lab=Node(row,"题字");Place(lab,0,0,1,1,7,1,7,1);TextOn(lab,text,14,primary?Paper:Ink,TextAnchor.MiddleCenter);
++            var btn=row.gameObject.AddComponent<Button>();btn.targetGraphic=bg;btn.onClick.AddListener(()=>{if(!waiting)click();});
++        }
++        internal void Fetch(Query q,Action<Reply> draw)
++        {
++            if(waiting)return;
++            int active=epoch;waiting=true;
++            ForgeWire.Send((MsgType)4901076,JsonUtility.ToJson(q),(ok,raw)=>{
++                if(active!=epoch||owner.GameObject==null||!owner.GameObject.activeInHierarchy)return;
++                waiting=false;Reply answer=null;
++                if(!string.IsNullOrEmpty(raw)){try{answer=JsonUtility.FromJson<Reply>(raw);}catch(ArgumentException){}}
++                if(!ok||answer==null||!string.IsNullOrEmpty(answer.error)){
++                    MonoSingleton<GameStart>.Instance.PopUpAttention(answer?.error??"殿籍暂未送达，请重试。");
++                    Action("重试",()=>Fetch(q,draw));return;
++                }
++                draw(answer);
++            });
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidFacilityPage.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidFacilityPage.cs.meta
+new file mode 100644
+index 0000000..0cf7977
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidFacilityPage.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: ace5957cd71647d0bedb46b6ddbcab4b
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.FacilityLinks.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.FacilityLinks.cs
+new file mode 100644
+index 0000000..8cc407e
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.FacilityLinks.cs
+@@ -0,0 +1,8 @@
++namespace XiuZhenJie
++{
++    internal sealed partial class VoidRealmView
++    {
++        internal void OpenTempleWorkshop(string hallId) => OpenWorkshop(hallId);
++        internal void OpenTempleWork(string workId) => OpenWork(workId);
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.FacilityLinks.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.FacilityLinks.cs.meta
+new file mode 100644
+index 0000000..f43c472
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.FacilityLinks.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: 8b3caf3527b243f49fc68f5713f17ece
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.Public.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.Public.cs
+index bf52fe9..5e79683 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.Public.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.Public.cs
+@@ -13,14 +13,43 @@ namespace XiuZhenJie
+         private int boardPage, boardFilter, topic, rankPage, rankGrade;
+         private string rankHall="", rankMode="quality", attachedId, attachedName, noteDraft="";
+ 
++        private void DrawFacilities()
++        {
++            var first = Band("殿塔", 48, 8, 8, 3);
++            FacilityDoor(first, false, "虚神殿", "百工研习", temple, Jade);
++            FacilityDoor(first, true, "虚神塔", "闯塔争榜", tower, new Color32(76,79,104,255));
++            var second = Band("坛台", 48, 8, 8, 4);
++            FacilityDoor(second, false, "虚神祭坛", "献卷求经", altar, new Color32(134,64,51,255));
++            FacilityDoor(second, true, "合道台", "双卷合参", concord, new Color32(103,87,55,255));
++        }
++
++        private void FacilityDoor(RectTransform band, bool right, string title, string detail, Action open, Color color)
++        {
++            var tile = Node(band, title);
++            Box(tile, right ? .5f : 0, 0, right ? 1 : .5f, 1, right ? 2 : 0, 0, right ? 0 : 2, 0);
++            var surface = Paint(tile, color, true);
++            var button = tile.gameObject.AddComponent<Button>();
++            button.targetGraphic = surface;
++            button.onClick.AddListener(() => open());
++            var trim = Node(tile, "描金");
++            Box(trim, 0, 0, 0, 1, 3, 4, -5, 4);
++            Paint(trim, Gold);
++            var name = Caption(tile, title, 17, Ivory, TextAnchor.MiddleLeft, true);
++            Box(name.rectTransform, 0, .38f, 1, 1, 12, 0, 4, 1);
++            var note = Caption(tile, detail, 11, new Color32(241,221,178,255));
++            Box(note.rectTransform, 0, 0, 1, .43f, 12, 2, 4, 0);
++        }
++
+         private void ShowHalls()
+         {
+             tab=0;
+-            BeginPage("虚神界","虚神殿 · 九馆论艺");
++            BeginPage("虚神界","九馆论艺");
++            DrawFacilities();
+             Request(new VoidRealmClient.Order {action="lobby"},reply =>
+             {
+                 lobby=reply;
+-                BeginPage("虚神界","虚神殿 · 九馆论艺");
++                BeginPage("虚神界","九馆论艺");
++                DrawFacilities();
+                 var permitted = reply.halls ?? Array.Empty<VoidRealmClient.Hall>();
+                 var halls = VoidRealmCatalog.Halls.OrderByDescending(h => Array.Exists(permitted,a => a.id==h.id && a.rank>0)).ToArray();
+                 var first = Array.Find(halls,h => Array.Exists(permitted,a => a.id==h.id && a.rank>0));
+@@ -46,11 +75,6 @@ namespace XiuZhenJie
+                         OpenWorkshop(h.id);
+                     },icon,accent);
+                 }
+-                Section("界中设施");
+-                Row("虚神殿","百工原有设施","入殿",temple);
+-                Row("虚神塔","境界与寿元榜","入塔",tower);
+-                Row("虚神祭坛","选择祭品","入坛",altar);
+-                Row("合道台","尚未开放","封存",null);
+             });
+         }
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.cs
+index 8e58b0f..79f365a 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidRealmView.cs
+@@ -12,7 +12,7 @@ namespace XiuZhenJie
+             LineInk = new Color32(191,177,139,255);
+         private static readonly string[] DockTitles = {"大厅","留言板","排行榜"};
+         private Font font;
+-        private Action leave, temple, tower, altar;
++        private Action leave, temple, tower, altar, concord;
+         private Action<string> legacy;
+         private RectTransform pageRoot, body, viewport, message, feature;
+         private ScrollRect scroll;
+@@ -24,7 +24,7 @@ namespace XiuZhenJie
+         private string pageTitle, location;
+ 
+         internal static VoidRealmView Open(Transform parent, Font font, Action close, Action temple, Action tower,
+-            Action altar, Action<string> legacyHall)
++            Action altar, Action concord, Action<string> legacyHall)
+         {
+             var existing = parent.Find("VoidRealmView");
+             if (existing != null) return existing.GetComponent<VoidRealmView>();
+@@ -33,7 +33,8 @@ namespace XiuZhenJie
+             Paint(root,Ivory,true);
+             var view = root.gameObject.AddComponent<VoidRealmView>();
+             view.font = font ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+-            view.leave = close; view.temple = temple; view.tower = tower; view.altar = altar; view.legacy = legacyHall;
++            view.leave = close; view.temple = temple; view.tower = tower; view.altar = altar;
++            view.concord = concord; view.legacy = legacyHall;
+             view.ShowHalls();
+             return view;
+         }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTempleReading.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTempleReading.cs
+new file mode 100644
+index 0000000..c2c8103
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTempleReading.cs
+@@ -0,0 +1,88 @@
++using System;
++using System.Linq;
++
++namespace XiuZhenJie
++{
++    internal sealed class VoidTempleReading
++    {
++        private readonly VoidFacilityPage page;
++        private readonly Action close, legacy;
++        private readonly Action<string> workshop,readWork;
++        private VoidFacilityPage.Hall[] halls;
++        internal VoidTempleReading(Window owner,Action quit,Action oldDoors,Action<string> enter,Action<string> read)
++        {
++            page=new VoidFacilityPage(owner,false);close=quit;legacy=oldDoors;workshop=enter;readWork=read;
++        }
++        internal void Hide()=>page.Hide();
++        internal void Home()
++        {
++            page.Begin("虚神殿","百工经义 · 当值授业",close);
++            page.Fetch(new VoidFacilityPage.Query{action="temple"},r=>{
++                halls=r.halls??Array.Empty<VoidFacilityPage.Hall>();
++                page.Copy("已收经印  "+halls.Sum(x=>x.seals)+" / 27");
++                page.Action("问经台　·　选馆研习",Directory,true);
++                page.Action("我的谱册　·　查阅亲署作品",()=>Portfolio(0));
++                page.Action("七门旧殿　·　原有设施",()=>{page.Hide();legacy();});
++            });
++        }
++        private void Directory()
++        {
++            page.Begin("问经台","九馆藏经 · 选一门读卷",Home);
++            foreach(var h in halls){
++                var catalog=VoidRealmCatalog.Find(h.id);if(catalog==null)continue;
++                page.Action(catalog.hall+"　"+h.seals+"/3印　·　"+(h.rank>0?VoidRealmCatalog.Rank(h.rank):"旁听"),()=>Hall(h),h.rank>0);
++            }
++        }
++        private void Hall(VoidFacilityPage.Hall hall)
++        {
++            var book=VoidRealmCreationCatalog.Find(hall.id);var h=VoidRealmCatalog.Find(hall.id);
++            page.Begin(h.hall+"经席",book.product+" · 工艺与辨识",Directory);
++            page.Copy(book.mechanic);
++            for(int i=0;i<book.briefs.Length;i++){
++                int brief=i;page.Action(book.briefs[i].name+"　·　开卷",()=>Lecture(hall,brief));
++            }
++            if(hall.rank>0)page.Action("执印入工坊　·　"+VoidRealmCatalog.Rank(hall.rank),()=>workshop(hall.id),true);
++            else page.Copy("可旁听研习。创作本馆作品需"+h.job+"职印。");
++        }
++        private void Lecture(VoidFacilityPage.Hall hall,int brief)
++        {
++            page.Begin("开卷问经",VoidRealmCatalog.Find(hall.id).hall,()=>Hall(hall));
++            page.Fetch(new VoidFacilityPage.Query{action="lecture",hall=hall.id,brief=brief},r=>{
++                page.Begin(r.name,r.passed?"本篇经印已收录":"温经 · 读卷后合卷辨义",()=>Hall(hall));
++                page.Copy(r.hint);page.Copy(r.teaching);
++                page.Action("合卷辨义",()=>Question(hall,brief,r),true);
++            });
++        }
++        private void Question(VoidFacilityPage.Hall hall,int brief,VoidFacilityPage.Reply lecture)
++        {
++            page.Begin(lecture.name,"合卷辨义",()=>Lecture(hall,brief));page.Copy(lecture.question);
++            for(int i=0;i<lecture.choices.Length;i++){
++                int answer=i+1;
++                page.Action(lecture.choices[i],()=>page.Fetch(new VoidFacilityPage.Query{action="seal",hall=hall.id,brief=brief,answer=answer},r=>{
++                    page.Begin(r.correct?"经印录成":"经义尚有偏差",lecture.name,()=>Lecture(hall,brief));
++                    page.Copy(r.correct?"此篇已记入角色殿籍。":r.question);
++                    if(r.correct){
++                        page.Copy(r.teaching);
++                        page.Action("返回殿中览印",Home,true);
++                        page.Action("研读下一篇",()=>Lecture(hall,(brief+1)%3));
++                        if(hall.rank>0)page.Action("进工坊应用所学",()=>workshop(hall.id));
++                    }else page.Action("展卷复读",()=>Lecture(hall,brief),true);
++                }));
++            }
++        }
++        private void Portfolio(int index)
++        {
++            page.Begin("我的谱册","亲署原作 · 按落印时间倒序",Home);
++            page.Fetch(new VoidFacilityPage.Query{action="folio",page=index},r=>{
++                page.Copy("亲署 "+r.count+" 卷　·　第 "+(index+1)+" 页");
++                foreach(var work in r.works??Array.Empty<VoidFacilityPage.Work>()){
++                    var h=VoidRealmCatalog.Find(work.hallId);
++                    page.Action("《"+work.name+"》　"+(h?.hall??"")+" · "+work.score+"分",()=>readWork(work.id));
++                }
++                if(r.count==0)page.Copy("在本职工坊完成推演并题名落印，作品会收录在这里。");
++                if(index>0)page.Action("上一页",()=>Portfolio(index-1));
++                if(r.more)page.Action("下一页",()=>Portfolio(index+1));
++            });
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTempleReading.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTempleReading.cs.meta
+new file mode 100644
+index 0000000..07b0619
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTempleReading.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: 825e77398b2f437ea980ad20d199840e
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTowerClimb.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTowerClimb.cs
+new file mode 100644
+index 0000000..a7a0151
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTowerClimb.cs
+@@ -0,0 +1,54 @@
++using System;
++using UnityEngine;
++
++namespace XiuZhenJie
++{
++    internal sealed class VoidTowerClimb
++    {
++        private static readonly string[] Realms={"结丹","元婴","化神","炼虚","合体","渡劫","大乘"};
++        private readonly VoidFacilityPage page;
++        private readonly Action close;
++        private readonly Action<int> challenge;
++        internal VoidTowerClimb(Window owner,Action quit,Action<int> start){
++            page=new VoidFacilityPage(owner,true);close=quit;challenge=start;
++        }
++        internal void Cancel()=>page.Cancel();
++        internal void Home()
++        {
++            page.Begin("虚神塔","镇守虚境 · 挑战塔层",close);
++            page.Fetch(new VoidFacilityPage.Query{action="tower"},r=>{
++                page.Copy(Realms[Mathf.Clamp(r.stage-3,0,6)]+"境　·　"+(r.best>0?"最高过关 "+r.best+" 层":"尚无过关记录"));
++                page.Action("挑战第 "+r.next+" 层",()=>Brief(r),true);
++                page.Action("道境榜　·　同境最高塔层",()=>Rank(r.stage,false));
++                page.Action("天骄榜　·　过关时最年轻的修士",()=>Rank(r.stage,true));
++            });
++        }
++        private void Brief(VoidFacilityPage.Reply record)
++        {
++            page.Begin("第 "+record.next+" 层","虚神塔 · 入阵",Home);
++            page.Copy("击败本层全部守影后，塔中会记下成绩。可继续登塔，也可返城后再来。");
++            page.Copy("结丹自第一层起，每升一重大境界，起始塔层提高四十层。塔中禁用符箓。");
++            page.Action("入塔迎战",()=>challenge(record.next),true);
++        }
++        private void Rank(int stage,bool age)
++        {
++            page.Begin(age?"天骄榜":"道境榜",Realms[stage-3]+"境 · "+(age?"四十层关口":"闯塔层数"),Home);
++            page.Fetch(new VoidFacilityPage.Query{action="tower",stage=stage,mode=age?"age":"height"},r=>{
++                page.Copy(age?"闯过第 "+((stage-2)*40)+" 层时，按过关年龄由小到大排列。":"同一境界内，按实际通关的最高层排列。");
++                page.Action("换查境界　·　"+Realms[stage-3],()=>PickStage(age));
++                page.Copy(r.mine>0?"本人第 "+r.mine+" 名":"本人尚未入榜");
++                var rows=r.ranks??Array.Empty<VoidFacilityPage.Rank>();
++                if(rows.Length==0)page.Copy("本境尚无修士留下成绩。");
++                for(int i=0;i<rows.Length;i++){
++                    var row=rows[i];
++                    page.Copy("第 "+(i+1)+" 名　"+row.Name+"　·　"+row.TierNum+" 层"+(age?"　"+row.Age+" 岁":""));
++                }
++            });
++        }
++        private void PickStage(bool age)
++        {
++            page.Begin("按境查榜",age?"天骄榜":"道境榜",Home);
++            for(int i=0;i<Realms.Length;i++){int stage=i+3;page.Action(Realms[i],()=>Rank(stage,age));}
++        }
++    }
++}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTowerClimb.cs.meta b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTowerClimb.cs.meta
+new file mode 100644
+index 0000000..5aac2c9
+--- /dev/null
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/VoidTowerClimb.cs.meta
+@@ -0,0 +1,13 @@
++fileFormatVersion: 2
++guid: e7b4b81378714237905027890ba53284
++timeCreated: 1794986411
++licenseType: Free
++MonoImporter:
++  serializedVersion: 2
++  externalObjects: {}
++  defaultReferences: []
++  executionOrder: 0
++  icon: {fileID: 0}
++  userData:
++  assetBundleName:
++  assetBundleVariant:
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenDianWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenDianWnd.cs
+index 5e0c0db..2a821c7 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenDianWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenDianWnd.cs
+@@ -11,6 +11,8 @@ namespace XiuZhenJie
+ 		private bool isRolling;
+ 
+ 		private VoidRealmHallDoor hallDoor;
++		private VoidTempleReading reading;
++		private bool oldDoors;
+ 
+ 		public override void Awake(params object[] paralist)
+ 		{
+@@ -35,6 +37,25 @@ namespace XiuZhenJie
+ 			AddButtonClickListener(_panel.DJSD_btn, DaoJingShengDianEnter);
+ 		}
+ 
++        public override void OnShow(params object[] paralist)
++        {
++            base.OnShow(paralist);
++            oldDoors = false;
++            if (reading == null)
++                reading = new VoidTempleReading(this, () => Singleton<UIManager>.Instance.CloseWnd(this),
++                    () => oldDoors = true, id => OpenArchive(id, false), id => OpenArchive(id, true));
++            reading.Home();
++        }
++
++        private void OpenArchive(string id, bool work)
++        {
++            var main = Singleton<UIManager>.Instance.FindWndByName<XuShenJieWnd>("XuShenJieWnd.prefab");
++            var view = main?.Panel.GetComponentInChildren<VoidRealmView>(true);
++            if (view == null) { MonoSingleton<GameStart>.Instance.PopUpAttention("请从虚神界大厅进入虚神殿。"); return; }
++            Singleton<UIManager>.Instance.CloseWnd(this);
++            if (work) view.OpenTempleWork(id); else view.OpenTempleWorkshop(id);
++        }
++
+ 		private void DanShiTaEnter()
+ 		{
+ 			hallDoor.Open("dan");
+@@ -73,11 +94,13 @@ namespace XiuZhenJie
+ 		public override void OnDisable()
+ 		{
+ 			hallDoor.Cancel();
++			reading?.Hide();
+ 			base.OnDisable();
+ 		}
+ 
+ 		private void FanHuiBtnClick()
+ 		{
++			if (oldDoors) { oldDoors=false; reading.Home(); return; }
+ 			Singleton<UIManager>.Instance.CloseWnd(this);
+ 		}
+ 	}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJiTanWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJiTanWnd.cs
+index 8605706..31d634f 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJiTanWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJiTanWnd.cs
+@@ -1,225 +1,34 @@
+-using System;
+-using System.Collections.Generic;
+-using DG.Tweening;
+-using DG.Tweening.Core;
+-using DG.Tweening.Plugins.Options;
+ using UnityEngine;
+ using UnityEngine.UI;
+ 
+ namespace XiuZhenJie
+ {
+-	public class XuShenJiTanWnd : Window
+-	{
+-		public XuShenJiTanPanel Panel;
+-
+-		private GameObject m_UiGoodsItem;
+-
+-		private GameObject m_UiGoodsTogItem;
+-
+-		public Dictionary<int, Sprite> m_GoodsIconSprite;
+-
+-		public Dictionary<int, Sprite> m_RankBgSprite;
+-
+-		private Dictionary<string, BaseNaJieGoodEntity> m_GoodsListDic = new Dictionary<string, BaseNaJieGoodEntity>();
+-
+-		private List<BaseNaJieGoodEntity> m_ChooseGoods = new List<BaseNaJieGoodEntity>();
+-
+-		public override void Awake(params object[] paralist)
+-		{
+-			base.Awake(paralist);
+-			Panel = base.GameObject.GetComponent<XuShenJiTanPanel>();
+-			m_UiGoodsItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/UI_GoodsItem.prefab");
+-			m_UiGoodsTogItem = Singleton<ResourceManager>.Instance.LoadResource<GameObject>("Assets/GameData/Prefabs/Items/UI_GoodsTogItem.prefab");
+-			m_GoodsIconSprite = Singleton<FacadeManager>.Instance.SelectGoodsSprite();
+-			m_RankBgSprite = Singleton<FacadeManager>.Instance.SelectGoodsRankBg();
+-			GetNaJieData();
+-			AddButtonClickListener(Panel.LiKaiBtn, CloseWindow);
+-			AddButtonClickListener(Panel.AddBtn, AddGoods);
+-			AddButtonClickListener(Panel.XianJiBtn, XianJiBtnClick);
+-			AddButtonClickListener(Panel.NaJieCompeleteBtn, CloseNaJie);
+-			AddButtonClickListener(Panel.NaJieMaskBtn, CloseNaJie);
+-		}
+-
+-		private void GetNaJieData()
+-		{
+-			Singleton<RoleManager>.Instance.RoleBoxDic[10].GetAllGoods(() =>
+-			{
+-				foreach (BaseNaJieGoodEntity goods in Singleton<RoleManager>.Instance.RoleBoxDic[10].GoodsList)
+-				{
+-					if (goods.Type == 1 || goods.Type == 2 || ((goods.Type == 4) | (goods.Type == 17)) || goods.Type == 18 || goods.Type == 3 || goods.Type == 5 || goods.Type == 6)
+-					{
+-						m_GoodsListDic.Add(goods.GoodsId, goods.Copy());
+-					}
+-				}
+-			});
+-		}
+-
+-		private void SetItemTextValue(List<string> details)
+-		{
+-			for (int i = 0; i < details.Count; i++)
+-			{
+-				Panel.Item_1_Texts[i].text = InkCraftHalls.FormatAltarEffect(details[i]);
+-			}
+-		}
+-
+-		private void AddGoods()
+-		{
+-			OpenNaJie();
+-		}
+-
+-		private void OpenNaJie()
+-		{
+-			NaJieDataInit();
+-			TweenerCore<Vector2, Vector2, VectorOptions> tweenerCore = DOTween.To(() => Panel.NaJiePanel.anchoredPosition, (Vector2 v) =>
+-			{
+-				Panel.NaJiePanel.anchoredPosition = v;
+-			}, new Vector2(0f, -1.5f), 0.5f);
+-			tweenerCore.onComplete = (TweenCallback)Delegate.Combine(tweenerCore.onComplete, (TweenCallback)(() =>
+-			{
+-				Panel.NaJieMaskBtn.gameObject.SetActive(value: true);
+-			}));
+-		}
+-
+-		private void NaJieDataInit()
+-		{
+-			CleraData(Panel.NaJieGoodsContent);
+-			foreach (KeyValuePair<string, BaseNaJieGoodEntity> item in m_GoodsListDic)
+-			{
+-				CreateItem(item.Value);
+-			}
+-		}
+-
+-		private void CreateItem(BaseNaJieGoodEntity goods)
+-		{
+-			Sprite value = null;
+-			m_GoodsIconSprite.TryGetValue(goods.Type, out value);
+-			int levelByRank = WorldSetting.GetLevelByRank(goods.Rank);
+-			Sprite value2 = null;
+-			m_RankBgSprite.TryGetValue(levelByRank, out value2);
+-			UI_GoodsItem component = SetListContentParent(Panel.NaJieGoodsContent, m_UiGoodsItem).GetComponent<UI_GoodsItem>();
+-			Panel.NaJieGoodsContent.GetComponent<ToggleGroup>();
+-			component.SetItem(goods, goods.Name, goods.FiveElement, goods.Level, value2, value, GoodsItemChoose, isUsing: false, goods.GoodsNum);
+-		}
+-
+-		private void GoodsItemChoose(object dataSource, GameObject itemObj)
+-		{
+-			BaseNaJieGoodEntity baseNaJieGoodEntity = dataSource as BaseNaJieGoodEntity;
+-			UI_GoodsItem ui_Item = itemObj.GetComponent<UI_GoodsItem>();
+-			if (baseNaJieGoodEntity.GoodsNum > 1)
+-			{
+-				Common_ChooseNumEntity common_ChooseNumEntity = new Common_ChooseNumEntity
+-				{
+-					Goods = baseNaJieGoodEntity,
+-					QueRenCallBack = (int num) =>
+-					{
+-						if (num + m_ChooseGoods.Count > 10)
+-						{
+-							MonoSingleton<GameStart>.Instance.PopUpAttention("最多允许献祭10本书籍");
+-						}
+-						else
+-						{
+-							BaseNaJieGoodEntity baseNaJieGoodEntity2 = baseNaJieGoodEntity.Copy();
+-							baseNaJieGoodEntity2.GoodsNum = num;
+-							if (num >= baseNaJieGoodEntity.GoodsNum)
+-							{
+-								m_GoodsListDic.Remove(baseNaJieGoodEntity.GoodsId);
+-								UnityEngine.Object.Destroy(itemObj);
+-							}
+-							else
+-							{
+-								baseNaJieGoodEntity.GoodsNum -= num;
+-								ui_Item.ResetNum(baseNaJieGoodEntity.GoodsNum);
+-							}
+-							for (int i = 0; i < num; i++)
+-							{
+-								baseNaJieGoodEntity2.Copy();
+-								baseNaJieGoodEntity2.GoodsNum = 1;
+-								m_ChooseGoods.Add(baseNaJieGoodEntity2);
+-							}
+-						}
+-					}
+-				};
+-				Singleton<UIManager>.Instance.PopUpWnd("Common_ChooseGoodsNumWnd.prefab", true, common_ChooseNumEntity);
+-			}
+-			else if (1 + m_ChooseGoods.Count > 10)
+-			{
+-				MonoSingleton<GameStart>.Instance.PopUpAttention("最多允许献祭10本书籍");
+-			}
+-			else
+-			{
+-				m_GoodsListDic.Remove(baseNaJieGoodEntity.GoodsId);
+-				UnityEngine.Object.Destroy(itemObj);
+-				m_ChooseGoods.Add(baseNaJieGoodEntity);
+-			}
+-		}
+-
+-		private void CleraData(RectTransform rectTransform)
+-		{
+-			for (int i = 0; i < rectTransform.transform.childCount; i++)
+-			{
+-				UnityEngine.Object.Destroy(rectTransform.transform.GetChild(i).gameObject);
+-			}
+-		}
+-
+-		private void CreateChooseItem(BaseNaJieGoodEntity goods)
+-		{
+-			Sprite value = null;
+-			m_GoodsIconSprite.TryGetValue(goods.Type, out value);
+-			int levelByRank = WorldSetting.GetLevelByRank(goods.Rank);
+-			Sprite value2 = null;
+-			m_RankBgSprite.TryGetValue(levelByRank, out value2);
+-			SetListContentParent(Panel.GoodsContent, m_UiGoodsItem).GetComponent<UI_GoodsItem>().SetItem(goods, goods.Name, goods.FiveElement, goods.Level, value2, value, CancleGoodsItemChoose, isUsing: false, goods.GoodsNum);
+-		}
+-
+-		private void CancleGoodsItemChoose(object dataSource, GameObject itemObj)
+-		{
+-			BaseNaJieGoodEntity baseNaJieGoodEntity = dataSource as BaseNaJieGoodEntity;
+-			if (m_ChooseGoods.Contains(baseNaJieGoodEntity))
+-			{
+-				m_ChooseGoods.Remove(baseNaJieGoodEntity);
+-			}
+-			BaseNaJieGoodEntity value = null;
+-			if (m_GoodsListDic.TryGetValue(baseNaJieGoodEntity.GoodsId, out value))
+-			{
+-				m_GoodsListDic[baseNaJieGoodEntity.GoodsId].GoodsNum++;
+-			}
+-			else
+-			{
+-				m_GoodsListDic.Add(baseNaJieGoodEntity.GoodsId, baseNaJieGoodEntity);
+-			}
+-			UnityEngine.Object.Destroy(itemObj);
+-			if (m_ChooseGoods.Count <= 0)
+-			{
+-				Panel.AddBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
+-			}
+-		}
+-
+-		private void CloseNaJie()
+-		{
+-			CleraData(Panel.NaJieGoodsContent);
+-			CleraData(Panel.GoodsContent);
+-			for (int i = 0; i < m_ChooseGoods.Count; i++)
+-			{
+-				CreateChooseItem(m_ChooseGoods[i]);
+-			}
+-			SetGrticalListContentHight(m_ChooseGoods.Count, Panel.GoodsContent, Panel.GoodsContent.GetComponent<GridLayoutGroup>());
+-			if (m_ChooseGoods.Count > 0)
+-			{
+-				Panel.AddBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 140f);
+-			}
+-			else
+-			{
+-				Panel.AddBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
+-			}
+-			DOTween.To(() => Panel.NaJiePanel.anchoredPosition, (Vector2 v) =>
+-			{
+-				Panel.NaJiePanel.anchoredPosition = v;
+-			}, new Vector2(0f, -522.22f), 0.5f);
+-			Panel.NaJieMaskBtn.gameObject.SetActive(value: false);
+-		}
+-
+-		private void XianJiBtnClick()
+-		{
+-		}
+-	}
++    public class XuShenJiTanWnd : Window
++    {
++        public XuShenJiTanPanel Panel;
++        private VoidAltarView altar;
++
++        public override void Awake(params object[] paralist)
++        {
++            base.Awake(paralist);
++            Panel = GameObject.GetComponent<XuShenJiTanPanel>();
++            Font font = Panel.GetComponentInChildren<Text>(true)?.font;
++            // The recovered panel contains five identical example reward labels.
++            // Keep its root and font, and draw from the authoritative altar preview.
++            foreach (Transform child in Panel.transform) child.gameObject.SetActive(false);
++            altar = VoidAltarView.Create(Panel.transform, font, CloseWindow);
++        }
++
++        public override void OnShow(params object[] paralist)
++        {
++            base.OnShow(paralist);
++            altar?.Open();
++        }
++
++        public override void OnClose()
++        {
++            altar?.Cancel();
++            base.OnClose();
++        }
++    }
+ }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJieWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJieWnd.cs
+index c51e3e4..c833e24 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJieWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenJieWnd.cs
+@@ -17,14 +17,15 @@ namespace XiuZhenJie
+ 			hallDoor = new VoidRealmHallDoor(this);
+ 			InkCraftHalls.StyleDirectory(Panel.transform, "虚神界",
+ 				(Panel.XuShenDianBtn, "虚神殿", "功法、术法与百工"),
+-				(Panel.MuCangShanBtn, "虚神塔", "境界与寿元榜"),
+-				(Panel.XuShenJiTanBtn, "虚神祭坛", "选择祭品"),
+-				(Panel.HeDaoTaiBtn, "合道台", "尚未开放"));
+-			Panel.HeDaoTaiBtn.interactable = false;
++				(Panel.MuCangShanBtn, "虚神塔", "闯塔与双榜"),
++				(Panel.XuShenJiTanBtn, "虚神祭坛", "献卷求经"),
++				(Panel.HeDaoTaiBtn, "合道台", "双卷合参"));
+ 			AddButtonClickListener(Panel.BackBtn, LiKaiBtnClick);
+ 			AddButtonClickListener(Panel.XuShenDianBtn, EnterXuShenDian);
+ 			AddButtonClickListener(Panel.MuCangShanBtn, EnterXuShenTa);
+ 			AddButtonClickListener(Panel.XuShenJiTanBtn, EnterXuShenJiTan);
++			Panel.HeDaoTaiBtn.interactable = true;
++			AddButtonClickListener(Panel.HeDaoTaiBtn, EnterHeDaoTai);
+ 		}
+ 
+ 		public override void OnShow(params object[] paralist)
+@@ -34,7 +35,7 @@ namespace XiuZhenJie
+ 			{
+ 				Font font = Panel.GetComponentInChildren<Text>(true)?.font;
+ 				realmView = VoidRealmView.Open(Panel.transform, font, LiKaiBtnClick,
+-					EnterXuShenDian, EnterXuShenTa, EnterXuShenJiTan, hallDoor.Open);
++					EnterXuShenDian, EnterXuShenTa, EnterXuShenJiTan, EnterHeDaoTai, hallDoor.Open);
+ 			}
+ 		}
+ 
+@@ -75,6 +76,7 @@ namespace XiuZhenJie
+ 
+ 		private void EnterHeDaoTai()
+ 		{
++			hallDoor.Cancel();
+ 			Singleton<UIManager>.Instance.PopUpWnd("HeDaoTaiWnd.prefab", true);
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
+index 88f5b59..8f70061 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
+@@ -9,6 +9,7 @@ namespace XiuZhenJie
+ 		public int Record;
+ 
+ 		private int m_CurrentFloor;
++		private VoidTowerClimb climb;
+ 
+ 		public override void Awake(params object[] paralist)
+ 		{
+@@ -24,34 +25,16 @@ namespace XiuZhenJie
+ 		public override void OnShow(params object[] paralist)
+ 		{
+ 			base.OnShow(paralist);
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.XSJ_XST_OPEN, null, (object _obj) =>
+-			{
+-				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
+-				{
+-					EnterUnrealTowerResp_1008001 enterUnrealTowerResp_ = new EnterUnrealTowerResp_1008001();
+-					enterUnrealTowerResp_.MergeFrom(byteString);
+-					if (enterUnrealTowerResp_.IsSuccess)
+-					{
+-						if (enterUnrealTowerResp_.RushTowerNum > 0)
+-						{
+-							m_CurrentFloor = enterUnrealTowerResp_.RushTowerNum;
+-							Panel.MyRecord.text = enterUnrealTowerResp_.RushTowerNum + "层";
+-						}
+-						else
+-						{
+-							Panel.MyRecord.text = "暂无排名";
+-						}
+-					}
+-					else
+-					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(enterUnrealTowerResp_.Code);
+-						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-					}
+-				}
+-			}, isShowWaitUI: true);
+-		}
++            if (climb == null)
++                climb = new VoidTowerClimb(this, LiKaiBtnClick, floor => { m_CurrentFloor = floor-1; ChuangTa(); });
++            climb.Home();
++        }
++
++        public override void OnDisable()
++        {
++            climb?.Cancel();
++            base.OnDisable();
++        }
+ 
+ 		private void LiKaiBtnClick()
+ 		{
+@@ -76,7 +59,12 @@ namespace XiuZhenJie
+ 					string text2 = "";
+ 					if (buildDungeonResp_.IsSuccess)
+ 					{
+-						text = buildDungeonResp_.MapId;
++						var input = byteString.CreateCodedInput();
++                        uint tag;
++                        while ((tag=input.ReadTag())!=0){
++                            if (tag==240) m_CurrentFloor=input.ReadInt32()-1; else input.SkipLastField();
++                        }
++                        text = buildDungeonResp_.MapId;
+ 						text2 = buildDungeonResp_.DungeonId;
+ 						MapEntity mapModel = new MapEntity
+ 						{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/TiShengPingJieWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/TiShengPingJieWnd.cs
+index ef84b02..51e64b2 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/TiShengPingJieWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/TiShengPingJieWnd.cs
+@@ -33,7 +33,6 @@ namespace XiuZhenJie
+ 			InkCultivationPages.PaperDialog(m_Panel.transform, "Image (1)", m_Panel.BuQiBtn, null);
+ 			ResourceLoad();
+ 			m_NaJieBox = Singleton<RoleManager>.Instance.RoleBoxDic[10];
+-			m_NaJieBox.GetAllGoods(null);
+ 			if (paralist != null)
+ 			{
+ 				m_ID = (string)paralist[0];
+@@ -42,16 +41,20 @@ namespace XiuZhenJie
+ 				m_LingYanZhi = (string)paralist[3];
+ 				m_Rank = (int)paralist[4];
+ 			}
+-			ChaXun();
++			m_Panel.BuQiBtn.interactable = false;
++			m_NaJieBox.GetAllGoods(ChaXun);
+ 			AddButtonClickListener(m_Panel.GuanBi, LiKaiBtn);
+ 			AddButtonClickListener(m_Panel.BuQiBtn, BuQi);
+ 		}
+ 
+ 		private void ChaXun()
+ 		{
++			if (m_Panel == null || !m_Panel.gameObject.activeInHierarchy) return;
++			m_Panel.XianShiOne.gameObject.SetActive(false);
++			m_Panel.WuImage.gameObject.SetActive(true);
+ 			foreach (BaseNaJieGoodEntity goods in m_NaJieBox.GoodsList)
+ 			{
+-				if (goods.Level == m_Level && goods.Type == m_WuPingLeiXing)
++				if (goods.Level == m_Level && goods.Type == m_WuPingLeiXing && (m_WuPingLeiXing != 39 || (!goods.IsLock && !goods.IsUsing && !goods.OfferPending)))
+ 				{
+ 					m_Panel.XianShiOne.gameObject.SetActive(value: true);
+ 					m_Panel.WuImage.gameObject.SetActive(value: false);

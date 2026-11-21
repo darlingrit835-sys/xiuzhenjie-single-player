@@ -1,0 +1,68 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGPaiMaiInformationWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGPaiMaiInformationWnd.cs
+index ff8f9df..220b797 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGPaiMaiInformationWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGPaiMaiInformationWnd.cs
+@@ -190,6 +190,7 @@ namespace XiuZhenJie
+ 				ShopType = (int)m_CurrentStoreType,
+ 				Count = GoodsNum
+ 			};
++			int remaining = m_DataSource.GoodsNum - GoodsNum;
+ 			Singleton<NetManager>.Instance.SendMsg(MsgType.QZG_GOODS_SHANGJIA, data, (object _obj) =>
+ 			{
+ 				MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+@@ -200,13 +201,13 @@ namespace XiuZhenJie
+ 					entrustAuctionResp_.MergeFrom(byteString);
+ 					if (entrustAuctionResp_.IsSuccess)
+ 					{
+-						if (m_DataSource.GoodsNum > 0)
++						if (remaining > 0)
+ 						{
+-							Singleton<RoleManager>.Instance.RoleBoxDic[10].ResetGoodsNum(m_DataSource.GoodsId, m_DataSource.GoodsNum);
++							Singleton<RoleManager>.Instance.RoleBoxDic[10].ResetGoodsNum(data.GoodsId, remaining);
+ 						}
+ 						else
+ 						{
+-							Singleton<RoleManager>.Instance.RoleBoxDic[10].RemoveGoods(m_DataSource.GoodsId);
++							Singleton<RoleManager>.Instance.RoleBoxDic[10].RemoveGoods(data.GoodsId);
+ 						}
+ 						Singleton<RoleManager>.Instance.RoleBoxDic[10].NowCapacity = entrustAuctionResp_.NowRingCapacity;
+ 						Singleton<RoleManager>.Instance.Role_Entity.ShinyStone = entrustAuctionResp_.ShinyStone;
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QiZhenGeWoDePaiMaiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QiZhenGeWoDePaiMaiWnd.cs
+index 1d9538a..804660b 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QiZhenGeWoDePaiMaiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QiZhenGeWoDePaiMaiWnd.cs
+@@ -112,7 +112,9 @@ namespace XiuZhenJie
+ 		{
+ 			EnterMyAuctionReq_1006003 data = new EnterMyAuctionReq_1006003
+ 			{
+-				Type = (int)m_StoreType
++				Type = (int)m_StoreType,
++				PageNum = m_SelectParams.pageNum,
++				PageSize = m_SelectParams.pageSize
+ 			};
+ 			Singleton<NetManager>.Instance.SendMsg(MsgType.QZG_MY_SELECT_GOODS, data, (object _obj) =>
+ 			{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGItemInformationWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGItemInformationWnd.cs
+index a5bdb40..9c0bc88 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGItemInformationWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Commerce/QZGItemInformationWnd.cs
+@@ -30,12 +30,14 @@ namespace XiuZhenJie
+ 					Panel.GoodsNameText.text = m_DataSource.name;
+ 				}
+ 			}
+-			Singleton<RoleManager>.Instance.RoleBoxDic[10].GetGoodsInfomation(m_DataSource.goodsId, m_DataSource.goodsType, m_DataSource.level, m_DataSource.rank, m_DataSource.fiveElement, 0, (List<string> strList) =>
++			if (m_DataSource == null) return;
++			var listing = m_DataSource;
++			listing.attributeList = new List<string>();
++			SetGoodsInfo();
++			Singleton<RoleManager>.Instance.RoleBoxDic[10].GetGoodsInfomation(listing.goodsId, listing.goodsType, listing.level, listing.rank, listing.fiveElement, 0, (List<string> strList) =>
+ 			{
+-				if (m_DataSource != null)
+-				{
+-					m_DataSource.attributeList = strList;
+-				}
++				if (listing != m_DataSource || strList == null) return;
++				listing.attributeList = strList;
+ 				SetGoodsInfo();
+ 			});
+ 		}

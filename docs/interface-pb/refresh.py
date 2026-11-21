@@ -38,10 +38,15 @@ CS_LITERALS = re.compile(
     r'//[^\n]*|/\*[\s\S]*?\*/|(?:\$@|@\$|@)"(?:""|[^"])*"'
     r'|\$?"(?:\\.|[^"\\\n])*"|\'(?:\\.|[^\'\\\n])*\''
 )
-SEND = re.compile(r"\bSingleton\s*<\s*NetManager\s*>\s*\.Instance\s*\.\s*SendMsg\s*\(")
-# Both helpers delegate to the default game socket. Their typed parser is
-# passed separately from the callback (and, for Request, a progress label).
-TYPED_SEND = re.compile(r"(?<![.\w])(?P<typed>Request|Send)\s*\((?=\s*MsgType\.)")
+NET_MANAGER = r"Singleton\s*<\s*NetManager\s*>\s*\.Instance"
+NET_ALIAS = re.compile(rf"\b(?:var|NetManager)\s+(\w+)\s*=\s*{NET_MANAGER}\s*;")
+# These typed helpers delegate to the game socket and accept a PB parser.
+SOCKET_CALL = re.compile(
+    rf"\b(?:{NET_MANAGER}|(?P<alias>\w+))\s*\.\s*(?:SendMsg|TrySendGameRequest)\s*\("
+    r"|(?<![.\w])(?P<no_payload>SendBreakRequest)\s*\((?=\s*MsgType\.)"
+    r"|(?<![.\w])(?P<typed>Request|Send|SendAction)\s*\((?=\s*MsgType\.)"
+    r"|\b(?P<entry>SendServerEntryRequest|ChengZhuFuMainWnd\s*\.\s*Request)\s*\((?=\s*MsgType\.)"
+)
 HTTPS = re.compile(r"\bHttpsRequest\.(UnityGetRequest|UnityPostRequest)\s*\(")
 
 
@@ -52,6 +57,10 @@ class Call:
     cmd: int
     symbol: str
     channel: str
+    offset: int
+    args: tuple[str, ...]
+    typed: bool
+    branching: bool
 
 
 @lru_cache(maxsize=None)
@@ -123,43 +132,84 @@ def arguments(source, masked, start):
     raise ValueError(f"未闭合的调用参数，起始行 {line_at(source, start)}")
 
 
+def lexical_scope(source):
+    stack = []
+    for match in re.finditer(r"[{}]", source):
+        if match[0] == "{":
+            stack.append(match.start())
+        elif stack:
+            stack.pop()
+    return tuple(stack)
+
+
+def socket_calls(file, source, masked, enums):
+    aliases = defaultdict(list)
+    for declaration in NET_ALIAS.finditer(masked):
+        aliases[declaration[1]].append((declaration.end(), lexical_scope(masked[:declaration.start()])))
+    for match in SOCKET_CALL.finditer(masked):
+        if alias := match["alias"]:
+            if alias not in aliases:
+                continue
+            scope = lexical_scope(masked[:match.start()])
+            if not any(end <= match.start() and owner == scope[:len(owner)] for end, owner in aliases[alias]):
+                continue
+        args = tuple(arguments(source, masked, match.end()))
+        if match["no_payload"] and len(args) == 2:
+            args = (args[0], "null", args[1])
+        line = line_at(source, match.start())
+        if len(args) < 3:
+            raise ValueError(f"{file}:{line} 无法识别发送参数")
+        if match["typed"]:
+            expected = 5 if match["typed"] == "Request" else 4
+            if len(args) != expected or not re.fullmatch(r"\w+_\d{7}\.Parser", args[2]):
+                raise ValueError(f"{file}:{line} 无法识别带 PB 解析器的请求")
+
+        symbol = re.fullmatch(r"MsgType\.(\w+)", args[0])
+        choice = re.fullmatch(r"\w+\s*\?\s*MsgType\.(\w+)\s*:\s*MsgType\.(\w+)", args[0])
+        if not choice and re.fullmatch(r"\w+", args[0]):
+            assignment = rf"\b(?:var|MsgType)\s+{args[0]}\s*=\s*\w+\s*\?\s*MsgType\.(\w+)\s*:\s*MsgType\.(\w+)\s*;"
+            scope = lexical_scope(masked[:match.start()])
+            for assigned in reversed(list(re.finditer(assignment, masked[:match.start()]))):
+                owner = lexical_scope(masked[:assigned.start()])
+                if owner == scope[:len(owner)]:
+                    choice = assigned
+                    break
+        if symbol:
+            names = (symbol[1],)
+        elif choice:
+            names = tuple(dict.fromkeys(choice.groups()))
+        elif file.name == "XuShenTaBangDanWnd.cs" and args[0] == "m_MsgType":
+            names = ({"data": "XSJ_XST_DAOJINGBANG", "data2": "XSJ_XST_TIANJIAOBANG"}[args[1]],)
+        elif re.fullmatch(r"\w+", args[0]) and re.search(rf"\bMsgType\s+{args[0]}\b", masked[:match.start()]):
+            # The forwarding helper receives its Cmd from the typed call site.
+            continue
+        else:
+            raise ValueError(f"{file}:{line} 未归档的 Cmd 表达式 {args[0]}")
+
+        channels = ("GamesNormalServer",)
+        if not (match["typed"] or match["entry"]):
+            explicit = next((arg for arg in args[3:] if re.match(r"serverType\s*:", arg)), None)
+            fifth = args[4] if len(args) > 4 and not re.match(r"\w+\s*:", args[4]) else None
+            route = explicit or fifth or "ServerType.GamesNormalServer"
+            route = re.sub(r"^serverType\s*:\s*", "", route)
+            servers = re.fullmatch(r"ServerType\.(\w+)", route) or re.fullmatch(
+                r"[^?:]+\?\s*ServerType\.(\w+)\s*:\s*ServerType\.(\w+)", route)
+            if not servers or any(channel not in CHANNELS for channel in servers.groups()):
+                raise ValueError(f"{file}:{line} 未归档的连接类型 {route}")
+            channels = tuple(dict.fromkeys(servers.groups()))
+        for name in names:
+            for channel in channels:
+                yield Call(file, line, enums[name][0], name, channel, match.start(), args, bool(match["typed"]), len(names) > 1)
+
+
 def client_calls(scripts, enums):
     calls, http = [], defaultdict(list)
     for file in scripts:
         source = read(file)
-        if "SendMsg" not in source and "HttpsRequest." not in source:
+        if not any(key in source for key in ("Send", "Request")):
             continue
         masked = CS_LITERALS.sub(lambda match: re.sub(r"[^\n]", " ", match[0]), source)
-        for match in SEND.finditer(masked):
-            line = line_at(source, match.start())
-            args = arguments(source, masked, match.end())
-            if len(args) < 3:
-                raise ValueError(f"{file}:{line} 无法识别 SendMsg 参数")
-            explicit = next((arg for arg in args[3:] if re.match(r"serverType\s*:", arg)), None)
-            fifth = args[4] if len(args) > 4 and not re.match(r"\w+\s*:", args[4]) else None
-            route = explicit or fifth or "ServerType.GamesNormalServer"
-            channel = re.fullmatch(r"(?:serverType:\s*)?ServerType\.(\w+)", route)
-            if not channel or channel[1] not in CHANNELS:
-                raise ValueError(f"{file}:{line} 未归档的连接类型 {route}")
-            symbol = re.fullmatch(r"MsgType\.(\w+)", args[0])
-            if symbol:
-                name = symbol[1]
-            elif file.name == "XuShenTaBangDanWnd.cs" and args[0] == "m_MsgType":
-                # 这两个分支分别创建道境榜和天骄榜的请求。
-                name = {"data": "XSJ_XST_DAOJINGBANG", "data2": "XSJ_XST_TIANJIAOBANG"}[args[1]]
-            else:
-                raise ValueError(f"{file}:{line} 未归档的 Cmd 表达式 {args[0]}")
-            calls.append(Call(file, line, enums[name][0], name, channel[1]))
-
-        for match in TYPED_SEND.finditer(masked):
-            line = line_at(source, match.start())
-            args = arguments(source, masked, match.end())
-            expected = 5 if match["typed"] == "Request" else 4
-            if len(args) != expected or not re.fullmatch(r"\w+_\d{7}\.Parser", args[2]):
-                raise ValueError(f"{file}:{line} 无法识别带 PB 解析器的请求")
-            name = args[0].removeprefix("MsgType.")
-            calls.append(Call(file, line, enums[name][0], name, "GamesNormalServer"))
-
+        calls.extend(socket_calls(file, source, masked, enums))
         for match in HTTPS.finditer(masked):
             host, _, literal, _ = arguments(source, masked, match.end())
             method = "GET" if match[1] == "UnityGetRequest" else "POST"
@@ -323,10 +373,10 @@ def calls_doc(by_file, http, registry, battle, schema, net_svc):
         http_rows.append((method, path, links(callers),
                           link(ACCOUNT, local[0], local[1]) if local else "账号服未注册"))
 
-    total = sum(map(len, by_file.values()))
+    total = len({(call.file, call.offset) for items in by_file.values() for call in items})
     lines = header(
         "客户端网络调用",
-        f"共 **{total}** 个 NetManager.SendMsg 调用点，分布于 **{len(by_file)}** 个脚本。",
+        f"共 **{total}** 个 PB 发送调用点，分布于 **{len(by_file)}** 个脚本。",
         "按脚本名查找。调用点链接可定位请求和回调。虚神塔两条变量 Cmd 通过发送分支对应到具体榜单。",
         f"心跳由 {link(net_svc, 'NetSvc.SendHeartPack')} 直接构造 {cmd_link(9000000)}。",
     )

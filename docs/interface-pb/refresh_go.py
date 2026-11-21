@@ -17,8 +17,6 @@ import refresh as archive
 
 GO = archive.REPO / "server-go"
 OUTPUT = archive.HERE / "go-interfaces.md"
-ENTRY = re.compile(r"\bSendServerEntryRequest\s*\((?=\s*MsgType\.)")
-CALL = re.compile(f"{archive.SEND.pattern}|{ENTRY.pattern}|{archive.TYPED_SEND.pattern}")
 PB = r"[A-Za-z_]\w*_\d{7}"
 ASSIGN = re.compile(
     rf"\b(?P<declared>var|{PB})\s+(?P<name>\w+)\s*=\s*"
@@ -40,6 +38,7 @@ CHANNELS = {
 class ClientCall:
     path: Path
     line: int
+    offset: int
     symbol: str
     request: str | None
     callback: bool
@@ -64,16 +63,6 @@ def closing_bracket(source, start, opening, closing):
     raise ValueError("C# 块或调用未闭合")
 
 
-def lexical_scope(source):
-    stack = []
-    for match in re.finditer(r"[{}]", source):
-        if match[0] == "{":
-            stack.append(match.start())
-        elif stack:
-            stack.pop()
-    return tuple(stack)
-
-
 def request_at(source, position, argument, classes):
     if argument == "null":
         return ""
@@ -81,11 +70,11 @@ def request_at(source, position, argument, classes):
         return match[1] if match[1] in classes else None
     if not re.fullmatch(r"\w+", argument):
         return None
-    scope = lexical_scope(source[:position])
+    scope = archive.lexical_scope(source[:position])
     for match in reversed(list(ASSIGN.finditer(source, 0, position))):
         if match["name"] != argument:
             continue
-        declaration = lexical_scope(source[:match.start()])
+        declaration = archive.lexical_scope(source[:match.start()])
         if declaration == scope[:len(declaration)]:
             name = match["ctor"] or match["declared"]
             return name if name in classes else None
@@ -120,7 +109,7 @@ def direct_callback_body(argument, source):
     # Nested calls own their callback types separately.
     chunks = []
     end = 0
-    for match in CALL.finditer(body):
+    for match in archive.SOCKET_CALL.finditer(body):
         if match.start() < end:
             continue
         chunks.extend((body[end:match.start()], " "))
@@ -156,38 +145,27 @@ def collect(unity):
         for match in re.finditer(r"^[ \t]*(\w+)\s*=\s*(\d+),?[ \t]*$", archive.read(enum_file), re.M)
     }
     baseline, http = archive.client_calls(scripts, enums)
-    indexed = {(call.file, call.line): call for call in baseline}
     calls = defaultdict(list)
-    for script in scripts:
-        original = archive.read(script)
-        if "SendMsg" not in original and "SendServerEntryRequest" not in original:
-            continue
-        source = masked(original)
-        for match in CALL.finditer(source):
-            line = archive.line_at(source, match.start())
-            args = archive.arguments(original, source, match.end())
-            if match[0].startswith("SendServerEntryRequest"):
-                symbol = args[0].removeprefix("MsgType.")
-                channel, cmd = "GamesNormalServer", enums[symbol][0]
-            else:
-                call = indexed.pop((script, line))
-                channel, cmd, symbol = call.channel, call.cmd, call.symbol
-            request = request_at(source, match.start(), args[1], classes)
-            callback_arg = args[-1] if match["typed"] else args[2]
-            callback = callback_arg != "null"
-            if match["typed"] and callback:
-                name = args[2].removesuffix(".Parser")
-                body = direct_callback_body(callback_arg, source)
-                parameter = re.match(r"\s*(\w+)\s*=>", body)
-                if name not in classes or not parameter:
-                    raise ValueError(f"{script}:{line} 未识别的 PB 解析器或回调")
-                accesses = re.findall(rf"\b{re.escape(parameter[1])}\s*(?:\.|\?\.)\s*(\w+)", body[parameter.end():])
-                responses = ((name, tuple(sorted(fields_in(classes[name]).intersection(accesses)))),)
-            else:
-                responses = direct_fields(callback_arg, source, classes) if callback else ()
-            calls[channel, cmd].append(ClientCall(script, line, symbol, request, callback, responses))
-    if indexed:
-        raise ValueError(f"未关联的客户端调用有 {len(indexed)} 个")
+    for call in baseline:
+        source = masked(archive.read(call.file))
+        args = call.args
+        request = request_at(source, call.offset, args[1], classes)
+        callback_arg = args[-1] if call.typed else args[2]
+        callback = callback_arg != "null"
+        if call.typed and callback:
+            name = args[2].removesuffix(".Parser")
+            body = direct_callback_body(callback_arg, source)
+            parameter = re.match(r"\s*(\w+)\s*=>", body)
+            if name not in classes or not parameter:
+                raise ValueError(f"{call.file}:{call.line} 未识别的 PB 解析器或回调")
+            accesses = re.findall(rf"\b{re.escape(parameter[1])}\s*(?:\.|\?\.)\s*(\w+)", body[parameter.end():])
+            responses = ((name, tuple(sorted(fields_in(classes[name]).intersection(accesses)))),)
+        else:
+            responses = direct_fields(callback_arg, source, classes) if callback else ()
+            if call.branching:
+                matching = tuple(row for row in responses if row[0].endswith(f"_{call.cmd}"))
+                responses = matching or responses
+        calls[call.channel, call.cmd].append(ClientCall(call.file, call.line, call.offset, call.symbol, request, callback, responses))
     return calls, http, classes, enum_file, enums
 
 
@@ -317,7 +295,7 @@ def sites_of(entries):
     )
 
 
-def behavior_for(channel, cmd, native, previews, battle, fallback, classes):
+def behavior_for(channel, cmd, native, previews, battle, fallback, classes, default_denied):
     if channel == "ChatServer":
         return "Go 无独立聊天服务", "—"
     if channel == "BattleServer":
@@ -333,12 +311,21 @@ def behavior_for(channel, cmd, native, previews, battle, fallback, classes):
         status = {
             9000000: "心跳 · 无回包",
             1012001: "聊天连接不可用 · 3003",
+            1016004: "读取角色成就、进度和领取状态",
+            1016006: "领取灵石奖励并回传余额与待领状态",
         }.get(cmd, "专用处理")
         return archive.link(path, status, line), "—"
-    default = (
-        "兼容回包 · " + pb_link(fallback[str(cmd)], classes)
-        if str(cmd) in fallback else "无回包类型"
-    )
+    descriptor = fallback.get(str(cmd))
+    default = "无回包类型"
+    trial = "无回包类型"
+    if descriptor:
+        label = "明确拒绝（4008）" if cmd in default_denied else "兼容回包"
+        default = f"{label} · {pb_link(descriptor, classes)}"
+        response_source = classes.get(descriptor)
+        if response_source and not fields_in(response_source).intersection({"IsSuccess", "Code"}):
+            trial = "无状态字段，试用模式不回包"
+        else:
+            trial = "描述符兜底 · 有状态字段时返回失败"
     if cmd in previews:
         metadata, (path, line) = previews[cmd]
         status = "试用拒绝" if metadata.get("blocked") else "试用返回"
@@ -346,12 +333,11 @@ def behavior_for(channel, cmd, native, previews, battle, fallback, classes):
         if metadata.get("live"):
             status += " / 写入试用处理"
         return default, f"{archive.link(path, status, line)} · {body}<br>{metadata['summary']}"
-    trial = "描述符兜底 · 有状态字段时返回失败" if str(cmd) in fallback else "无回包类型"
     return default, trial
 
 
 def cmd_rows(channel, commands, calls, metadata):
-    native, previews, battle, fallback, classes, enum_file, enums = metadata
+    native, previews, battle, fallback, classes, enum_file, enums, default_denied = metadata
     symbols_by_cmd = defaultdict(list)
     for symbol, (cmd, _) in enums.items():
         symbols_by_cmd[cmd].append(symbol)
@@ -361,7 +347,7 @@ def cmd_rows(channel, commands, calls, metadata):
         key = f"**{cmd}**"
         if symbols:
             key += "<br>" + archive.links(archive.link(enum_file, symbol, enums[symbol][1]) for symbol in symbols)
-        default, preview = behavior_for(channel, cmd, native, previews, battle, fallback, classes)
+        default, preview = behavior_for(channel, cmd, native, previews, battle, fallback, classes, default_denied)
         yield key, sites_of(entries), request_links(entries, classes), response_links(entries, classes), default, preview
 
 
@@ -383,6 +369,7 @@ def push_rows(network, classes):
         (1002006, "InformTitle", "InformTitleResp_1002006", "mentorship_graduation.go", "peer.send(1002006"),
         (1014024, "TONG_ZHI_TMCG", "TongZhiTMCGResp_1014024", "mentorship_practice.go", "s.pushGame(studentID, 1014024"),
         (1016001, "INFORM_TASK_COMPLETION", "", "game.go", "Message{Cmd: 1016001}"),
+        (1016003, "INFORM_TIANSHUBEI", "InformTianShuBeiResp_1016003", "game_cultivation.go", "s.pushGame(roleID, achievementNoticeCmd"),
         (1015018, "GUILD_INFORM_ROLE_JOINSUCCESS", "GuildInformRoleJoinSuccessResp_1015018", "guild_trial.go", "s.pushGame(targetID, 1015018"),
         (4001002, "RECEIVE_MESSAGE", "ReceiveMessageResp_4001002", "preview_auction.go", "peer.send(4001002"),
         (4001008, "ReceiveMessageRole", "ReceiveMessageRoleResp_4001008", "chat.go", "privateChatPush"),
@@ -409,7 +396,7 @@ def render(catalog, unity):
     channels = {name: {cmd for channel, cmd in calls if channel == name} for name in CHANNELS}
     channels["GamesNormalServer"].update(native.keys() | previews.keys())
     channels["BattleServer"].update(battle)
-    count = sum(map(len, calls.values()))
+    count = len({(entry.path, entry.offset) for entries in calls.values() for entry in entries})
     read_only = sum(not row.get("blocked") for row, _ in previews.values())
     live = sum(bool(row.get("live")) for row, _ in previews.values())
     game_calls = {cmd for channel, cmd in calls if channel == "GamesNormalServer"}
@@ -423,7 +410,7 @@ def render(catalog, unity):
         f"共识别 **{count} 个 PB 调用点**。Go 游戏服有 **{len(native)} 条专用处理**，"
         f"只读试用有 **{read_only} 条功能返回**和 **{len(previews) - read_only} 条拒绝回包**。"
         f"加上 `-interface-writes` 后有 **{live} 条业务路由**读取或更新持久状态。", "",
-        f"原客户端实际发送 **{len(game_calls)} 个不同的游戏服 Cmd**。其中 **{len(fallback_only)} 个**在 Go 默认处理和试用目录中均无业务分支，"
+        f"在原客户端源码中定位到 **{len(game_calls)} 个不同的游戏服 Cmd**。其中 **{len(fallback_only)} 个**在 Go 默认处理和试用目录中均无业务分支，"
         f"另有 **{len(blocked_calls)} 个**已注册试用回包但仍显式拒绝。按玩法查看[道友与待实现玩法](social-status.md)。", "",
         "- 「兼容回包」沿用默认描述符回包，只填写可用的成功和状态字段。业务字段以实际回调和处理代码为准。",
         "- 请求按调用点的空载荷或变量声明识别。回调仅列出直接解析的 PB 和直接访问的字段，传入其他函数后使用的字段需按源码继续追踪。",
@@ -439,7 +426,7 @@ def render(catalog, unity):
     ))
     lines.extend(["## HTTPS 账号与客户端路由", ""])
     lines.extend(archive.table(("方法与路径", "Unity 调用位置", "Go 返回"), http_rows(http)))
-    metadata = native, previews, battle, catalog["fallback"], classes, enum_file, enums
+    metadata = native, previews, battle, catalog["fallback"], classes, enum_file, enums, set(catalog.get("default_denied", []))
     for channel, (label, port) in CHANNELS.items():
         lines.extend([f"## {label}" + (f" PB（{port}）" if port else " PB"), ""])
         lines.extend(archive.table(

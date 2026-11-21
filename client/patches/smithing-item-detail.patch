@@ -1,0 +1,71 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+@@ -1500,13 +1500,63 @@
+ 						{
+ 							m_DataList.Add(string.Format("{0},{1},{2}", "回收价格", recyclePrice, "基于此物品的优劣进行评估，直接出售给修真界商贩的价格"));
+ 						}
+-						if (compeleteCallBack != null)
+-						{
+-							compeleteCallBack(m_DataList);
+-						}
++						AppendSmithingDetail(byteString, m_DataList, compeleteCallBack);
+ 					}
+ 				}
+ 			}, isShowWaitUI: true);
++		}
++
++		[System.Serializable]
++		private class SmithingTemplateQuery
++		{
++			public string templateId;
++		}
++
++		[System.Serializable]
++		private class SmithingTemplateDetail
++		{
++			public string polarityName;
++			public string qiName;
++			public string bonusText;
++			public int baseAttack;
++			public int baseDefense;
++		}
++
++		private static void AppendSmithingDetail(ByteString bytes, List<string> rows, UnityAction<List<string>> done)
++		{
++			if (done == null) return;
++			var input = bytes.CreateCodedInput();
++			uint tag;
++			while ((tag = input.ReadTag()) != 0)
++			{
++				if (tag != 146) // length-delimited field 18, optional public template ID
++				{
++					input.SkipLastField();
++					continue;
++				}
++				string templateId = input.ReadString();
++				rows.Add("模板编号," + templateId + ",可在奇珍阁按完整编号查找同一模板的挂牌。");
++				string request = JsonUtility.ToJson(new SmithingTemplateQuery { templateId = templateId });
++				ForgeWire.Send(MsgType.ForgeItemDetail, request, (ok, json) =>
++				{
++					var detail = ok ? JsonUtility.FromJson<SmithingTemplateDetail>(json) : null;
++					if (detail != null)
++					{
++						rows.Add("阴阳," + detail.polarityName + ",法器的阴阳偏性。");
++						rows.Add("气," + detail.qiName + ",法器对应的十二气。");
++						rows.Add("基础攻击," + detail.baseAttack + ",创制时记入模板的攻击值。");
++						rows.Add("基础防御," + detail.baseDefense + ",创制时记入模板的防御值。");
++						if (!string.IsNullOrEmpty(detail.bonusText))
++						{
++							foreach (string affix in detail.bonusText.Split(new[] { '\n', '·', '；', ';', '、' }, System.StringSplitOptions.RemoveEmptyEntries))
++								rows.Add("词条," + affix.Trim().Replace(',', '，') + ",此模板的实际加成。");
++						}
++					}
++					done(rows);
++				});
++				return;
++			}
++			done(rows);
+ 		}
+ 
+ 		private string GetFaQiEffectXiangQing(int Type)

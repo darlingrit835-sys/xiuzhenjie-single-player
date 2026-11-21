@@ -1,0 +1,277 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+index 91078e3..1c8431c 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+@@ -12,6 +12,10 @@ namespace XiuZhenJie
+ 
+ 		private List<BaseNaJieGoodEntity> m_GoodList;
+ 
++		private const int RevisionSize = 16;
++		private ByteString m_Revision = ByteString.Empty;
++		private SpaceGoodsResp_1004002 m_ServerSnapshot;
++
+ 		public int MaxCapacity;
+ 
+ 		public int NowCapacity;
+@@ -35,105 +39,123 @@ namespace XiuZhenJie
+ 
+ 		public void GetAllGoods(UnityAction compeletAction, bool isShowWaiting = true)
+ 		{
+-			SpaceGoodsReq_1004002 spaceGoodsReq_ = new SpaceGoodsReq_1004002();
+-			SpaceGoodsCheckReq_1004004 spaceGoodsCheckReq_ = new SpaceGoodsCheckReq_1004004();
+-			spaceGoodsReq_.Location = BoxLocation;
+-			spaceGoodsCheckReq_.Location = BoxLocation;
+-			if (m_GoodList == null)
++			var revision = MatchesServerSnapshot() ? m_Revision : ByteString.Empty;
++			RequestGoods(revision, compeletAction, isShowWaiting);
++		}
++
++		private static SpaceGoodsReq_1004002 BuildGoodsRequest(int location, ByteString revision)
++		{
++			var request = new SpaceGoodsReq_1004002 { Location = location };
++			// Field 2 is present even for the initial, unconditional snapshot.
++			var extension = new byte[1 + CodedOutputStream.ComputeBytesSize(revision)];
++			var output = new CodedOutputStream(extension);
++			output.WriteTag(2, WireFormat.WireType.LengthDelimited);
++			output.WriteBytes(revision);
++			output.CheckNoSpaceLeft();
++			request.MergeFrom(extension);
++			return request;
++		}
++
++		private void RequestGoods(ByteString requestedRevision, UnityAction onReady, bool showWaiting)
++		{
++			var request = BuildGoodsRequest(BoxLocation, requestedRevision);
++			Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_NAJIE_SPACE, request, obj =>
+ 			{
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_NAJIE_SPACE, spaceGoodsReq_, (object _obj) =>
++				if (showWaiting) MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
++				if (!(obj is ByteString bytes)) return;
++				var response = SpaceGoodsResp_1004002.Parser.ParseFrom(bytes);
++				if (!response.IsSuccess)
+ 				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
++					MonoSingleton<GameStart>.Instance.PopUpAttention(MonoSingleton<GameStart>.Instance.GetHintMsgByCode(response.Code));
++					return;
++				}
++				ReadSyncFields(bytes, out ByteString revision, out bool unchanged);
++				if (unchanged)
++				{
++					// A window can edit a shared item while the request is in flight.
++					if (requestedRevision.Length != RevisionSize || !revision.Equals(requestedRevision) || !revision.Equals(m_Revision) || !MatchesServerSnapshot())
+ 					{
+-						SpaceGoodsResp_1004002 spaceGoodsResp_ = new SpaceGoodsResp_1004002();
+-						spaceGoodsResp_.MergeFrom(byteString);
+-						if (spaceGoodsResp_.IsSuccess)
+-						{
+-							MaxCapacity = spaceGoodsResp_.MaxCapacity;
+-							NowCapacity = spaceGoodsResp_.NowCapacity;
+-							if (spaceGoodsResp_.GoodsInfos != null)
+-							{
+-								m_GoodList = new List<BaseNaJieGoodEntity>();
+-								foreach (SpaceGoodsResp_1004002.Types.GoodsInfoResp_1004003 goodsInfo in spaceGoodsResp_.GoodsInfos)
+-								{
+-									m_GoodList.Add(new BaseNaJieGoodEntity
+-									{
+-										FiveElement = goodsInfo.FiveElement,
+-										GoodsId = goodsInfo.GoodsId,
+-										Level = goodsInfo.Level,
+-										Rank = goodsInfo.Rank,
+-										Type = goodsInfo.Type,
+-										IsBinding = goodsInfo.IsBinding,
+-										IsUsing = goodsInfo.IsUsing,
+-										Name = goodsInfo.Name,
+-										RecyclePrice = goodsInfo.RecyclePrice,
+-										TemplateId = goodsInfo.TemplateId,
+-										ConversionRate = goodsInfo.ConversionRate,
+-										GoodsVolume = goodsInfo.Volume,
+-										IsLock = goodsInfo.IsLock,
+-										GoodsNum = goodsInfo.Count
+-									});
+-								}
+-							}
+-							else
+-							{
+-								m_GoodList = null;
+-							}
+-							if (compeletAction != null)
+-							{
+-								compeletAction();
+-							}
+-						}
++						if (requestedRevision.Length != 0)
++							RequestGoods(ByteString.Empty, onReady, showWaiting);
+ 						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(spaceGoodsResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
++							MonoSingleton<GameStart>.Instance.PopUpAttention(MonoSingleton<GameStart>.Instance.GetHintMsgByCode(5001));
++						return;
+ 					}
+-				}, isShowWaiting);
+-				return;
+-			}
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.CHECK_SPACE, spaceGoodsCheckReq_, (object _obj) =>
++				}
++				else
++				{
++					ApplyFullSnapshot(response, revision);
++				}
++				onReady?.Invoke();
++			}, isShowWaitUI: showWaiting);
++		}
++
++		private static void ReadSyncFields(ByteString bytes, out ByteString revision, out bool unchanged)
++		{
++			revision = ByteString.Empty;
++			unchanged = false;
++			var input = bytes.CreateCodedInput();
++			uint tag;
++			while ((tag = input.ReadTag()) != 0)
+ 			{
+-				ByteString byteString = _obj as ByteString;
+-				if (!(byteString == null))
++				switch (tag)
+ 				{
+-					SpaceGoodsCheckResp_1004004 spaceGoodsCheckResp_ = new SpaceGoodsCheckResp_1004004();
+-					spaceGoodsCheckResp_.MergeFrom(byteString);
+-					if (spaceGoodsCheckResp_.IsSuccess)
+-					{
+-						string idsMd = GetIdsMd5();
+-						if (!spaceGoodsCheckResp_.Md5.ToLower().Equals(idsMd))
+-						{
+-							m_GoodList = null;
+-							GetAllGoods(compeletAction);
+-						}
+-						else if (compeletAction != null)
+-						{
+-							compeletAction();
+-						}
+-					}
+-					else
+-					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(spaceGoodsCheckResp_.Code);
+-						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-					}
++				case 58: revision = input.ReadBytes(); break; // bytes field 7
++				case 64: unchanged = input.ReadBool(); break; // bool field 8
++				default: input.SkipLastField(); break;
+ 				}
+-			});
++			}
++		}
++
++		private void ApplyFullSnapshot(SpaceGoodsResp_1004002 response, ByteString revision)
++		{
++			var list = new List<BaseNaJieGoodEntity>(response.GoodsInfos.Count);
++			foreach (var item in response.GoodsInfos)
++			{
++				list.Add(new BaseNaJieGoodEntity
++				{
++					GoodsId = item.GoodsId, Name = item.Name, Type = item.Type, GoodsNum = item.Count,
++					Rank = item.Rank, Level = item.Level, FiveElement = item.FiveElement, TemplateId = item.TemplateId,
++					IsUsing = item.IsUsing, IsBinding = item.IsBinding, IsLock = item.IsLock,
++					RecyclePrice = item.RecyclePrice, ConversionRate = item.ConversionRate, GoodsVolume = item.Volume
++				});
++			}
++			m_GoodList = list;
++			MaxCapacity = response.MaxCapacity;
++			NowCapacity = response.NowCapacity;
++			m_Revision = revision.Length == RevisionSize ? revision : ByteString.Empty;
++			m_ServerSnapshot = m_Revision.Length == RevisionSize ? response : null;
++		}
++
++		private bool MatchesServerSnapshot()
++		{
++			if (m_ServerSnapshot == null || m_GoodList == null || m_ServerSnapshot.GoodsInfos.Count != m_GoodList.Count ||
++				m_ServerSnapshot.NowCapacity != NowCapacity || m_ServerSnapshot.MaxCapacity != MaxCapacity)
++				return false;
++			for (int i = 0; i < m_GoodList.Count; i++)
++			{
++				var saved = m_ServerSnapshot.GoodsInfos[i];
++				var item = m_GoodList[i];
++				if (item == null || saved.GoodsId != item.GoodsId || saved.Name != item.Name || saved.Type != item.Type ||
++					saved.Count != item.GoodsNum || saved.Rank != item.Rank || saved.Level != item.Level ||
++					saved.FiveElement != item.FiveElement || saved.TemplateId != item.TemplateId || saved.IsUsing != item.IsUsing ||
++					saved.IsBinding != item.IsBinding || saved.IsLock != item.IsLock || saved.RecyclePrice != item.RecyclePrice ||
++					saved.ConversionRate != item.ConversionRate || saved.Volume != item.GoodsVolume)
++					return false;
++			}
++			return true;
+ 		}
+ 
+ 		public List<BaseNaJieGoodEntity> SelectGoods(int type)
+ 		{
+-			new List<BaseNaJieGoodEntity>();
+-			return GoodsList.FindAll((BaseNaJieGoodEntity info) => (info.Type == type) ? true : false);
++			if (m_GoodList == null) return new List<BaseNaJieGoodEntity>();
++			return m_GoodList.FindAll((BaseNaJieGoodEntity info) => (info.Type == type) ? true : false);
+ 		}
+ 
+ 		public List<BaseNaJieGoodEntity> SelectGoods(int type, int rank)
+ 		{
+-			new List<BaseNaJieGoodEntity>();
+-			return GoodsList.FindAll((BaseNaJieGoodEntity info) =>
++			if (m_GoodList == null) return new List<BaseNaJieGoodEntity>();
++			return m_GoodList.FindAll((BaseNaJieGoodEntity info) =>
+ 			{
+ 				int levelByRank = WorldSetting.GetLevelByRank(info.Rank);
+ 				int levelByRank2 = WorldSetting.GetLevelByRank(rank);
+@@ -143,8 +165,8 @@ namespace XiuZhenJie
+ 
+ 		public List<BaseNaJieGoodEntity> SelectGoods(int type, int rank, int fiveElement)
+ 		{
+-			new List<BaseNaJieGoodEntity>();
+-			return GoodsList.FindAll((BaseNaJieGoodEntity info) =>
++			if (m_GoodList == null) return new List<BaseNaJieGoodEntity>();
++			return m_GoodList.FindAll((BaseNaJieGoodEntity info) =>
+ 			{
+ 				int levelByRank = WorldSetting.GetLevelByRank(info.Rank);
+ 				int levelByRank2 = WorldSetting.GetLevelByRank(rank);
+@@ -154,8 +176,8 @@ namespace XiuZhenJie
+ 
+ 		public List<BaseNaJieGoodEntity> SelectGoods(int type, int fiveElement, int rank, int level)
+ 		{
+-			new List<BaseNaJieGoodEntity>();
+-			return GoodsList.FindAll((BaseNaJieGoodEntity info) =>
++			if (m_GoodList == null) return new List<BaseNaJieGoodEntity>();
++			return m_GoodList.FindAll((BaseNaJieGoodEntity info) =>
+ 			{
+ 				int levelByRank = WorldSetting.GetLevelByRank(info.Rank);
+ 				int levelByRank2 = WorldSetting.GetLevelByRank(rank);
+@@ -383,26 +405,12 @@ namespace XiuZhenJie
+ 
+ 		public void ResetGoodsNum(string goodsId, int num)
+ 		{
+-			BaseNaJieGoodEntity baseNaJieGoodEntity = null;
+-			foreach (BaseNaJieGoodEntity goods in GoodsList)
+-			{
+-				if (goodsId == goods.GoodsId)
+-				{
+-					baseNaJieGoodEntity = goods;
+-					break;
+-				}
+-			}
+-			if (baseNaJieGoodEntity != null)
+-			{
+-				if (baseNaJieGoodEntity.GoodsNum != 0)
+-				{
+-					m_GoodList.Remove(baseNaJieGoodEntity);
+-				}
+-				else
+-				{
+-					baseNaJieGoodEntity.GoodsNum = num;
+-				}
+-			}
++			var item = GetGoodsInfo(goodsId);
++			if (item == null) return;
++			if (num <= 0)
++				m_GoodList.Remove(item);
++			else
++				item.GoodsNum = num;
+ 		}
+ 
+ 		public string GetIdsMd5()

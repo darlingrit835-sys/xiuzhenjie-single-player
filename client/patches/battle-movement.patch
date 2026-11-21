@@ -1,0 +1,867 @@
+diff --git a/Assets/Resources/InkCultivation/SystemMethods.json b/Assets/Resources/InkCultivation/SystemMethods.json
+index ea65623..d45b8d2 100644
+--- a/Assets/Resources/InkCultivation/SystemMethods.json
++++ b/Assets/Resources/InkCultivation/SystemMethods.json
+@@ -3,7 +3,7 @@
+     {
+       "id": "sys_1_1_1",
+       "name": "匣风照神篇",
+-      "description": "取「鸣锋」之象，气势属「潜风」。闭目存想，待心头余象散尽，再运一周天养神识。",
++      "description": "取「鸣锋」之象，气势属「潜风」。闭目存想，待心头余象散尽，再运一周天养神识。装备时借风行步，历练移动速度提高 4%。",
+       "kind": 1
+     },
+     {
+@@ -75,7 +75,7 @@
+     {
+       "id": "sys_1_2_1",
+       "name": "竹径炼形诀",
+-      "description": "取「摇枝」之象，气势属「潜风」。随吐息舒肩展背，行过一周天，所养归于体魄。",
++      "description": "取「摇枝」之象，气势属「潜风」。随吐息舒肩展背，行过一周天，所养归于体魄。装备时借风行步，历练移动速度提高 6%。",
+       "kind": 2
+     },
+     {
+@@ -147,7 +147,7 @@
+     {
+       "id": "sys_1_3_1",
+       "name": "洄汀行气诀",
+-      "description": "取「回流」之象，气势属「潜风」。使气息沿脉回环，周天既成，所得累入修为。",
++      "description": "取「回流」之象，气势属「潜风」。使气息沿脉回环，周天既成，所得累入修为。装备时借风行步，历练移动速度提高 10%。",
+       "kind": 3
+     },
+     {
+@@ -219,7 +219,7 @@
+     {
+       "id": "sys_1_4_1",
+       "name": "灯花守意经",
+-      "description": "取「卷焰」之象，气势属「潜风」。闭目存想，待心头余象散尽，再运一周天养神识。",
++      "description": "取「卷焰」之象，气势属「潜风」。闭目存想，待心头余象散尽，再运一周天养神识。装备时借风行步，历练移动速度提高 6%。",
+       "kind": 1
+     },
+     {
+@@ -291,7 +291,7 @@
+     {
+       "id": "sys_1_5_1",
+       "name": "沙纹炼骨功",
+-      "description": "取「飞砂」之象，气势属「潜风」。随吐息舒肩展背，行过一周天，所养归于体魄。",
++      "description": "取「飞砂」之象，气势属「潜风」。随吐息舒肩展背，行过一周天，所养归于体魄。装备时借风行步，历练移动速度提高 8%。",
+       "kind": 2
+     },
+     {
+@@ -363,7 +363,7 @@
+     {
+       "id": "sys_2_1_1",
+       "name": "剑啸吐纳篇",
+-      "description": "取「鸣锋」之象，气势属「长风」。一息收气，一息归元，行满一周天便积一分修为。",
++      "description": "取「鸣锋」之象，气势属「长风」。一息收气，一息归元，行满一周天便积一分修为。装备时借风行步，历练移动速度提高 4%。",
+       "kind": 3
+     },
+     {
+@@ -435,7 +435,7 @@
+     {
+       "id": "sys_2_2_1",
+       "name": "千枝照神篇",
+-      "description": "取「摇枝」之象，气势属「长风」。先听息声，再把散开的心念收回，以养神识。",
++      "description": "取「摇枝」之象，气势属「长风」。先听息声，再把散开的心念收回，以养神识。装备时借风行步，历练移动速度提高 8%。",
+       "kind": 1
+     },
+     {
+@@ -507,7 +507,7 @@
+     {
+       "id": "sys_2_3_1",
+       "name": "翻潮炼形诀",
+-      "description": "取「回流」之象，气势属「长风」。将一呼一吸分入伸屈两势，徐徐淬炼体魄。",
++      "description": "取「回流」之象，气势属「长风」。将一呼一吸分入伸屈两势，徐徐淬炼体魄。装备时借风行步，历练移动速度提高 10%。",
+       "kind": 2
+     },
+     {
+@@ -579,7 +579,7 @@
+     {
+       "id": "sys_2_4_1",
+       "name": "回焰行气诀",
+-      "description": "取「卷焰」之象，气势属「长风」。一息收气，一息归元，行满一周天便积一分修为。",
++      "description": "取「卷焰」之象，气势属「长风」。一息收气，一息归元，行满一周天便积一分修为。装备时借风行步，历练移动速度提高 6%。",
+       "kind": 3
+     },
+     {
+@@ -651,7 +651,7 @@
+     {
+       "id": "sys_2_5_1",
+       "name": "沙浪守意经",
+-      "description": "取「飞砂」之象，气势属「长风」。先听息声，再把散开的心念收回，以养神识。",
++      "description": "取「飞砂」之象，气势属「长风」。先听息声，再把散开的心念收回，以养神识。装备时借风行步，历练移动速度提高 10%。",
+       "kind": 1
+     },
+     {
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/RoleManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/RoleManager.cs
+index 50807c2..42b3f79 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/RoleManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Account/RoleManager.cs
+@@ -1296,19 +1296,19 @@ namespace XiuZhenJie
+ 						{
+ 							string title = "";
+ 							string gongFaEffectType = WorldSetting.GetGongFaEffectType(methodAchievementDetailResp_.EffectType1, ref title);
+-							dataList.Add(title + "," + gongFaEffectType + methodAchievementDetailResp_.EffectValue1 + "%,功法第三重后方可激活特效，玄阶功法拥有1个特效，地阶2个，天阶3个。");
++							dataList.Add(title + "," + gongFaEffectType + methodAchievementDetailResp_.EffectValue1 + "%," + WorldSetting.MethodEffectHelp(methodAchievementDetailResp_.EffectType1));
+ 						}
+ 						if (methodAchievementDetailResp_.EffectType2 != 0)
+ 						{
+ 							string title2 = "";
+ 							string gongFaEffectType2 = WorldSetting.GetGongFaEffectType(methodAchievementDetailResp_.EffectType2, ref title2);
+-							dataList.Add(title2 + "," + gongFaEffectType2 + methodAchievementDetailResp_.EffectValue2 + "%,功法第三重后方可激活特效，玄阶功法拥有1个特效，地阶2个，天阶3个。");
++							dataList.Add(title2 + "," + gongFaEffectType2 + methodAchievementDetailResp_.EffectValue2 + "%," + WorldSetting.MethodEffectHelp(methodAchievementDetailResp_.EffectType2));
+ 						}
+ 						if (methodAchievementDetailResp_.EffectType3 != 0)
+ 						{
+ 							string title3 = "";
+ 							string gongFaEffectType3 = WorldSetting.GetGongFaEffectType(methodAchievementDetailResp_.EffectType3, ref title3);
+-							dataList.Add(title3 + "," + gongFaEffectType3 + methodAchievementDetailResp_.EffectValue3 + "%,功法第三重后方可激活特效，玄阶功法拥有1个特效，地阶2个，天阶3个。");
++							dataList.Add(title3 + "," + gongFaEffectType3 + methodAchievementDetailResp_.EffectValue3 + "%," + WorldSetting.MethodEffectHelp(methodAchievementDetailResp_.EffectType3));
+ 						}
+ 						dataList.Add(string.Format("{0},{1},{2}", "创造人", methodAchievementDetailResp_.CreatedBy, "此功法由谁创造而来，开辟悟道台成为布道师，结丹期后在虚神界即可创造功法，创造一本自己署名的功法流芳百世"));
+ 						string text = "";
+@@ -1860,6 +1860,23 @@ namespace XiuZhenJie
+ 					if (methodSkillDetailResp_.IsSuccess)
+ 					{
+ 						int stageByLevel = WorldSetting.GetStageByLevel(level);
++						var type = (FaShuType)methodSkillDetailResp_.SkillType;
++						if (type == FaShuType.dunshu_wuxing || type == FaShuType.kongzhi_yisu)
++						{
++							var input = byteString.CreateCodedInput();
++							uint field;
++							while ((field = input.ReadTag()) != 0)
++							{
++								if (field == 81)
++								{
++									string change = (input.ReadDouble() * 100).ToString("0.##") + "%";
++									dataList.Add(type == FaShuType.dunshu_wuxing
++										? "自身移速,+" + change + ",同类临时身法取最强，同源再施刷新时长。"
++										: "目标移速,−" + change + ",同类减速取最强，目标定身期间移速为零。");
++								}
++								else input.SkipLastField();
++							}
++						}
+ 						switch ((FaShuType)methodSkillDetailResp_.SkillType)
+ 						{
+ 						case FaShuType.gongji_suoding:
+@@ -1870,14 +1887,12 @@ namespace XiuZhenJie
+ 							break;
+ 						case FaShuType.gongji_chixu:
+ 							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "攻击-持续攻击", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+-							dataList.Add(string.Format("{0},{1},{2}", "持续时间", methodSkillDetailResp_.ContinueTime / 1000 + "息", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+ 							break;
+ 						case FaShuType.gongji_fanwei:
+ 							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "攻击-范围攻击", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+ 							break;
+ 						case FaShuType.gongji_fanwei_chixu:
+ 							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "攻击-范围持续攻击", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+-							dataList.Add(string.Format("{0},{1},{2}", "持续时间", methodSkillDetailResp_.ContinueTime / 1000 + "息", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+ 							break;
+ 						case FaShuType.fangyu_fashu_hudun:
+ 							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "防御-法术护盾", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+@@ -1895,7 +1910,7 @@ namespace XiuZhenJie
+ 							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "控制-限制行动", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+ 							break;
+ 						case FaShuType.dunshu_wuxing:
+-							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "遁术-五行遁术", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
++							dataList.Add("技能类型,身法·自身加速,施法完成后对自身生效。");
+ 							break;
+ 						case FaShuType.dunshu_yujian:
+ 							dataList.Add(string.Format("{0},{1},{2}", "技能类型", "遁术-御剑术", "法术技能分为：锁定攻击、持续攻击、范围攻击、法术护盾、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+@@ -1907,8 +1922,8 @@ namespace XiuZhenJie
+ 						dataList.Add(string.Format("{0},{1},{2}", "最低消耗", methodSkillDetailResp_.MinSpiritualityValue, "使用此法术的最低要求，依据消耗值计算法术伤害，消耗值与功法当前重数、功法与灵根的匹配、功法的灵衍值、角色等级等等数据均有关系，法力消耗值=每息输出*施法时间"));
+ 						dataList.Add(string.Format("{0},{1},{2}", "最大消耗", methodSkillDetailResp_.MaxSpiritualityValue, "使用此法术的最高可用灵气，当法力消耗值超过最大则取最大消耗，消耗值与功法当前重数、功法与灵根的匹配、功法的灵衍值、角色等级等等数据均有关系，法力消耗值=每息输出*施法时间"));
+ 						dataList.Add(string.Format("{0},{1},{2}", "灵衍值", methodSkillDetailResp_.ConversionRate, "将丹田内的灵气转换成法术能量的比例，越高则转换效率越高，法术的伤害越高"));
+-						dataList.Add(string.Format("{0},{1},{2}", "持续时间", methodSkillDetailResp_.ContinueTime / 1000 + "息", "此法术持续存在的时间，拥有持续时间的法术包括：持续攻击、范围攻击、伤害增益、防御增益、减低移速、限制行动、五行遁术、御剑术"));
+-						dataList.Add(string.Format("{0},{1},{2}", "施放时间", methodSkillDetailResp_.CastTime / 1000 + "息", "使用此法术需要消耗的时间"));
++						if (methodSkillDetailResp_.ContinueTime > 0) dataList.Add("持续时间," + (methodSkillDetailResp_.ContinueTime / 1000.0).ToString("0.###") + " 秒");
++						dataList.Add("施放时间," + (methodSkillDetailResp_.CastTime / 1000.0).ToString("0.###") + " 秒");
+ 						dataList.Add(string.Format("{0},{1},{2}", "创造人", methodSkillDetailResp_.CreatedBy, "此法术由谁创造而来，开辟修法室成为术法师，结丹期后在虚神界即可创造法术，创造一本自己署名的大神通法术流芳百世"));
+ 					}
+ 					else
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/AnimalMonster_Normal_Entity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/AnimalMonster_Normal_Entity.cs
+index efdae36..bbe5b97 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/AnimalMonster_Normal_Entity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/AnimalMonster_Normal_Entity.cs
+@@ -223,11 +223,12 @@ namespace XiuZhenJie
+ 			}
+ 		}
+ 
++		protected override double UnmodifiedMoveSpeed => base.UnmodifiedMoveSpeed + (m_IsChongZhuang ? 30.0 : 0.0);
++
+ 		protected virtual void ChongZhuang()
+ 		{
+ 			m_IsChongZhuang = true;
+-			BattleLifeModel battleModel = base.BattleModel;
+-			battleModel.CurrentMoveSpeed = (double)battleModel.CurrentMoveSpeed + 30.0;
++			ReComputeMoveSpeed();
+ 		}
+ 
+ 		protected virtual void ChongZhuangEffect()
+@@ -236,8 +237,7 @@ namespace XiuZhenJie
+ 			if (SkillDic.TryGetValue(AnimalMonsterSkillType.ChongZhuang, out value))
+ 			{
+ 				m_Target.BeiDingShen(1.5f, base.BattleModel.Level, base.BattleModel.AttackFiveElement, 1, value.id);
+-				BattleLifeModel battleModel = base.BattleModel;
+-				battleModel.CurrentMoveSpeed = (double)battleModel.CurrentMoveSpeed - 30.0;
++				ReComputeMoveSpeed();
+ 			}
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseBuffModel.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseBuffModel.cs
+index 3e69f0a..cc70d8c 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseBuffModel.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseBuffModel.cs
+@@ -58,12 +58,12 @@ namespace XiuZhenJie
+ 		{
+ 			while (!m_isCancle)
+ 			{
++				yield return null;
+ 				ShengYuTime -= UnityEngine.Time.deltaTime;
+ 				if (ShengYuTime <= 0f)
+ 				{
+ 					break;
+ 				}
+-				yield return new WaitForEndOfFrame();
+ 			}
+ 			if (CompeleteAction != null)
+ 			{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseSkillModel.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseSkillModel.cs
+index b29f2a6..4f0e38a 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseSkillModel.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BaseSkillModel.cs
+@@ -1,3 +1,4 @@
++using UnityEngine;
+ using System;
+ using CodeStage.AntiCheat.ObscuredTypes;
+ 
+@@ -58,6 +59,12 @@ namespace XiuZhenJie
+ 
+ 		public ObscuredInt ZhenPanCastShinyStone;
+ 
++		// Older control spells supplied only a conversion ratio. Modern entries carry their resolved duration in seconds.
++		internal float MovementSeconds(float legacyMultiplier) => (double)continued > 0
++			? (float)(double)continued : Mathf.Max(0, (float)conversionRate * legacyMultiplier * (1f + ForgeResonancePercent / 100f));
++		internal float SlowFraction() => (double)continued > 0 && (double)baseDamage > 0 && (double)baseDamage <= 1
++			? (float)(double)baseDamage : .2f * Mathf.Max(1, WorldSetting.GetLevelByRank(rank));
++
+ 		public BaseSkillModel()
+ 		{
+ 		}
+@@ -101,7 +108,7 @@ namespace XiuZhenJie
+ 			SkillIndex = data.SkillIndex;
+ 			baseDamage = data.BaseDamage;
+ 			castTime = data.CastTime;
+-			continued = data.ContinueTime / 1000;
++			continued = data.ContinueTime / 1000.0;
+ 			conversionRate = data.ConversionRate;
+ 			coolDown = data.CoolDown;
+ 			fiveElement = data.FiveElement;
+@@ -125,7 +132,7 @@ namespace XiuZhenJie
+ 			SkillIndex = data.SkillIndex;
+ 			baseDamage = data.BaseDamage;
+ 			castTime = data.CastTime;
+-			continued = data.ContinueTime / 1000;
++			continued = data.ContinueTime / 1000.0;
+ 			conversionRate = data.ConversionRate;
+ 			coolDown = data.CoolDown;
+ 			fiveElement = data.FiveElement;
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleBuffType.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleBuffType.cs
+index c12df94..461d414 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleBuffType.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleBuffType.cs
+@@ -8,6 +8,7 @@ namespace XiuZhenJie
+ 		ShiFaYanChang = 3,
+ 		DefenseAdd = 4,
+ 		HuDun = 5,
+-		DiDang = 6
++		DiDang = 6,
++		MoveHaste = 7
+ 	}
+ }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
+index c98d151..2f063da 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
+@@ -17,6 +17,8 @@ namespace XiuZhenJie
+ 
+ 		public double RestBloodFractionPerSecond;
+ 
++		public int MethodMovePercent, SigilMovePercent;
++
+ 		public ObscuredDouble CurrentJianRen;
+ 
+ 		public ObscuredDouble Max_JianRen;
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
+index f8c1d63..fd58f4b 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
+@@ -120,6 +120,8 @@ namespace XiuZhenJie
+ 				case 232: role.CurrentHuDun = Math.Max(0, input.ReadInt32()); break;
+ 				case 240: Singleton<RoleManager>.Instance.Role_Entity.CurrentVigor = input.ReadInt32(); break;
+ 				case 248: role.RestBloodFractionPerSecond = input.ReadInt32() / 1000000.0; break;
++				case 256: role.SigilMovePercent = input.ReadInt32(); break;
++				case 264: role.MethodMovePercent = input.ReadInt32(); break;
+ 				default: input.SkipLastField(); break;
+ 				}
+ 			}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs
+index 281e0dc..663cba6 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleSceneManager.cs
+@@ -1009,6 +1009,13 @@ namespace XiuZhenJie
+ 					FinishCast();
+ 				});
+ 				break;
++			case FaShuType.dunshu_wuxing:
++				SelfPlayerEntity.ShiFa(num, baseSkillModel.fiveElement, () =>
++				{
++					SelfPlayerEntity.ApplyHaste(baseSkillModel);
++					FinishCast();
++				});
++				break;
+ 			case FaShuType.kongzhi_yisu:
+ 				SelfPlayerEntity.ShiFa(num, baseSkillModel.fiveElement, () =>
+ 				{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs
+index 09c3675..8aa8d68 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleWnd.cs
+@@ -176,7 +176,11 @@ namespace XiuZhenJie
+ 			m_Hud.RefreshLayout();
+ 			m_Hud.ShowInteraction(scene.Interaction?.NearbyLabel);
+ 			m_Hud.ShowDiscovery(field ? field.Discovery : null, field ? field.DiscoveryAlpha : 0f);
+-			if (m_Player != null) UpdatePlayerInfo();
++			if (m_Player != null)
++			{
++				UpdatePlayerInfo();
++				m_Hud.ShowMovement(m_Player);
++			}
+ 
+ 			Vector2 pos = scene.SelfPlayerEntity.GetPos();
+ 			var cell = Vector2Int.FloorToInt(pos);
+@@ -994,7 +998,7 @@ namespace XiuZhenJie
+ 			}
+ 			else
+ 			{
+-				m_BuffIds[id].ReflashItem();
++				m_BuffIds[id].SetItem(id, skillType, fiveElement, value, time, CanclePlayerBuff);
+ 			}
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/EntityBase.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/EntityBase.cs
+index 8ddbaae..78fabee 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/EntityBase.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/EntityBase.cs
+@@ -306,7 +306,7 @@ namespace XiuZhenJie
+ 				Transform trans = GetTrans();
+ 				if (!(trans == null))
+ 				{
+-					float step = BattleMgr != null && BattleMgr.Layout != null ? Time.deltaTime : .01f;
++					float step = Time.deltaTime;
+ 					PlaceAfterStep(trans, WalkStep(trans.position, trans.position + vector * ((float)(double)m_BattleModel.CurrentMoveSpeed * step)));
+ 				}
+ 			}
+@@ -510,9 +510,16 @@ namespace XiuZhenJie
+ 			{
+ 				return;
+ 			}
+-			if (BuffList.ContainsKey(_buffModel.BuffId))
++			if (BuffList.TryGetValue(_buffModel.BuffId, out var existing))
+ 			{
+-				BuffList[_buffModel.BuffId].ReflashTime();
++				if (existing.BuffType == BattleBuffType.MoveHaste || existing.BuffType == BattleBuffType.JianSu ||
++					existing.BuffType == BattleBuffType.DingShen)
++				{
++					existing.Num = _buffModel.Num;
++					existing.Time = _buffModel.Time;
++					ReComputeMoveSpeed();
++				}
++				existing.ReflashTime();
+ 				return;
+ 			}
+ 			if (_buffModel.BuffType == BattleBuffType.HuDun)
+@@ -534,26 +541,21 @@ namespace XiuZhenJie
+ 			AddBuffValue(_buffModel);
+ 			_buffModel.DoBuff(BaseController, () =>
+ 			{
+-				RemoveBuff(_buffModel.BuffId);
++				if (BuffList.TryGetValue(_buffModel.BuffId, out var active) && ReferenceEquals(active, _buffModel))
++					RemoveBuff(_buffModel.BuffId);
+ 			});
+ 		}
+ 
+ 		protected virtual void RemoveBuff(string id)
+ 		{
+-			if (BattleMgr == null || (double)m_BattleModel.CurrentBlood <= 0.0)
+-			{
+-				return;
+-			}
+-			BaseBuffModel baseBuffModel = null;
+-			if (BuffList.ContainsKey(id))
+-			{
+-				baseBuffModel = BuffList[id];
+-				BuffList.Remove(id);
+-				if (baseBuffModel != null)
+-				{
+-					RemoveBuffValue(baseBuffModel);
+-				}
+-			}
++			if (BattleMgr == null || !BuffList.TryGetValue(id, out var buff)) return;
++			bool alive = (double)m_BattleModel.CurrentBlood > 0.0;
++			if (!alive && buff.BuffType != BattleBuffType.MoveHaste && buff.BuffType != BattleBuffType.JianSu &&
++				buff.BuffType != BattleBuffType.DingShen) return;
++			BuffList.Remove(id);
++			buff.CancleBuff();
++			if (alive) RemoveBuffValue(buff);
++			else ReComputeMoveSpeed();
+ 		}
+ 
+ 		public virtual void AddBuffValue(BaseBuffModel _buffModel)
+@@ -562,6 +564,7 @@ namespace XiuZhenJie
+ 			{
+ 				switch (_buffModel.BuffType)
+ 				{
++				case BattleBuffType.MoveHaste:
+ 				case BattleBuffType.JianSu:
+ 					JianSuEffect(_buffModel);
+ 					break;
+@@ -593,6 +596,7 @@ namespace XiuZhenJie
+ 			{
+ 				switch (_buffModel.BuffType)
+ 				{
++				case BattleBuffType.MoveHaste:
+ 				case BattleBuffType.JianSu:
+ 					RemoveJianSuEffect(_buffModel);
+ 					break;
+@@ -647,6 +651,8 @@ namespace XiuZhenJie
+ 
+ 		protected virtual void RemoveDingShenEffect(BaseBuffModel _buffModel)
+ 		{
++			foreach (var buff in BuffList.Values)
++				if (buff.BuffType == BattleBuffType.DingShen) return;
+ 			Idle();
+ 		}
+ 
+@@ -715,22 +721,33 @@ namespace XiuZhenJie
+ 			BaseController.CancleHuDun();
+ 		}
+ 
++		protected virtual double UnmodifiedMoveSpeed => BattleModel.InitMoveSpeed;
++		protected virtual float FormationSlow => 0f;
++
+ 		public virtual void ReComputeMoveSpeed()
+ 		{
+-			double num = BattleModel.InitMoveSpeed;
+-			foreach (KeyValuePair<string, BaseBuffModel> buff in BuffList)
++			float haste = 0f, slow = FormationSlow;
++			foreach (var buff in BuffList.Values)
+ 			{
+-				if (buff.Value.BuffType == BattleBuffType.DingShen)
++				switch (buff.BuffType)
+ 				{
+-					num = 0.0;
+-					break;
+-				}
+-				if (buff.Value.BuffType == BattleBuffType.JianSu)
+-				{
+-					num -= num * (double)buff.Value.Num;
++					case BattleBuffType.DingShen:
++						BattleModel.CurrentMoveSpeed = 0;
++						return;
++					case BattleBuffType.MoveHaste: haste = Mathf.Max(haste, buff.Num); break;
++					case BattleBuffType.JianSu: slow = Mathf.Max(slow, buff.Num); break;
+ 				}
+ 			}
+-			BattleModel.CurrentMoveSpeed = num;
++			BattleModel.CurrentMoveSpeed = UnmodifiedMoveSpeed * (1 + haste) * (1 - Mathf.Clamp01(slow));
++		}
++
++		internal void ApplyHaste(BaseSkillModel spell)
++		{
++			float duration = (float)(double)spell.continued;
++			float fraction = (float)(double)spell.baseDamage;
++			if (duration <= 0 || fraction <= 0) return;
++			AddBuff(new BaseBuffModel { BuffId = spell.id, BuffType = BattleBuffType.MoveHaste,
++				FiveElement = spell.fiveElement, Icon = spell.icon, Time = duration, Num = fraction });
+ 		}
+ 
+ 		protected virtual void ShenShiLockEnterTriggerCheck(Collider2D _collider2d)
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/InkBattleHud.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/InkBattleHud.cs
+index 61d2ef6..1a39b07 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/InkBattleHud.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/InkBattleHud.cs
+@@ -17,7 +17,9 @@ namespace XiuZhenJie
+ 		private readonly Text interactCaption;
+ 		internal readonly Button Interact;
+ 		private readonly RectTransform header, vitals, location, targetCard, skillDock;
+-		private readonly Text explored, targetName, emptyGroup;
++		private readonly Text explored, targetName, emptyGroup, movement;
++		private double shownSpeed = -1;
++		private int shownMethod = -1, shownSigil = -1;
+ 		private readonly Image targetHealth, targetPortrait;
+ 		internal readonly Text Group;
+ 		private Rect lastSafe, lastWindow;
+@@ -70,6 +72,8 @@ namespace XiuZhenJie
+ 			Tint(panel.MonsterDieProgressText,12,Mist);
+ 			panel.MonsterDieProgressText.alignment = TextAnchor.MiddleRight;
+ 			panel.MonsterDieProgressText.text = "清敌  0%";
++			movement = Label(header, font, "MovementSpeed", "", 12, Mist);
++			Band(movement.rectTransform,10,6,67,17);
+ 			panel.OverTimeText_AfterKillBoss.gameObject.SetActive(false);
+ 			panel.MonsterDieProgressBossText.gameObject.SetActive(false);
+ 
+@@ -167,12 +171,12 @@ namespace XiuZhenJie
+ 			float width = safe.rect.width;
+ 			float mapSize = width < 330 ? 76 : 88;
+ 			float titleWidth = Mathf.Min(260, width - mapSize - 22);
+-			Place(header, NW, 8,-34,titleWidth,73);
++			Place(header, NW, 8,-34,titleWidth,90);
+ 			Place(panel.SmallMapTran, Vector2.one,-8,-9,mapSize,mapSize);
+ 			Place((RectTransform)explored.transform.parent,Vector2.one,-8,-10-mapSize,mapSize,19);
+-			Place((RectTransform)panel.LiKaiBtn.transform,NW,8,-113,53,32);
+-			Place((RectTransform)panel.LiKaiKillBossBtn.transform,NW,8,-113,53,32);
+-			Place(targetCard,NW,69,-113,titleWidth-61,32);
++			Place((RectTransform)panel.LiKaiBtn.transform,NW,8,-130,53,32);
++			Place((RectTransform)panel.LiKaiKillBossBtn.transform,NW,8,-130,53,32);
++			Place(targetCard,NW,69,-130,titleWidth-61,32);
+ 			vitals.pivot = new Vector2(.5f,0);
+ 			vitals.anchorMin = Vector2.zero;
+ 			vitals.anchorMax = new Vector2(1,0);
+@@ -225,6 +229,17 @@ namespace XiuZhenJie
+ 
+ 		internal string ExplorationSummary => explored.text;
+ 
++		internal void ShowMovement(BattleLifeModel life)
++		{
++			double speed = life.CurrentMoveSpeed;
++			if (speed == shownSpeed && life.MethodMovePercent == shownMethod && life.SigilMovePercent == shownSigil) return;
++			shownSpeed = speed;
++			shownMethod = life.MethodMovePercent;
++			shownSigil = life.SigilMovePercent;
++			movement.text = $"移速 {speed:0.##}/秒" + (shownMethod > 0 ? $"  功法 +{shownMethod}%" : "")
++				+ (shownSigil > 0 ? $"  符 +{shownSigil}%" : "");
++		}
++
+ 		internal void ShowExplored(int percent)
+ 		{
+ 			if (shownExplored == percent) return;
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/MonsterEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/MonsterEntity.cs
+index 1cc0bde..2b962f5 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/MonsterEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/MonsterEntity.cs
+@@ -77,7 +77,7 @@ namespace XiuZhenJie
+ 			{
+ 				return;
+ 			}
+-			float step = BattleMgr != null && BattleMgr.Layout != null ? Time.deltaTime : .01f;
++			float step = Time.deltaTime;
+ 			Vector3 vector2 = WalkStep(trans.position, trans.position + vector * ((float)(double)m_BattleModel.CurrentMoveSpeed * step));
+ 			if (CheckSufferKunMatrix())
+ 			{
+@@ -239,25 +239,15 @@ namespace XiuZhenJie
+ 				return;
+ 			}
+ 			base.EnterZhenFa(battleZhenFaType, baseSkillModel, zhenFa_Item);
+-			if (battleZhenFaType == BattleZhenFaType.Kun)
+-			{
+-				BattleLifeModel battleModel = m_BattleModel;
+-				battleModel.CurrentMoveSpeed = (double)battleModel.CurrentMoveSpeed - (double)m_BattleModel.InitMoveSpeed * 0.30000001192092896;
+-				if ((double)m_BattleModel.CurrentMoveSpeed < 0.0)
+-				{
+-					m_BattleModel.CurrentMoveSpeed = 0.0;
+-				}
+-			}
++			if (battleZhenFaType == BattleZhenFaType.Kun) ReComputeMoveSpeed();
+ 		}
+ 
++		protected override float FormationSlow => CheckSufferKunMatrix() ? .3f : 0f;
++
+ 		public override void ExitZhenFa(BattleZhenFaType battleZhenFaType, string skillId)
+ 		{
+-			if (m_ZhenFaList.ContainsKey(skillId) && battleZhenFaType == BattleZhenFaType.Kun)
+-			{
+-				BattleLifeModel battleModel = m_BattleModel;
+-				battleModel.CurrentMoveSpeed = (double)battleModel.CurrentMoveSpeed + (double)m_BattleModel.InitMoveSpeed * 0.30000001192092896;
+-			}
+ 			base.ExitZhenFa(battleZhenFaType, skillId);
++			if (battleZhenFaType == BattleZhenFaType.Kun) ReComputeMoveSpeed();
+ 		}
+ 
+ 		protected override void DeadMethod()
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PeopleMonster_Normal_Entity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PeopleMonster_Normal_Entity.cs
+index 0b767de..04639dc 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PeopleMonster_Normal_Entity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PeopleMonster_Normal_Entity.cs
+@@ -109,6 +109,9 @@ namespace XiuZhenJie
+ 			case FaShuType.zengyi_fangyu:
+ 				Buff_AddDefenceInit(skillModel);
+ 				break;
++			case FaShuType.dunshu_wuxing:
++				ApplyHaste(skillModel);
++				break;
+ 			case FaShuType.kongzhi_yisu:
+ 				DeBuff_AddJianSu(skillModel);
+ 				break;
+@@ -244,7 +247,7 @@ namespace XiuZhenJie
+ 		{
+ 			if (m_Target != null)
+ 			{
+-				float time = (float)_playerSkillModel.conversionRate * 1f;
++				float time = _playerSkillModel.MovementSeconds(1f);
+ 				m_Target.BeiDingShen(time, _playerSkillModel.level, _playerSkillModel.fiveElement, _playerSkillModel.icon, _playerSkillModel.id);
+ 			}
+ 		}
+@@ -253,10 +256,8 @@ namespace XiuZhenJie
+ 		{
+ 			if (m_Target != null)
+ 			{
+-				float time = (float)_playerSkillModel.conversionRate * 1f;
+-				float num = 0.2f;
+-				num += (float)(WorldSetting.GetLevelByRank(_playerSkillModel.rank) - 1) * 0.2f;
+-				m_Target.JianShaoMoveSpeed(time, num, _playerSkillModel.level, _playerSkillModel.fiveElement, _playerSkillModel.icon, _playerSkillModel.id);
++				m_Target.JianShaoMoveSpeed(_playerSkillModel.MovementSeconds(1f), _playerSkillModel.SlowFraction(),
++					_playerSkillModel.level, _playerSkillModel.fiveElement, _playerSkillModel.icon, _playerSkillModel.id);
+ 			}
+ 		}
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
+index e5fbe21..c0c8cca 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
+@@ -461,7 +461,7 @@ namespace XiuZhenJie
+ 				MonoSingleton<GameStart>.Instance.PopRollingTextShow("需要一个目标！");
+ 				return false;
+ 			}
+-			float time = (float)_BaseSkillModel.conversionRate * (1f + _BaseSkillModel.ForgeResonancePercent / 100f);
++			float time = _BaseSkillModel.MovementSeconds(1f);
+ 			m_Target.BeiDingShen(time, _BaseSkillModel.level, _BaseSkillModel.fiveElement, _BaseSkillModel.icon, _BaseSkillModel.id);
+ 			return true;
+ 		}
+@@ -473,10 +473,8 @@ namespace XiuZhenJie
+ 				MonoSingleton<GameStart>.Instance.PopRollingTextShow("需要一个目标！");
+ 				return false;
+ 			}
+-			float time = (float)_BaseSkillModel.conversionRate * 2f * (1f + _BaseSkillModel.ForgeResonancePercent / 100f);
+-			float num = 0.2f;
+-			num += (float)(WorldSetting.GetLevelByRank(_BaseSkillModel.rank) - 1) * 0.2f;
+-			m_Target.JianShaoMoveSpeed(time, num, _BaseSkillModel.level, _BaseSkillModel.fiveElement, _BaseSkillModel.icon, _BaseSkillModel.id);
++			m_Target.JianShaoMoveSpeed(_BaseSkillModel.MovementSeconds(2f), _BaseSkillModel.SlowFraction(),
++				_BaseSkillModel.level, _BaseSkillModel.fiveElement, _BaseSkillModel.icon, _BaseSkillModel.id);
+ 			return true;
+ 		}
+ 
+@@ -648,10 +646,19 @@ namespace XiuZhenJie
+ 			}
+ 		}
+ 
+-		public override void BeiDingShen(float _time, int _skillLevel, int fiveElement, int icon, string _skillId)
++		protected override void AddBuff(BaseBuffModel buff)
+ 		{
+-			base.BeiDingShen(_time, _skillLevel, fiveElement, icon, _skillId);
+-			BattleMgr.AddBuff(_skillId, fiveElement, icon, _time, 41);
++			base.AddBuff(buff);
++			if (BattleMgr == null || (double)BattleModel.CurrentBlood <= 0 || !BuffList.TryGetValue(buff.BuffId, out var active)) return;
++			int skillType;
++			switch (active.BuffType)
++			{
++				case BattleBuffType.DingShen: skillType = 41; break;
++				case BattleBuffType.JianSu: skillType = 40; break;
++				case BattleBuffType.MoveHaste: skillType = 50; break;
++				default: return;
++			}
++			BattleMgr.AddBuff(active.BuffId, active.FiveElement, active.Icon, active.GetShengYuTime(), skillType);
+ 		}
+ 
+ 		public override void ShiFaYanChang(float _time, float _value, int _skillLevel, int fiveElement, int icon, string _skillId)
+@@ -660,12 +667,6 @@ namespace XiuZhenJie
+ 			BattleMgr.AddBuff(_skillId, fiveElement, icon, _time, 40);
+ 		}
+ 
+-		public override void JianShaoMoveSpeed(float _time, float _value, int _skillLevel, int fiveElement, int icon, string _skillId)
+-		{
+-			base.JianShaoMoveSpeed(_time, _value, _skillLevel, fiveElement, icon, _skillId);
+-			BattleMgr.AddBuff(_skillId, fiveElement, icon, _time, 40);
+-		}
+-
+ 		public override void AddWuXingDamage(float _time, float _value, int fiveElement, int icon, string _skillId)
+ 		{
+ 			base.AddWuXingDamage(_time, _value, fiveElement, icon, _skillId);
+@@ -881,6 +882,7 @@ namespace XiuZhenJie
+ 						});
+ 						m_BattleModel.CurrentJianRen = m_BattleModel.Max_JianRen;
+ 						m_BattleModel.CurrentBlood = m_BattleModel.Max_Blood;
++						if (CurrentAniState == AniState.DingShen) Idle();
+ 						BaseController.gameObject.transform.position = new Vector3((float)reviveResp_.PosX, (float)reviveResp_.PosY, 0f);
+ 						BattleMgr?.ClearAllMonsterTarget();
+ 						SetController(isShow: true);
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs
+index a62a67f..25a956e 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudio.cs
+@@ -19,7 +19,7 @@ namespace XiuZhenJie
+         }
+         [Serializable] private class Catalog
+         {
+-            public int rank, level, brushTier, training, nextRank, realmTier, supplyPrice, ward, battleWard, poison, batchLimit, vigor;
++            public int rank, level, brushTier, training, nextRank, realmTier, supplyPrice, ward, battleWard, battleHaste, poison, batchLimit, vigor;
+             public long stones;
+             public string realm, brush, message, supplyText;
+             public Choice[] effects, seals; public Recipe[] recipes; public Material[] materials; public Good[] goods; public Plan plan;
+@@ -41,7 +41,7 @@ namespace XiuZhenJie
+         private Font font;
+ 
+         internal static bool IsStudioGood(BaseNaJieGoodEntity good) => good != null && good.Type == (int)GoodsTypeEnum.SIGN &&
+-            good.TemplateId != null && good.TemplateId.StartsWith("sigil.", StringComparison.Ordinal);
++            good.TemplateId != null && (good.TemplateId == "preview-sign" || good.TemplateId.StartsWith("sigil.", StringComparison.Ordinal));
+ 
+         internal static void DescribeGood(string id, Action<string> received)
+         {
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs
+index 87ea32f..c98e4b9 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/TalismanStudioView.cs
+@@ -279,10 +279,11 @@ namespace XiuZhenJie
+             Label(sheet,"PouchCount",$"已藏成符 {goods.Sum(g=>g.count)} 张",15,Ivory,.072f,.78f,.190f,.246f);
+             float end=pouchOnly?.968f:.884f;
+             Trim(sheet,"PouchTray",Finish.Panel,.029f,.971f,.268f,end);
+-            string[] captions={"入战护盾","体内毒性","护田重数"};string[] values={data.battleWard.ToString(),data.poison.ToString(),data.ward+" / 3"};
+-            for(int i=0;i<3;i++)
++            string[] captions={"入战护盾","体内毒性","护田重数","下场轻身"};
++            string[] values={data.battleWard.ToString(),data.poison.ToString(),data.ward+" / 3",data.battleHaste+"%"};
++            for(int i=0;i<captions.Length;i++)
+             {
+-                float l=.052f+i*.30f;var stat=Area("Status"+i,sheet,l,l+.294f,.287f,.391f);
++                float l=.052f+i*.225f;var stat=Area("Status"+i,sheet,l,l+.217f,.287f,.391f);
+                 FinishOn(stat,Finish.Row);Label(stat,"Value",values[i],22,Gold,.02f,.98f,.025f,.56f,TextAnchor.MiddleCenter);
+                 Label(stat,"Kind",captions[i],13,Mist,.02f,.98f,.56f,.99f,TextAnchor.MiddleCenter);
+             }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/GongFaEffectEnum.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/GongFaEffectEnum.cs
+index c6777d1..ce89499 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/GongFaEffectEnum.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/GongFaEffectEnum.cs
+@@ -19,6 +19,7 @@ namespace XiuZhenJie
+ 		ATTACK_EARTH_SIGN_EFFECT = 115,
+ 		ATTACK_UNREAL_CONSUME_EFFECT = 116,
+ 		EXPLORE_ADD_UNREAL_SCOPE = 201,
++		BATTLE_MOVE_SPEED = 202,
+ 		ENTRENCH_GOLD_ADD = 301,
+ 		ENTRENCH_WOOD_ADD = 302,
+ 		ENTRENCH_WATER_ADD = 303,
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/RoleZhuangBeiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/RoleZhuangBeiWnd.cs
+index 776faf1..cfb51e2 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/RoleZhuangBeiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/RoleZhuangBeiWnd.cs
+@@ -405,7 +405,9 @@ namespace XiuZhenJie
+ 				XiangQingType.PhysiqueRecover => "脱战恢复", 
+ 				XiangQingType.Perception => "神识总值", 
+ 				XiangQingType.FullLoadPerception => "满载神识", 
+-				XiangQingType.CurrentMoveSpeed => "移动速度", 
++				XiangQingType.CurrentMoveSpeed => "常驻移速",
++				XiangQingType.MethodMovePercent => "功法身法",
++				XiangQingType.NextSigilMovePercent => "下场轻身符",
+ 				_ => "", 
+ 			};
+ 		}
+@@ -427,6 +429,14 @@ namespace XiuZhenJie
+ 					if (enterEquipmentResp_.IsSuccess)
+ 					{
+ 						InitZongLan(enterEquipmentResp_);
++						var movement = byteString.CreateCodedInput();
++						uint tag;
++						while ((tag = movement.ReadTag()) != 0)
++						{
++							if (tag == 112) ShenShiZongLanXiangQing[XiangQingType.NextSigilMovePercent] = "+" + movement.ReadInt32() + "%";
++							else if (tag == 120) ShenShiZongLanXiangQing[XiangQingType.MethodMovePercent] = "+" + movement.ReadInt32() + "%";
++							else movement.SkipLastField();
++						}
+ 						m_Vestments.ClearWorn();
+ 						for (int i = 0; i < enterEquipmentResp_.DressedEquipments.Count; i++)
+ 						{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XiangQingType.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XiangQingType.cs
+index 01ada42..113afec 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XiangQingType.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XiangQingType.cs
+@@ -14,6 +14,8 @@ namespace XiuZhenJie
+ 		Perception = 9,
+ 		FullLoadPerception = 10,
+ 		CurrentMoveSpeed = 11,
+-		BattleBlood = 12
++		BattleBlood = 12,
++		MethodMovePercent = 13,
++		NextSigilMovePercent = 14
+ 	}
+ }
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+index 8b48b5b..29b817f 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+@@ -798,21 +798,21 @@ namespace XiuZhenJie
+ 							string title = "";
+ 							string gongFaEffectType = WorldSetting.GetGongFaEffectType(goodsBookAchievementDetailResp_.EffectType1, ref title);
+ 							string text = goodsBookAchievementDetailResp_.EffectValue1 + "%";
+-							m_DataList.Add(string.Format("{0},{1}", title, gongFaEffectType + text, "功法第三重后方可激活特效，玄阶功法拥有1个特效，地阶2个，天阶3个。"));
++							m_DataList.Add(string.Format("{0},{1},{2}", title, gongFaEffectType + text, WorldSetting.MethodEffectHelp(goodsBookAchievementDetailResp_.EffectType1)));
+ 						}
+ 						if (goodsBookAchievementDetailResp_.EffectType2 != 0)
+ 						{
+ 							string title2 = "";
+ 							string gongFaEffectType2 = WorldSetting.GetGongFaEffectType(goodsBookAchievementDetailResp_.EffectType2, ref title2);
+ 							string text2 = goodsBookAchievementDetailResp_.EffectValue2 + "%";
+-							m_DataList.Add(string.Format("{0},{1}", title2, gongFaEffectType2 + text2, "功法第三重后方可激活特效，玄阶功法拥有1个特效，地阶2个，天阶3个。"));
++							m_DataList.Add(string.Format("{0},{1},{2}", title2, gongFaEffectType2 + text2, WorldSetting.MethodEffectHelp(goodsBookAchievementDetailResp_.EffectType2)));
+ 						}
+ 						if (goodsBookAchievementDetailResp_.EffectType3 != 0)
+ 						{
+ 							string title3 = "";
+ 							string gongFaEffectType3 = WorldSetting.GetGongFaEffectType(goodsBookAchievementDetailResp_.EffectType3, ref title3);
+ 							string text3 = goodsBookAchievementDetailResp_.EffectValue3 + "%";
+-							m_DataList.Add(string.Format("{0},{1}", title3, gongFaEffectType3 + text3, "功法第三重后方可激活特效，玄阶功法拥有1个特效，地阶2个，天阶3个。"));
++							m_DataList.Add(string.Format("{0},{1},{2}", title3, gongFaEffectType3 + text3, WorldSetting.MethodEffectHelp(goodsBookAchievementDetailResp_.EffectType3)));
+ 						}
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "体积（立方尺）", goodsBookAchievementDetailResp_.Volume, "在纳戒中占用的体积大小，单位是立方尺"));
+ 						m_DataList.Add(string.Format("{0},{1},{2}", "创造人", goodsBookAchievementDetailResp_.CreatedBy, "此功法由谁创造而来，开辟悟道台成为布道师，结丹期后在虚神界即可创造功法，创造一本自己署名的功法流芳百世"));
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ZhanFaShiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ZhanFaShiWnd.cs
+index 31768f1..a0f4ccc 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ZhanFaShiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ZhanFaShiWnd.cs
+@@ -175,6 +175,7 @@ namespace XiuZhenJie
+ 			case 31: return "御守";
+ 			case 40: return "迟滞";
+ 			case 41: return "定身";
++			case 50: return "身法";
+ 			default: return "法术";
+ 			}
+ 		}
+@@ -242,7 +243,7 @@ namespace XiuZhenJie
+ 			var after = Stats(next, spell.ForceEffort + (path == 1 ? amount : 0), nextAffix, spell.BaseCastMS);
+ 			vigor.text = "精力  " + balance;
+ 			title.text = spell.Name + "　" + Stages[stage];
+-			string metric = spell.Type == 20 ? "护盾" : spell.Type == 30 || spell.Type == 31 ? "增益" : spell.Type == 40 || spell.Type == 41 ? "控制时长" : "威力";
++			string metric = spell.Type == 20 ? "护盾" : spell.Type == 30 || spell.Type == 31 ? "增益" : spell.Type == 40 || spell.Type == 41 ? "控制时长" : spell.Type == 50 ? "身法时长" : "威力";
+ 			power.text = SpellForm(spell.Type) + " · " + metric + " " + before.power + "% → " + after.power + "%\n结印  " + before.cast + " → " + after.cast + " 毫秒";
+ 			int threshold = NextThreshold(stage);
+ 			mastery.text = "熟练 " + spell.Proficiency + " / 300　" + (stage < 5 ? Stages[stage + 1] + "还需 " + ((threshold - effort) * 5) : "此术已至圆满");
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/WorldSetting.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/WorldSetting.cs
+index 06ff141..a01196b 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/WorldSetting.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/WorldSetting.cs
+@@ -727,6 +727,9 @@ namespace XiuZhenJie
+ 			}
+ 		}
+ 
++		internal static string MethodEffectHelp(int effectType) => effectType == (int)GongFaEffectEnum.BATTLE_MOVE_SPEED
++			? "装备此功法即可生效，增加历练中的基础移速。" : DataConstants.GongFaTeXiao;
++
+ 		public static string GetGongFaEffectType(int effectType, ref string title)
+ 		{
+ 			switch ((GongFaEffectEnum)effectType)
+@@ -779,6 +782,9 @@ namespace XiuZhenJie
+ 			case GongFaEffectEnum.ATTACK_UNREAL_CONSUME_EFFECT:
+ 				title = "凝神";
+ 				return "降低神识消耗";
++			case GongFaEffectEnum.BATTLE_MOVE_SPEED:
++				title = "身法";
++				return "历练移动速度增加";
+ 			case GongFaEffectEnum.EXPLORE_ADD_UNREAL_SCOPE:
+ 				title = "探索";
+ 				return "增加神识覆盖范围";

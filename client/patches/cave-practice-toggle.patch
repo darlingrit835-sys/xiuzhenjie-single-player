@@ -1,0 +1,829 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuWnd.cs
+@@ -26,6 +26,7 @@
+ 		private bool m_IsTuPoing;
+ 
+ 		private bool m_BreakRequestPending;
++		private bool m_RouteChangePending;
+ 
+ 		private readonly (string Name, WuXing Element)[] m_QiTechniques = new (string, WuXing)[4];
+ 		private readonly int[] m_QiLookupVersions = new int[4];
+@@ -182,7 +183,142 @@
+ 			{
+ 				return;
+ 			}
+-			(GongFaType primary, GongFaType secondary) = m_CurrentYunXingGongFa switch
++			var (primary, secondary) = RunningTechniques();
++			InkCultivationPages.TechniqueMote(Panel.LianShenRunningImg, TechniqueElement(GongFaType.LianShen));
++			InkCultivationPages.TechniqueMote(Panel.DuanTiRunningImg, TechniqueElement(GongFaType.DuanTi));
++			InkCultivationPages.TechniqueMote(Panel.NaQiRunningImg, TechniqueElement(GongFaType.NaQi));
++			scene.ShowCultivationQi(TechniqueElement(primary), TechniqueElement(secondary));
++			if (loadMetadata)
++			{
++				LoadTechniqueElement(primary);
++				LoadTechniqueElement(secondary);
++			}
++		}
++
++		private void LoadTechniqueElement(GongFaType type)
++		{
++			int slot = (int)type;
++			string name = TechniqueName(type);
++			if (string.IsNullOrEmpty(name) || m_QiTechniques[slot].Name == name)
++			{
++				return;
++			}
++			int lookupVersion = ++m_QiLookupVersions[slot];
++			int roomVersion = m_ExerciseRoomVersion;
++			var request = new ChangeAchievementPanelReq_1005009 { AchievementType = slot };
++			Singleton<NetManager>.Instance.SendMsg(MsgType.CHANGE_ACHIEVEMENT_PANEL, request, response =>
++			{
++				if (roomVersion != m_ExerciseRoomVersion || lookupVersion != m_QiLookupVersions[slot] || Panel == null ||
++					!(response is ByteString payload))
++				{
++					return;
++				}
++				var details = new ChangeAchievementPanelResp_1005009();
++				details.MergeFrom(payload);
++				var technique = details.CurrentAchievement;
++				if (details.IsSuccess && technique != null && technique.Name == name && TechniqueName(type) == name)
++				{
++					m_QiTechniques[slot] = (name, ToQiElement(technique.FiveElement));
++					RefreshCultivationQi(loadMetadata: false);
++				}
++			}, false, ServerType.GamesNormalServer, showTimeout: false);
++		}
++
++		public override void OnUpdate()
++		{
++			base.OnUpdate();
++			if (m_DataSource != null && !(Panel == null))
++			{
++				if (m_DataSource.ControllerMartixLessTime > 0.0)
++				{
++					m_DataSource.ControllerMartixLessTime -= Time.deltaTime;
++					Panel.KongLingFaZhenShengYuTimeText.text = string.Format("剩余 <b>{0}</b> 小时", (m_DataSource.ControllerMartixLessTime / 60.0 / 60.0).ToString("0.0"));
++				}
++				if (m_DataSource.GatherMatrixLessTime > 0.0)
++				{
++					m_DataSource.GatherMatrixLessTime -= Time.deltaTime;
++					Panel.JuLingFaZhenShengYuTimeText.text = string.Format("剩余 <b>{0}</b> 小时", (m_DataSource.GatherMatrixLessTime / 60.0 / 60.0).ToString("0.0"));
++				}
++				UpdateLianShenProgress(Time.deltaTime);
++				UpdateDuanTiProgress(Time.deltaTime);
++				UpdateNaQiProgress(Time.deltaTime);
++				reflashTitleData();
++			}
++		}
++
++		public override void ReFlashData()
++		{
++			base.ReFlashData();
++			if (!(Panel == null))
++			{
++				ShowDanYaoLianHua();
++				ReflashBuffIcon();
++			}
++		}
++
++		private void reflashTitleData()
++		{
++			if (Panel == null || Panel.OneXiuLianValueText == null || Panel.OneXiuLianProgressText == null || Panel.OneXiuLianProgress == null)
++			{
++				return;
++			}
++			switch (m_CurrentYunXingGongFa)
++			{
++			case RuningGongFaZuHeType.LianShen:
++				Panel.OneXiuLianValueText.text = Singleton<RoleManager>.Instance.Role_Entity.Perception.ToString();
++				break;
++			case RuningGongFaZuHeType.DuanTi:
++				Panel.OneXiuLianValueText.text = Singleton<RoleManager>.Instance.Role_Entity.Physique.ToString();
++				break;
++			case RuningGongFaZuHeType.NaQi:
++			{
++				if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 31)
++				{
++					Panel.OneXiuLianValueText.text = Singleton<RoleManager>.Instance.Role_Entity.SuperAir.ToString();
++				}
++				else if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 31 && Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 61)
++				{
++					Panel.OneXiuLianValueText.text = (Singleton<RoleManager>.Instance.Role_Entity.SuperAir / 100).ToString();
++				}
++				else if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 61)
++				{
++					Panel.OneXiuLianValueText.text = (Singleton<RoleManager>.Instance.Role_Entity.SuperAir / 100 / 100).ToString();
++				}
++				double num = Singleton<RoleManager>.Instance.Role_Entity.SuperAir;
++				double upgradeByLevelId = Singleton<RoleManager>.Instance.GetUpgradeByLevelId(Singleton<RoleManager>.Instance.Role_Entity.RoleLevel.ToString());
++				double num2 = num / upgradeByLevelId;
++				Panel.OneXiuLianProgressText.text = string.Format("{0}%", (num2 * 100.0).ToString("0.00"));
++				Panel.OneXiuLianProgress.fillAmount = (float)num2;
++				break;
++			}
++			case RuningGongFaZuHeType.None:
++				break;
++			}
++		}
++
++		private void EnterNeiShi()
++		{
++			if (!ClientHotUpdate.MeridianEntryEnabled || Singleton<GuideManager>.Instance.Practice?.Active == true)
++				return;
++			Singleton<UIManager>.Instance.CloseWnd(this);
++			Singleton<GameMapManager>.Instance.LoadScene("LoadingWnd.prefab", "NeiShiScene");
++		}
++
++		private void ShowMeridianEntry()
++		{
++			Panel.EnterNeiShiBtn.gameObject.SetActive(ClientHotUpdate.MeridianEntryEnabled &&
++				Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 2);
++		}
++
++		private void WenHaoTogClick()
++		{
++			string text = "未装备功法时可基础行功，更换为已参悟的功法可获得对应加成。纳气积修为，炼神、锻体各可练到本层底值的140%。元婴起可兼修两项，各七成效率，相生一路再乘1.2。离线按所选路线八成积累，每次至多12小时。周天推演可估算各项练满时间。\n" + CultivationRouteSheet.BreakthroughTrainingNote();
++			Singleton<UIManager>.Instance.PopUpWnd("XiaoWenHaoWnd.prefab", true, text, "练功房");
++		}
++
++		private (GongFaType primary, GongFaType secondary) RunningTechniques()
++		{
++			return m_CurrentYunXingGongFa switch
+ 			{
+ 				RuningGongFaZuHeType.LianShen => (GongFaType.LianShen, GongFaType.None),
+ 				RuningGongFaZuHeType.DuanTi => (GongFaType.DuanTi, GongFaType.None),
+@@ -192,176 +328,19 @@
+ 				RuningGongFaZuHeType.LianShenNaQi => (GongFaType.NaQi, GongFaType.LianShen),
+ 				_ => (GongFaType.None, GongFaType.None)
+ 			};
+-			InkCultivationPages.TechniqueMote(Panel.LianShenRunningImg, TechniqueElement(GongFaType.LianShen));
+-			InkCultivationPages.TechniqueMote(Panel.DuanTiRunningImg, TechniqueElement(GongFaType.DuanTi));
+-			InkCultivationPages.TechniqueMote(Panel.NaQiRunningImg, TechniqueElement(GongFaType.NaQi));
+-			scene.ShowCultivationQi(TechniqueElement(primary), TechniqueElement(secondary));
+-			if (loadMetadata)
+-			{
+-				LoadTechniqueElement(primary);
+-				LoadTechniqueElement(secondary);
+-			}
+-		}
+-
+-		private void LoadTechniqueElement(GongFaType type)
+-		{
+-			int slot = (int)type;
+-			string name = TechniqueName(type);
+-			if (string.IsNullOrEmpty(name) || m_QiTechniques[slot].Name == name)
+-			{
+-				return;
+-			}
+-			int lookupVersion = ++m_QiLookupVersions[slot];
+-			int roomVersion = m_ExerciseRoomVersion;
+-			var request = new ChangeAchievementPanelReq_1005009 { AchievementType = slot };
+-			Singleton<NetManager>.Instance.SendMsg(MsgType.CHANGE_ACHIEVEMENT_PANEL, request, response =>
+-			{
+-				if (roomVersion != m_ExerciseRoomVersion || lookupVersion != m_QiLookupVersions[slot] || Panel == null ||
+-					!(response is ByteString payload))
+-				{
+-					return;
+-				}
+-				var details = new ChangeAchievementPanelResp_1005009();
+-				details.MergeFrom(payload);
+-				var technique = details.CurrentAchievement;
+-				if (details.IsSuccess && technique != null && technique.Name == name && TechniqueName(type) == name)
+-				{
+-					m_QiTechniques[slot] = (name, ToQiElement(technique.FiveElement));
+-					RefreshCultivationQi(loadMetadata: false);
+-				}
+-			}, false, ServerType.GamesNormalServer, showTimeout: false);
+-		}
+-
+-		public override void OnUpdate()
+-		{
+-			base.OnUpdate();
+-			if (m_DataSource != null && !(Panel == null))
+-			{
+-				if (m_DataSource.ControllerMartixLessTime > 0.0)
+-				{
+-					m_DataSource.ControllerMartixLessTime -= Time.deltaTime;
+-					Panel.KongLingFaZhenShengYuTimeText.text = string.Format("剩余 <b>{0}</b> 小时", (m_DataSource.ControllerMartixLessTime / 60.0 / 60.0).ToString("0.0"));
+-				}
+-				if (m_DataSource.GatherMatrixLessTime > 0.0)
+-				{
+-					m_DataSource.GatherMatrixLessTime -= Time.deltaTime;
+-					Panel.JuLingFaZhenShengYuTimeText.text = string.Format("剩余 <b>{0}</b> 小时", (m_DataSource.GatherMatrixLessTime / 60.0 / 60.0).ToString("0.0"));
+-				}
+-				UpdateLianShenProgress(Time.deltaTime);
+-				UpdateDuanTiProgress(Time.deltaTime);
+-				UpdateNaQiProgress(Time.deltaTime);
+-				reflashTitleData();
+-			}
+-		}
+-
+-		public override void ReFlashData()
+-		{
+-			base.ReFlashData();
+-			if (!(Panel == null))
+-			{
+-				ShowDanYaoLianHua();
+-				ReflashBuffIcon();
+-			}
+-		}
+-
+-		private void reflashTitleData()
+-		{
+-			if (Panel == null || Panel.OneXiuLianValueText == null || Panel.OneXiuLianProgressText == null || Panel.OneXiuLianProgress == null)
+-			{
+-				return;
+-			}
+-			switch (m_CurrentYunXingGongFa)
+-			{
+-			case RuningGongFaZuHeType.LianShen:
+-				Panel.OneXiuLianValueText.text = Singleton<RoleManager>.Instance.Role_Entity.Perception.ToString();
+-				break;
+-			case RuningGongFaZuHeType.DuanTi:
+-				Panel.OneXiuLianValueText.text = Singleton<RoleManager>.Instance.Role_Entity.Physique.ToString();
+-				break;
+-			case RuningGongFaZuHeType.NaQi:
+-			{
+-				if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 31)
+-				{
+-					Panel.OneXiuLianValueText.text = Singleton<RoleManager>.Instance.Role_Entity.SuperAir.ToString();
+-				}
+-				else if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 31 && Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 61)
+-				{
+-					Panel.OneXiuLianValueText.text = (Singleton<RoleManager>.Instance.Role_Entity.SuperAir / 100).ToString();
+-				}
+-				else if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 61)
+-				{
+-					Panel.OneXiuLianValueText.text = (Singleton<RoleManager>.Instance.Role_Entity.SuperAir / 100 / 100).ToString();
+-				}
+-				double num = Singleton<RoleManager>.Instance.Role_Entity.SuperAir;
+-				double upgradeByLevelId = Singleton<RoleManager>.Instance.GetUpgradeByLevelId(Singleton<RoleManager>.Instance.Role_Entity.RoleLevel.ToString());
+-				double num2 = num / upgradeByLevelId;
+-				Panel.OneXiuLianProgressText.text = string.Format("{0}%", (num2 * 100.0).ToString("0.00"));
+-				Panel.OneXiuLianProgress.fillAmount = (float)num2;
+-				break;
+-			}
+-			case RuningGongFaZuHeType.None:
+-				break;
+-			}
+-		}
+-
+-		private void EnterNeiShi()
+-		{
+-			if (!ClientHotUpdate.MeridianEntryEnabled || Singleton<GuideManager>.Instance.Practice?.Active == true)
+-				return;
+-			Singleton<UIManager>.Instance.CloseWnd(this);
+-			Singleton<GameMapManager>.Instance.LoadScene("LoadingWnd.prefab", "NeiShiScene");
+-		}
+-
+-		private void ShowMeridianEntry()
+-		{
+-			Panel.EnterNeiShiBtn.gameObject.SetActive(ClientHotUpdate.MeridianEntryEnabled &&
+-				Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 2);
+-		}
+-
+-		private void WenHaoTogClick()
+-		{
+-			string text = "纳气积修为，炼神、锻体各可练到本层底值的140%。元婴起可兼修两项，各七成效率，相生一路再乘1.2。离线按所选路线八成积累，每次至多12小时。周天推演可估算各项练满时间。\n" + CultivationRouteSheet.BreakthroughTrainingNote();
+-			Singleton<UIManager>.Instance.PopUpWnd("XiaoWenHaoWnd.prefab", true, text, "练功房");
++		}
++
++		private void SyncPracticeToggles()
++		{
++			var (first, second) = RunningTechniques();
++			Panel.NaQiBtn.SetIsOnWithoutNotify(first == GongFaType.NaQi || second == GongFaType.NaQi);
++			Panel.DuanTiBtn.SetIsOnWithoutNotify(first == GongFaType.DuanTi || second == GongFaType.DuanTi);
++			Panel.LianShenBtn.SetIsOnWithoutNotify(first == GongFaType.LianShen || second == GongFaType.LianShen);
+ 		}
+ 
+ 		private void Init()
+ 		{
+-			if (m_CurrentYunXingGongFa != RuningGongFaZuHeType.None)
+-			{
+-				switch (m_CurrentYunXingGongFa)
+-				{
+-				case RuningGongFaZuHeType.DuanTiNaQi:
+-					Panel.NaQiBtn.isOn = true;
+-					Panel.DuanTiBtn.isOn = true;
+-					Panel.LianShenBtn.isOn = false;
+-					break;
+-				case RuningGongFaZuHeType.DuanTiLianShen:
+-					Panel.NaQiBtn.isOn = false;
+-					Panel.DuanTiBtn.isOn = true;
+-					Panel.LianShenBtn.isOn = true;
+-					break;
+-				case RuningGongFaZuHeType.LianShenNaQi:
+-					Panel.NaQiBtn.isOn = true;
+-					Panel.DuanTiBtn.isOn = false;
+-					Panel.LianShenBtn.isOn = true;
+-					break;
+-				case RuningGongFaZuHeType.NaQi:
+-					Panel.NaQiBtn.isOn = true;
+-					Panel.LianShenBtn.isOn = false;
+-					Panel.DuanTiBtn.isOn = false;
+-					break;
+-				case RuningGongFaZuHeType.LianShen:
+-					Panel.LianShenBtn.isOn = true;
+-					Panel.NaQiBtn.isOn = false;
+-					Panel.DuanTiBtn.isOn = false;
+-					break;
+-				case RuningGongFaZuHeType.DuanTi:
+-					Panel.DuanTiBtn.isOn = true;
+-					Panel.LianShenBtn.isOn = false;
+-					Panel.NaQiBtn.isOn = false;
+-					break;
+-				}
+-			}
++			SyncPracticeToggles();
+ 			if (m_DataSource.isCanBreak)
+ 			{
+ 				TuPoTiShi();
+@@ -413,11 +392,11 @@
+ 			string arg2 = m_DataSource?.GetControllerMatrixName();
+ 			Panel.JuLingFaZhenXuanZeText.text = $"{arg}";
+ 			Panel.KongLingFaZhenXuanZeText.text = $"{arg2}";
+-			Panel.LianShenGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PerceptionName) ? "无" : m_DataSource.PerceptionName);
++			Panel.LianShenGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PerceptionName) ? "基础行功" : m_DataSource.PerceptionName);
+ 			Panel.LianShenGongFaXiaoLv.text = string.Format("{0}/周天", m_DataSource.PerceptionCircle.ToString("f2"));
+-			Panel.DuanTiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PhysiqueName) ? "无" : m_DataSource.PhysiqueName);
++			Panel.DuanTiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PhysiqueName) ? "基础行功" : m_DataSource.PhysiqueName);
+ 			Panel.DuanTiGongFaXiaoLv.text = string.Format("{0}/周天", m_DataSource.PhysiqueCircle.ToString("f2"));
+-			Panel.NaQiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.SuperAirName) ? "无" : m_DataSource.SuperAirName);
++			Panel.NaQiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.SuperAirName) ? "基础行功" : m_DataSource.SuperAirName);
+ 			double superAirCircle = m_DataSource.SuperAirCircle;
+ 			string arg3 = "";
+ 			if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 31)
+@@ -487,19 +466,19 @@
+ 		public void ResetNaQiName(string name)
+ 		{
+ 			m_DataSource.SuperAirName = name;
+-			Panel.NaQiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.SuperAirName) ? "无" : m_DataSource.SuperAirName);
++			Panel.NaQiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.SuperAirName) ? "基础行功" : m_DataSource.SuperAirName);
+ 		}
+ 
+ 		public void ResetDuanTiName(string name)
+ 		{
+ 			m_DataSource.PhysiqueName = name;
+-			Panel.DuanTiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PhysiqueName) ? "无" : m_DataSource.PhysiqueName);
++			Panel.DuanTiGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PhysiqueName) ? "基础行功" : m_DataSource.PhysiqueName);
+ 		}
+ 
+ 		public void ResetLianShenName(string name)
+ 		{
+ 			m_DataSource.PerceptionName = name;
+-			Panel.LianShenGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PerceptionName) ? "无" : m_DataSource.PerceptionName);
++			Panel.LianShenGongFaName.text = (string.IsNullOrEmpty(m_DataSource.PerceptionName) ? "基础行功" : m_DataSource.PerceptionName);
+ 		}
+ 
+ 		public void ResetNaQiXiaoLv(double xiaoLv)
+@@ -1125,131 +1104,57 @@
+ 			callBackOne?.Invoke();
+ 		}
+ 
+-		private void NaQiBtnClick(bool isOn)
+-		{
+-			if (isOn)
+-			{
+-				if (string.IsNullOrEmpty(m_DataSource.SuperAirName))
+-				{
+-					MonoSingleton<GameStart>.Instance.PopUpAttention("请先选择纳气功法");
+-					Panel.NaQiBtn.isOn = false;
++		private void ChangePracticeRoute(GongFaType type, bool enable)
++		{
++			// Display the confirmed route until the server accepts a player's change.
++			SyncPracticeToggles();
++			if (!PracticeRoomLoaded || m_RouteChangePending)
++				return;
++			var (first, second) = RunningTechniques();
++			bool alreadyRunning = first == type || second == type;
++			if (enable == alreadyRunning || (!enable && second == GongFaType.None))
++				return;
++			int location;
++			if (!enable)
++				location = (int)(first == type ? second : first);
++			else if (first == GongFaType.None || Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 31)
++				location = (int)type;
++			else if (second != GongFaType.None)
++			{
++				MonoSingleton<GameStart>.Instance.PopUpAttention("最多同时运行两种类型功法！");
++				return;
++			}
++			else if (first != GongFaType.LianShen && type != GongFaType.LianShen)
++				location = (int)RuningGongFaZuHeType.DuanTiNaQi;
++			else if (first != GongFaType.NaQi && type != GongFaType.NaQi)
++				location = (int)RuningGongFaZuHeType.DuanTiLianShen;
++			else
++				location = (int)RuningGongFaZuHeType.LianShenNaQi;
++
++			m_RouteChangePending = true;
++			var request = new ChangeRunLocationReq_1001007 { NewLocation = location };
++			bool queued = Singleton<NetManager>.Instance.TrySendGameRequest(MsgType.ROLE_CHANGE_LOCATION, request, bytes =>
++			{
++				m_RouteChangePending = false;
++				if (GameObject == null || !GameObject.activeInHierarchy || m_CaveRoleId != DongFuResidenceState.CurrentRoleId)
+ 					return;
+-				}
+-				int newLocation = 3;
+-				if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 31)
+-				{
+-					switch (m_CurrentYunXingGongFa)
+-					{
+-					case RuningGongFaZuHeType.DuanTi:
+-						newLocation = 4;
+-						break;
+-					case RuningGongFaZuHeType.LianShen:
+-						newLocation = 6;
+-						break;
+-					case RuningGongFaZuHeType.NaQi:
+-					case RuningGongFaZuHeType.DuanTiNaQi:
+-					case RuningGongFaZuHeType.LianShenNaQi:
+-						return;
+-					case RuningGongFaZuHeType.DuanTiLianShen:
+-						MonoSingleton<GameStart>.Instance.PopUpAttention("最多同时运行两种类型功法！");
+-						Panel.NaQiBtn.isOn = false;
+-						return;
+-					}
+-				}
+-				else if (m_CurrentYunXingGongFa == RuningGongFaZuHeType.NaQi)
+-				{
+-					Panel.NaQiBtn.isOn = true;
++				var reply = bytes == null ? null : ActionBoolResp_1001001.Parser.ParseFrom(bytes);
++				if (reply != null && !reply.IsSuccess)
++				{
++					MonoSingleton<GameStart>.Instance.PopUpAttention(MonoSingleton<GameStart>.Instance.GetHintMsgByCode(reply.Code));
+ 					return;
+ 				}
+-				Panel.BiGuanTuPoBtn.gameObject.SetActive(value: true);
+-				ChangeRunLocationReq_1001007 data = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = newLocation
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				return;
+-			}
+-			switch (m_CurrentYunXingGongFa)
+-			{
+-			case RuningGongFaZuHeType.NaQi:
+-				Panel.NaQiBtn.isOn = true;
+-				break;
+-			case RuningGongFaZuHeType.DuanTiNaQi:
+-			{
+-				ChangeRunLocationReq_1001007 data3 = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = 2
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data3, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				break;
+-			}
+-			case RuningGongFaZuHeType.LianShenNaQi:
+-			{
+-				ChangeRunLocationReq_1001007 data2 = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = 1
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data2, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				break;
+-			}
+-			case RuningGongFaZuHeType.DuanTiLianShen:
+-				break;
+-			}
+-		}
++				// A lost acknowledgement can follow a committed write. Read the server's current route.
++				OnShow();
++			});
++			if (!queued)
++			{
++				m_RouteChangePending = false;
++				MonoSingleton<GameStart>.Instance.PopUpAttention("未连接游戏服，请重连后切换功法。");
++			}
++		}
++
++		private void NaQiBtnClick(bool isOn) => ChangePracticeRoute(GongFaType.NaQi, isOn);
+ 
+ 		private void GengHuanNaQiBtnClick()
+ 		{
+@@ -1302,134 +1207,7 @@
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		private void DuanTiBtnClick(bool isOn)
+-		{
+-			if (isOn)
+-			{
+-				if (string.IsNullOrEmpty(m_DataSource.PhysiqueName))
+-				{
+-					MonoSingleton<GameStart>.Instance.PopUpAttention("请先选择锻体功法");
+-					Panel.DuanTiBtn.isOn = false;
+-					return;
+-				}
+-				int newLocation = 2;
+-				if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 31)
+-				{
+-					switch (m_CurrentYunXingGongFa)
+-					{
+-					case RuningGongFaZuHeType.NaQi:
+-						newLocation = 4;
+-						break;
+-					case RuningGongFaZuHeType.LianShen:
+-						newLocation = 5;
+-						break;
+-					case RuningGongFaZuHeType.DuanTi:
+-					case RuningGongFaZuHeType.DuanTiNaQi:
+-					case RuningGongFaZuHeType.DuanTiLianShen:
+-						return;
+-					case RuningGongFaZuHeType.LianShenNaQi:
+-						MonoSingleton<GameStart>.Instance.PopUpAttention("最多同时运行两种类型功法！");
+-						Panel.DuanTiBtn.isOn = false;
+-						return;
+-					}
+-				}
+-				else if (m_CurrentYunXingGongFa == RuningGongFaZuHeType.DuanTi)
+-				{
+-					Panel.DuanTiBtn.isOn = true;
+-					return;
+-				}
+-				if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel < 31)
+-				{
+-					Panel.BiGuanTuPoBtn.interactable = false;
+-				}
+-				ChangeRunLocationReq_1001007 data = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = newLocation
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				return;
+-			}
+-			switch (m_CurrentYunXingGongFa)
+-			{
+-			case RuningGongFaZuHeType.DuanTi:
+-				Panel.DuanTiBtn.isOn = true;
+-				break;
+-			case RuningGongFaZuHeType.DuanTiNaQi:
+-			{
+-				ChangeRunLocationReq_1001007 data3 = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = 3
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data3, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				break;
+-			}
+-			case RuningGongFaZuHeType.DuanTiLianShen:
+-			{
+-				ChangeRunLocationReq_1001007 data2 = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = 1
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data2, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				break;
+-			}
+-			case RuningGongFaZuHeType.NaQi:
+-				break;
+-			}
+-		}
++		private void DuanTiBtnClick(bool isOn) => ChangePracticeRoute(GongFaType.DuanTi, isOn);
+ 
+ 		private void GengHuanDuanTiBtnClick()
+ 		{
+@@ -1479,132 +1257,7 @@
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		private void LianShenBtnClick(bool isOn)
+-		{
+-			if (isOn)
+-			{
+-				if (string.IsNullOrEmpty(m_DataSource.PerceptionName))
+-				{
+-					MonoSingleton<GameStart>.Instance.PopUpAttention("请先选择炼神功法");
+-					Panel.LianShenBtn.isOn = false;
+-					return;
+-				}
+-				int newLocation = 1;
+-				if (Singleton<RoleManager>.Instance.Role_Entity.RoleLevel >= 31)
+-				{
+-					switch (m_CurrentYunXingGongFa)
+-					{
+-					case RuningGongFaZuHeType.NaQi:
+-						newLocation = 6;
+-						break;
+-					case RuningGongFaZuHeType.DuanTi:
+-						newLocation = 5;
+-						break;
+-					case RuningGongFaZuHeType.LianShen:
+-					case RuningGongFaZuHeType.DuanTiLianShen:
+-					case RuningGongFaZuHeType.LianShenNaQi:
+-						return;
+-					case RuningGongFaZuHeType.DuanTiNaQi:
+-						MonoSingleton<GameStart>.Instance.PopUpAttention("最多同时运行两种类型功法！");
+-						Panel.LianShenBtn.isOn = false;
+-						return;
+-					}
+-				}
+-				else
+-				{
+-					if (m_CurrentYunXingGongFa == RuningGongFaZuHeType.LianShen)
+-					{
+-						Panel.LianShenBtn.isOn = true;
+-						return;
+-					}
+-					Panel.BiGuanTuPoBtn.interactable = false;
+-				}
+-				ChangeRunLocationReq_1001007 data = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = newLocation
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				return;
+-			}
+-			switch (m_CurrentYunXingGongFa)
+-			{
+-			case RuningGongFaZuHeType.LianShen:
+-				Panel.LianShenBtn.isOn = true;
+-				break;
+-			case RuningGongFaZuHeType.LianShenNaQi:
+-			{
+-				ChangeRunLocationReq_1001007 data3 = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = 3
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data3, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				break;
+-			}
+-			case RuningGongFaZuHeType.DuanTiLianShen:
+-			{
+-				ChangeRunLocationReq_1001007 data2 = new ChangeRunLocationReq_1001007
+-				{
+-					NewLocation = 2
+-				};
+-				Singleton<NetManager>.Instance.SendMsg(MsgType.ROLE_CHANGE_LOCATION, data2, (object _obj) =>
+-				{
+-					MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-					ByteString byteString = _obj as ByteString;
+-					if (!(byteString == null))
+-					{
+-						ActionBoolResp_1001001 actionBoolResp_ = new ActionBoolResp_1001001();
+-						actionBoolResp_.MergeFrom(byteString);
+-						if (actionBoolResp_.IsSuccess)
+-						{
+-							OnShow();
+-						}
+-						else
+-						{
+-							string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(actionBoolResp_.Code);
+-							MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+-						}
+-					}
+-				}, isShowWaitUI: true);
+-				break;
+-			}
+-			}
+-		}
++		private void LianShenBtnClick(bool isOn) => ChangePracticeRoute(GongFaType.LianShen, isOn);
+ 
+ 		private void GengHuanLianShenBtnClick()
+ 		{

@@ -1,0 +1,168 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleManager.cs
+@@ -92,30 +92,38 @@
+ 					roleJoinDungeonResp_.MergeFrom(byteString);
+ 					if (roleJoinDungeonResp_.IsSuccess)
+ 					{
+-						BattleLifeModel roleInfo = new BattleLifeModel(roleJoinDungeonResp_) { CurrentHuDun = ReadElixirShield(byteString) };
++						BattleLifeModel roleInfo = ReadEntryRole(roleJoinDungeonResp_, byteString);
+ 						StartBattle(mapModel, battleType, roleInfo, roleJoinDungeonResp_.DungeonId, ipAddress, port);
+ 					}
+ 					else
+ 					{
+ 						MonoSingleton<GameStart>.Instance.HideWaitReauestWnd();
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
++						string hintMsgByCode = roleJoinDungeonResp_.Code == 4290
++							? $"精力不足，本次入场需 {ExpeditionPlace.DungeonVigor(mapId)} 点精力。"
++							: MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
+ 						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 					}
+ 				}
+ 			}, isShowWaitUI: true);
+ 		}
+ 
+-		// The alchemy room adds an optional shield to the original dungeon-entry message.
+-		internal static int ReadElixirShield(ByteString reply)
++		// Optional extensions supplied by the game server on successful admission.
++		internal static BattleLifeModel ReadEntryRole(RoleJoinDungeonResp_1010002 entry, ByteString reply)
+ 		{
+ 			var input = reply.CreateCodedInput();
++			var role = new BattleLifeModel(entry);
+ 			uint tag;
+ 			while ((tag = input.ReadTag()) != 0)
+ 			{
+-				if (tag == 232) return Math.Max(0, input.ReadInt32());
+-				input.SkipLastField();
+-			}
+-			return 0;
++				switch (tag)
++				{
++				case 232: role.CurrentHuDun = Math.Max(0, input.ReadInt32()); break;
++				case 240: Singleton<RoleManager>.Instance.Role_Entity.CurrentVigor = input.ReadInt32(); break;
++				case 248: role.RestBloodFractionPerSecond = input.ReadInt32() / 1000000.0; break;
++				default: input.SkipLastField(); break;
++				}
++			}
++			return role;
+ 		}
+ 
+ 		public void StartBattle(MapEntity _mapModel, BattleType _battleType, BattleLifeModel _roleInfo, string dungeonId, string address, int port)
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/BattleLifeModel.cs
+@@ -14,6 +14,8 @@
+ 		public ObscuredDouble CurrentBlood;
+ 
+ 		public ObscuredDouble Max_Blood;
++
++		public double RestBloodFractionPerSecond;
+ 
+ 		public ObscuredDouble CurrentJianRen;
+ 
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Battle/PlayerEntity.cs
+@@ -44,6 +44,8 @@
+ 				m_UsingZhenFa = value;
+ 			}
+ 		}
++
++		private float lastAttackTime;
+ 
+ 		public PlayerEntity()
+ 		{
+@@ -193,6 +195,17 @@
+ 		public float GetGongFaPower()
+ 		{
+ 			return m_GongFaPower;
++		}
++
++		public override void TickAILogic()
++		{
++			base.TickAILogic();
++			var life = BattleModel;
++			if (BattleMgr == null || life == null || BaseController == null || BaseController.IsDie ||
++				m_IsInBattleStatus || Time.time - lastAttackTime < 4f || life.RestBloodFractionPerSecond <= 0) return;
++			double current = life.CurrentBlood, max = life.Max_Blood;
++			if (current > 0 && current < max)
++				life.CurrentBlood = System.Math.Min(max, current + max * life.RestBloodFractionPerSecond * Time.deltaTime);
+ 		}
+ 
+ 		public override void RecoverJianRen()
+@@ -676,6 +689,7 @@
+ 
+ 		public override double UnderAttack(int skillIndex, EntityBase _damageFromEntity, double _damage, int _fiveElement)
+ 		{
++			lastAttackTime = Time.time;
+ 			double num = (double)m_BattleModel.CurrentBlood + (double)m_BattleModel.CurrentJianRen;
+ 			if (m_IsWuDi)
+ 			{
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/NaJieSpaceWnd.cs
+@@ -770,12 +770,14 @@
+ 					roleJoinDungeonResp_.MergeFrom(byteString);
+ 					if (roleJoinDungeonResp_.IsSuccess)
+ 					{
+-						BattleLifeModel roleInfo = new BattleLifeModel(roleJoinDungeonResp_);
++						BattleLifeModel roleInfo = BattleManager.ReadEntryRole(roleJoinDungeonResp_, byteString);
+ 						Singleton<BattleManager>.Instance.StartBattle(mapModel, BattleType.MiJingBattle, roleInfo, dungeonId, ipAddress, port);
+ 					}
+ 					else
+ 					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
++						string hintMsgByCode = roleJoinDungeonResp_.Code == 4290
++							? $"精力不足，本次入场需 {ExpeditionPlace.DungeonVigor(mapId)} 点精力。"
++							: MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
+ 						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 					}
+ 				}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Crafting/XuShenTaWnd.cs
+@@ -114,12 +114,14 @@
+ 					roleJoinDungeonResp_.MergeFrom(byteString);
+ 					if (roleJoinDungeonResp_.IsSuccess)
+ 					{
+-						BattleLifeModel roleInfo = new BattleLifeModel(roleJoinDungeonResp_);
++						BattleLifeModel roleInfo = BattleManager.ReadEntryRole(roleJoinDungeonResp_, byteString);
+ 						Singleton<BattleManager>.Instance.StartBattle(mapModel, BattleType.TongTianTaBattle, roleInfo, dungeonId, ipAddress, port);
+ 					}
+ 					else
+ 					{
+-						string hintMsgByCode = MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
++						string hintMsgByCode = roleJoinDungeonResp_.Code == 4290
++							? $"精力不足，本次入场需 {ExpeditionPlace.DungeonVigor(mapId)} 点精力。"
++							: MonoSingleton<GameStart>.Instance.GetHintMsgByCode(roleJoinDungeonResp_.Code);
+ 						MonoSingleton<GameStart>.Instance.PopUpAttention(hintMsgByCode);
+ 					}
+ 				}
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Map/ExpeditionPlace.cs
+@@ -42,7 +42,8 @@
+                 string detail = name.Contains("兽王巢") ? "巢穴中可能遭遇领主与精英妖兽。" :
+                     outer ? "沿林口探路，留意游荡的精英妖兽。" :
+                     name.Contains("深处") ? "深入山谷时可能遇到妖兽领主。" : "进入此地与妖兽交手。";
+-                return new ExpeditionPlace(art, terrain, place.IsCleanMap ? "可扫荡" : "可历练", "进入历练", detail);
++                return new ExpeditionPlace(art, terrain, place.IsCleanMap ? "可扫荡" : "可历练", "进入历练",
++                    detail + $" 入场耗 {DungeonVigor(place.Id)} 点精力，首次历练免费。");
+             }
+             if (place.Depth == 4 && (kind == MapLevelType.CITY || kind == MapLevelType.CITY_LOW ||
+                 kind == MapLevelType.CITY_PREFECTURE || kind == MapLevelType.CITY_STATE || kind == MapLevelType.CITY_SUPER))
+@@ -65,6 +66,14 @@
+             return new ExpeditionPlace("FoldedMap", "地点", "未开放", "暂不可去", "此处尚无历练入口。", false);
+         }
+ 
++        internal static int DungeonVigor(string mapId)
++        {
++            if (string.IsNullOrEmpty(mapId)) return 2;
++            int mark = mapId.IndexOf('W');
++            if (mark < 0 || mark + 3 != mapId.Length) return 2;
++            return mapId[mark + 2] == '3' ? 6 : mapId[mark + 2] == '2' ? 4 : 2;
++        }
++
+         internal static string Range(MapEntity place)
+         {
+             int min = Mathf.Max(1, place.MinLevel);

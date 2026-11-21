@@ -1,0 +1,64 @@
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuMiShiWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuMiShiWnd.cs
+index 3ca27d0..832bbd0 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuMiShiWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Cultivation/DongFuMiShiWnd.cs
+@@ -51,6 +51,7 @@ namespace XiuZhenJie
+ 					enterSpaceBoxResp_.MergeFrom(byteString);
+ 					if (enterSpaceBoxResp_.IsSuccess)
+ 					{
++						m_DataSource.Clear();
+ 						for (int i = 0; i < enterSpaceBoxResp_.Name.Count; i++)
+ 						{
+ 							m_DataSource.Add(new DongFuMiShiModel
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs
+index fca868b..cd2d34d 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/ChuWuXiangWnd.cs
+@@ -509,7 +509,7 @@ namespace XiuZhenJie
+ 						m_NaJieInitInfo.RemoveGoods(goods.GoodsId, num);
+ 						baseNaJieGoodEntity.GoodsId = putInSpaceBoxResp_.GoodsId;
+ 						baseNaJieGoodEntity.GoodsNum = num;
+-						m_DataSource.AddGoodsByTempleteId(baseNaJieGoodEntity);
++						m_DataSource.ApplyStoredMove(baseNaJieGoodEntity);
+ 						m_DataSource.NowCapacity = putInSpaceBoxResp_.NowBoxCapacity;
+ 						m_NaJieInitInfo.NowCapacity = putInSpaceBoxResp_.NowRingCapacity;
+ 						SetRongLiangProgress();
+@@ -560,7 +560,7 @@ namespace XiuZhenJie
+ 							m_DataSource.RemoveGoods(goods.GoodsId, num);
+ 							baseNaJieGoodEntity.GoodsId = getOutSpaceBoxResp_.GoodsId;
+ 							baseNaJieGoodEntity.GoodsNum = num;
+-							m_NaJieInitInfo.AddGoodsByTempleteId(baseNaJieGoodEntity);
++							m_NaJieInitInfo.ApplyStoredMove(baseNaJieGoodEntity);
+ 						}
+ 						m_DataSource.NowCapacity = getOutSpaceBoxResp_.NowBoxCapacity;
+ 						m_NaJieInitInfo.NowCapacity = getOutSpaceBoxResp_.NowRingCapacity;
+@@ -608,7 +608,7 @@ namespace XiuZhenJie
+ 							m_DataSource.RemoveGoods(goods.GoodsId, goods.GoodsNum);
+ 							baseNaJieGoodEntity.GoodsId = getOutSpaceBoxResp_.GoodsId;
+ 							baseNaJieGoodEntity.GoodsNum = goods.GoodsNum;
+-							m_NaJieInitInfo.AddGoodsByTempleteId(baseNaJieGoodEntity);
++							m_NaJieInitInfo.ApplyStoredMove(baseNaJieGoodEntity);
+ 						}
+ 						m_DataSource.NowCapacity = getOutSpaceBoxResp_.NowBoxCapacity;
+ 						m_NaJieInitInfo.NowCapacity = getOutSpaceBoxResp_.NowRingCapacity;
+diff --git a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+index 1c8431c..30168b4 100644
+--- a/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
++++ b/Assets/Scripts/Assembly-CSharp/XiuZhenJie/Inventory/XzjBoxEntity.cs
+@@ -300,6 +300,16 @@ namespace XiuZhenJie
+ 			NowCapacity += (int)entity.GoodsVolume;
+ 		}
+ 
++		// The receipt supplies the actual destination stack and authoritative capacity.
++		internal void ApplyStoredMove(BaseNaJieGoodEntity received)
++		{
++			var item = GetGoodsInfo(received.GoodsId);
++			if (item != null)
++				item.GoodsNum += received.GoodsNum;
++			else
++				m_GoodList.Add(received);
++		}
++
+ 		public void AddGoodsByTempleteId(BaseNaJieGoodEntity entity)
+ 		{
+ 			if (entity == null || (double)NowCapacity + entity.GoodsVolume > (double)MaxCapacity)
