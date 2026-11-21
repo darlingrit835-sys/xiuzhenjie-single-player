@@ -1,0 +1,14 @@
+# 客户端安装包由发布渠道单独保存。
+*.[Aa][Pp][Kk]
+*.[Aa][Pp][Kk][Ss]
+*.[Aa][Aa][Bb]
+*.[Ii][Pp][Aa]
+*.[Xx][Aa][Pp][Kk]
+*.[Aa][Pp][Kk][Mm]
+
+# 设计稿以解压后的画板和素材为准。
+/design/修真界UI-全量设计稿.zip
+
+.DS_Store
+__pycache__/
+*.pyc

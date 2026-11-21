@@ -10,6 +10,10 @@ if /i not "%XZJ_BACKEND%"=="java" (
     echo XZJ_BACKEND must be go or java.
     exit /b 2
 )
+if not exist "out\server\Main.class" (
+    call "%~dp0build.bat" >> "data\server.log" 2>&1
+    if errorlevel 1 exit /b 1
+)
 if exist "%~dp0jdk8\bin\javaw.exe" set "JAVA_HOME=%~dp0jdk8"
 if defined JAVA_HOME set "PATH=%JAVA_HOME%\bin;%PATH%"
 if /i "%XZJ_JAVA_PROFILE%"=="default" (

@@ -6,7 +6,7 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $adb  = Join-Path $root 'tools\adb\adb.exe'
 $srv  = Join-Path $root 'server'
 $goStart = Join-Path $root 'server-go\start.ps1'
-$apk  = Join-Path $root 'client\修真界单机版.apk'
+$apk  = if ($env:XZJ_CLIENT_APK) { $env:XZJ_CLIENT_APK } else { Join-Path $root 'client\修真界单机版.apk' }
 $pkg  = 'com.LMGame.XiuXianJie'
 $act  = 'com.unity3d.player.UnityPlayerActivity'
 $backend = if ($env:XZJ_BACKEND) { $env:XZJ_BACKEND.ToLowerInvariant() } else { 'go' }
@@ -20,7 +20,6 @@ Write-Host '==================================================' -ForegroundColor
 Write-Host '             修真界 · 单机版 一键启动' -ForegroundColor Cyan
 Write-Host '==================================================' -ForegroundColor Cyan
 
-if (-not (Test-Path -LiteralPath $apk))  { Write-Host '[错误] 找不到客户端 APK：' $apk -ForegroundColor Red; Read-Host '按回车退出' | Out-Null; exit 1 }
 if (-not (Test-Path -LiteralPath $adb))  { Write-Host '[错误] 找不到 adb：' $adb -ForegroundColor Red; Read-Host '按回车退出' | Out-Null; exit 1 }
 
 # ---------- 1. 服务端 ----------
@@ -42,6 +41,10 @@ if (Test-XzjBackendReady $backend) {
       Write-Host '[错误] 找不到内置 Java。' -ForegroundColor Red
       Read-Host '按回车退出' | Out-Null
       exit 1
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $srv 'out\server\Main.class'))) {
+      & (Join-Path $srv 'build.bat')
+      if ($LASTEXITCODE -ne 0) { throw 'Java 服务端编译失败。' }
     }
     $javaOptions = @()
     if ($env:XZJ_JAVA_PROFILE -ne 'default') {
@@ -95,6 +98,9 @@ Write-Host ''
 Write-Host '[4/5] 客户端' -ForegroundColor Yellow
 $installed = (& $adb -s $dev shell pm path $pkg 2>$null) -join ''
 if ([string]::IsNullOrWhiteSpace($installed)) {
+  if (-not (Test-Path -LiteralPath $apk -PathType Leaf)) {
+    throw "首次安装需要本地版 APK。请设置 XZJ_CLIENT_APK，或将 APK 放在 $apk。"
+  }
   Write-Host '      首次安装，约 1 分钟...'
   & $adb -s $dev install -r -d $apk | Select-Object -Last 2 | ForEach-Object { Write-Host ('      ' + $_) }
   if ($LASTEXITCODE -ne 0) { throw '客户端安装失败。' }

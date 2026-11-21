@@ -44,12 +44,11 @@ Unity 1.3.5 客户端与当前 Java 源码的对应关系见 [界面与 PB 归�
 本仓库启动脚本默认选择 Go。需要启动 Java 版时，先退出正在运行的 Go。macOS / Linux 从仓库根目录运行 `XZJ_BACKEND=java ./server/start-local.sh`。脚本会按需编译并监听 `127.0.0.1` 的 `9443`、`17666`、`17667`。存档保存在 `server/data/`。macOS / Linux 的 Java 入口支持用 `XZJ_DATA_DIR` 指定包含配置和证书的独立目录。
 
 ```bat
-build.bat     :: 编译
 set "XZJ_BACKEND=java"
-start.bat     :: 启动 Java 账号服、游戏服和战斗服
+start.bat     :: 首次启动自动编译，随后启动 Java 账号服、游戏服和战斗服
 ```
 
-启动脚本默认使用单机轻量档，JVM 初始堆为 32 MiB、最大堆为 256 MiB，启用 Serial GC 并按 2 个逻辑处理器配置默认线程。启动前设置环境变量 `XZJ_JAVA_PROFILE=default` 可恢复 JVM 默认值，已有进程继续使用启动时的参数。
+Windows 修改 Java 源码后可运行 `build.bat` 重新编译到 `out/`。启动脚本默认使用单机轻量档，JVM 初始堆为 32 MiB、最大堆为 256 MiB，启用 Serial GC 并按 2 个逻辑处理器配置默认线程。启动前设置环境变量 `XZJ_JAVA_PROFILE=default` 可恢复 JVM 默认值，已有进程继续使用启动时的参数。
 
 本机隔离对照使用同一份 Java 构建和独立存档，执行两轮登录、建角、查地图、创建副本、进战、施放技能与退出。12 次连续流程后的进程 RSS 从 338–351 MiB 降至 189–198 MiB。结果只覆盖本机单机流程。
 

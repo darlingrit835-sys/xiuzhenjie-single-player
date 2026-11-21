@@ -7,10 +7,16 @@
     · 服务端跑在你电脑本机（账号服 9443 / 游戏服 17666 / 战斗服 17667）
     · 客户端 APK 的连接地址已改成 127.0.0.1
     · 手机插 USB，通过 adb 反向端口映射把手机的 127.0.0.1 接到电脑上的服务端
-  本文件的 USB 步骤适用于仓库附带的本地 APK，存档默认写入 server\data。
+  本文件的 USB 步骤适用于本地版 APK（com.LMGame.XiuXianJie），存档默认写入 server\data。
   另行构建的云端直连包可通过网络访问试用服。
 
 二、跑起来（3 步）
+  首次安装或重装前，请准备本地版 APK。若已安装，可直接从第 1 步开始。
+  在本仓根目录打开 PowerShell，执行以下命令可从 Git 历史恢复配套的旧版 APK：
+    git restore --source=8341590 --worktree -- "client/修真界单机版.apk"
+  使用其他位置保存的本地版 APK 时，在同一个 PowerShell 窗口指定完整路径并启动：
+    $env:XZJ_CLIENT_APK = 'D:\游戏\修真界单机版.apk'
+    .\启动游戏.bat
   1. 手机用数据线连电脑，打开「开发者选项 → USB 调试」，手机上点“允许”。
   2. 双击「启动游戏.bat」
      - 默认启动 Go 服务端，等设备、建映射、装客户端、启动游戏
@@ -20,7 +26,7 @@
   拔插过数据线后，重新双击「启动游戏.bat」即可恢复连接（存档不会丢）。
 
 三、目录说明
-  client\修真界单机版.apk    改好地址、重新签名过的客户端（com.LMGame.XiuXianJie）
+  client\修真界单机版.apk    自备本地版客户端的默认放置位置
   server-go\                 默认 Go 服务端
   server\                    共用数据和 Java 回退实现
     server\data\users.json       账号
@@ -51,6 +57,6 @@
   · 模拟器需要在启动脚本的设备列表中能被 ADB 识别。本地 APK 同样使用端口映射。
 
 六、已知限制
-  · 仓库附带的本地 APK 仅包含 armeabi-v7a，纯 64 位设备可能无法安装。
+  · 从 Git 历史恢复的本地 APK 仅包含 armeabi-v7a，纯 64 位设备可能无法安装。
   · 本地模式需要电脑上运行服务端。云端试用模式使用单独构建的 APK。
   · 当前玩法支持范围见 docs\interface-pb\go-interfaces.md。

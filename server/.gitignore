@@ -1,4 +1,5 @@
 /.local-build/
+/out/
 
 # Local runtime state. Keep the bundled game configuration.
 /data/users.json
