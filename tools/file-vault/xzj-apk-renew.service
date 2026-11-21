@@ -1,0 +1,8 @@
+[Unit]
+Description=Renew the Xiuzhenjie APK HTTPS certificate
+After=network-online.target xzj-apk-edge.service
+Wants=network-online.target xzj-apk-edge.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/xzj-apk-share/renew-certificate

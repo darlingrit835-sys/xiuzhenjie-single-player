@@ -1,0 +1,20 @@
+[Unit]
+Description=Xiuzhenjie password-protected APK download
+After=network.target
+
+[Service]
+User=xzj-apk-share
+Group=xzj-apk-share
+LoadCredential=download-password:/etc/xzj-apk-share/download-password
+ExecStart=/opt/xzj-apk-share/apk-latest -listen 127.0.0.1:18195 -release-dir /opt/xzj-apk-share/published -password-file ${CREDENTIALS_DIRECTORY}/download-password
+Restart=on-failure
+RestartSec=3s
+NoNewPrivileges=yes
+ProtectSystem=strict
+BindReadOnlyPaths=/var/lib/private/xzj-file-vault/.published:/opt/xzj-apk-share/published
+ProtectHome=yes
+PrivateTmp=yes
+MemoryMax=128M
+
+[Install]
+WantedBy=multi-user.target

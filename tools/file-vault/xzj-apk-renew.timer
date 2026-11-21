@@ -1,0 +1,10 @@
+[Unit]
+Description=Check renewal for Xiuzhenjie short-lived HTTPS certificate
+
+[Timer]
+OnCalendar=*-*-* 02,08,14,20:15:00
+RandomizedDelaySec=30m
+Persistent=yes
+
+[Install]
+WantedBy=timers.target

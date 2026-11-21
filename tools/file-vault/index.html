@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>修真界 · 文件站</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-content">
+      <span class="wordmark">修真界</span>
+      <span class="header-divider"></span>
+      <span>文件站</span>
+    </div>
+  </header>
+  <main class="shell">
+    <div class="heading">
+      <h1>文件仓库</h1>
+      <p id="capacity">正在读取存储空间</p>
+    </div>
+    <section id="drop-zone" class="drop-zone" aria-label="上传文件">
+      <div class="upload-icon" aria-hidden="true">+</div>
+      <h2>拖拽文件到这里</h2>
+      <p id="limit">APK、ZIP、存档及其他文件</p>
+      <button type="button" id="choose" class="primary">选择文件</button>
+      <input type="file" id="picker" multiple hidden>
+    </section>
+    <section id="transfers" class="transfers" aria-label="上传进度" hidden>
+      <div id="transfer-label" role="status"></div>
+      <progress id="progress" max="100" value="0" aria-label="上传进度"></progress>
+      <ul id="failures" hidden></ul>
+    </section>
+    <section class="library" aria-labelledby="library-title">
+      <div class="library-header">
+        <h2 id="library-title">已上传</h2>
+        <button type="button" id="refresh" class="secondary">刷新列表</button>
+      </div>
+    <p id="mobile-release" class="mobile-release" hidden></p>
+      <p id="list-status" class="empty" role="status">正在读取文件</p>
+      <ul id="files" class="files" hidden></ul>
+    </section>
+  </main>
+</body>
+</html>

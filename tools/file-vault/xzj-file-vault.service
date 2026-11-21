@@ -1,0 +1,23 @@
+[Unit]
+Description=Xiuzhenjie private file vault
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+User=xzj-vault-files
+Group=xzj-apk-share
+StateDirectory=xzj-file-vault
+StateDirectoryMode=0700
+LoadCredential=access-token:/etc/xzj-file-vault/access-token
+ExecStart=/opt/xzj-file-vault/file-vault -listen 127.0.0.1:18192 -data ${STATE_DIRECTORY} -release-dir ${STATE_DIRECTORY}/.published -password-file ${CREDENTIALS_DIRECTORY}/access-token
+Restart=on-failure
+RestartSec=3s
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+MemoryMax=192M
+
+[Install]
+WantedBy=multi-user.target
