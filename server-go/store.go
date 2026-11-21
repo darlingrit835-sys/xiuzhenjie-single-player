@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"sync"
@@ -292,9 +293,19 @@ func (s *Store) Update(id string, mutate func(Record) error) error {
 
 // UpdateProgress permits transient cultivation ticks between periodic durable saves.
 func (s *Store) UpdateProgress(id string, mutate func(Record) (persist bool, err error)) error {
+	return s.updateProgress(id, cloneRecord, mutate)
+}
+
+// Passive cultivation edits only top-level scalar progress. Its shared
+// inventory and other nested collections must remain read-only.
+func (s *Store) updateCultivationProgress(id string, mutate func(Record) (persist bool, err error)) error {
+	return s.updateProgress(id, maps.Clone[Record], mutate)
+}
+
+func (s *Store) updateProgress(id string, clone func(Record) Record, mutate func(Record) (bool, error)) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	record := cloneRecord(s.records[id])
+	record := clone(s.records[id])
 	if record == nil {
 		return ErrRecordNotFound
 	}
@@ -308,6 +319,12 @@ func (s *Store) UpdateProgress(id string, mutate func(Record) (persist bool, err
 		return nil
 	}
 	return s.putLocked(id, record)
+}
+
+func (s *Store) flushProgress() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.saveLocked()
 }
 
 // InsertUnique checks the identifier and a read-only conflict predicate under the same lock.

@@ -3,31 +3,31 @@
   "variance": 0.06,
   "tiers": {
     "normal": {
-      "blood": 0.9,
-      "armor": 0.15,
-      "attack": 0.022,
+      "blood": 5,
+      "armor": 0.68,
+      "attack": 0.6,
       "mana": 0.85,
       "perception": 0.6,
-      "goldBase": 15,
-      "goldPerLevel": 3
+      "goldBase": 12,
+      "goldPerLevel": 2
     },
     "elite": {
-      "blood": 1.5,
-      "armor": 0.28,
-      "attack": 0.038,
+      "blood": 11,
+      "armor": 1.6,
+      "attack": 1.45,
       "mana": 1.3,
       "perception": 0.95,
-      "goldBase": 55,
-      "goldPerLevel": 8
+      "goldBase": 35,
+      "goldPerLevel": 5
     },
     "boss": {
-      "blood": 2.4,
-      "armor": 0.45,
-      "attack": 0.06,
+      "blood": 23.5,
+      "armor": 3.8,
+      "attack": 3.05,
       "mana": 2.0,
       "perception": 1.4,
-      "goldBase": 180,
-      "goldPerLevel": 22
+      "goldBase": 86,
+      "goldPerLevel": 13
     }
   },
   "waves": {

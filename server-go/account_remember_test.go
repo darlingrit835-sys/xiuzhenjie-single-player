@@ -58,6 +58,34 @@ func (login rememberTestLogin) resumeForm() url.Values {
 	return url.Values{"userId": {login.UserID}, "rememberToken": {login.RememberToken}}
 }
 
+func TestFreshWorldWithExistingAccounts(t *testing.T) {
+	oldDir, newDir := t.TempDir(), t.TempDir()
+	if _, err := openServer(Config{AccountsDir: oldDir}, newDir); err == nil {
+		t.Fatal("missing account data was accepted")
+	}
+	old := emailTestServer(t, oldDir, false)
+	login := rememberTestRequest(t, old, "/login", "2000", url.Values{
+		"mobilePhone": {"13600000091"}, "password": {"fixture password"}, "rememberLogin": {"1"},
+	})
+	if err := old.roles.Put("old-role", Record{"UserId": login.UserID, "Id": "old-role", "Level": 40}); err != nil {
+		t.Fatal(err)
+	}
+	fresh, err := openServer(Config{AccountsDir: oldDir}, newDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resumed := rememberTestRequest(t, fresh, accountResumePath, "2000", login.resumeForm())
+	if resumed.UserID != login.UserID || resumed.GameServersInfoList[0].CurrentRoleVO.ServersRoleId != "" {
+		t.Fatal("old account must resume into an empty world")
+	}
+	rememberTestRequest(t, fresh, accountLogoutPath, "2000", login.resumeForm())
+	restored := emailTestServer(t, oldDir, false)
+	rememberTestRequest(t, restored, accountResumePath, "2105", login.resumeForm())
+	if restored.roles.Get("old-role") == nil {
+		t.Fatal("old world role disappeared")
+	}
+}
+
 func TestRememberLoginSurvivesRestartAndReturnsCurrentRealm(t *testing.T) {
 	dir := t.TempDir()
 	s := emailTestServer(t, dir, false)

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "dan",
+    "type": 1,
+    "job": "丹师",
+    "room": "炼丹室",
+    "axes": ["出丹","药力"],
+    "routes": [{"name":"分液合丹","values":[2,0]},{"name":"主药独煎","values":[0,2]},{"name":"寒露调和","values":[1,1]}],
+    "adjusts": [{"name":"循原火","values":[0,0]},{"name":"缓收丹","values":[-1,1]},{"name":"早分丸","values":[1,-1]}],
+    "briefs": [{"name":"巡山散药","targets":[2,0]},{"name":"守炉养气","targets":[0,2]},{"name":"行脚药囊","targets":[1,1]}]
+  },
+  {
+    "id": "qi",
+    "type": 2,
+    "job": "炼器师",
+    "room": "炼器室",
+    "axes": ["攻势","护持"],
+    "routes": [{"name":"双脊匀锋","values":[1,1]},{"name":"窄脊长锋","values":[2,0]},{"name":"宽脊环格","values":[0,2]}],
+    "adjusts": [{"name":"守中锤","values":[0,0]},{"name":"打薄前锋","values":[1,-1]},{"name":"回锤护脊","values":[-1,1]}],
+    "briefs": [{"name":"山门护器","targets":[0,2]},{"name":"破壳短兵","targets":[2,0]},{"name":"切磋佩剑","targets":[1,1]}]
+  },
+  {
+    "id": "fu",
+    "type": 3,
+    "job": "符师",
+    "room": "画符室",
+    "axes": ["引发","持效"],
+    "routes": [{"name":"折笔藏锋","values":[0,2]},{"name":"一笔穿心","values":[2,0]},{"name":"双折回墨","values":[1,1]}],
+    "adjusts": [{"name":"照式提锋","values":[0,0]},{"name":"挑笔开口","values":[1,-1]},{"name":"回钩封尾","values":[-1,1]}],
+    "briefs": [{"name":"巡夜警符","targets":[2,0]},{"name":"夜渡护符","targets":[0,2]},{"name":"换阵接符","targets":[1,1]}]
+  },
+  {
+    "id": "shu",
+    "type": 4,
+    "job": "术师",
+    "room": "战法室",
+    "axes": ["疾发","威力"],
+    "routes": [{"name":"聚元起印","values":[0,2]},{"name":"引转相接","values":[1,1]},{"name":"疾行连印","values":[2,0]}],
+    "adjusts": [{"name":"正印收式","values":[0,0]},{"name":"急印截流","values":[1,-1]},{"name":"合印凝元","values":[-1,1]}],
+    "briefs": [{"name":"拦截飞梭","targets":[2,0]},{"name":"击裂石傀","targets":[0,2]},{"name":"擂台接招","targets":[1,1]}]
+  },
+  {
+    "id": "zhen",
+    "type": 5,
+    "job": "阵法师",
+    "room": "阵法室",
+    "axes": ["覆盖","阵固"],
+    "routes": [{"name":"中宫合守","values":[0,2]},{"name":"四隅展阵","values":[2,0]},{"name":"对宫相应","values":[1,1]}],
+    "adjusts": [{"name":"原位定盘","values":[0,0]},{"name":"收脚护眼","values":[-1,1]},{"name":"开脚拓界","values":[1,-1]}],
+    "briefs": [{"name":"封谷口","targets":[2,0]},{"name":"护住泉眼","targets":[0,2]},{"name":"商队驻夜","targets":[1,1]}]
+  },
+  {
+    "id": "dao",
+    "type": 6,
+    "job": "布道师",
+    "room": "悟道台",
+    "axes": ["纳气","行功"],
+    "routes": [{"name":"缓息归元","values":[2,0]},{"name":"周流贯脉","values":[0,2]},{"name":"吐纳相随","values":[1,1]}],
+    "adjusts": [{"name":"循息收功","values":[0,0]},{"name":"留息归田","values":[1,-1]},{"name":"借气行脉","values":[-1,1]}],
+    "briefs": [{"name":"寒潭静修","targets":[2,0]},{"name":"行旅周天","targets":[0,2]},{"name":"晨课传本","targets":[1,1]}]
+  },
+  {
+    "id": "zhi",
+    "type": 8,
+    "job": "灵植师",
+    "room": "育种室",
+    "axes": ["扎根","萌枝"],
+    "routes": [{"name":"留干接双穗","values":[0,2]},{"name":"壮根留芽","values":[2,0]},{"name":"同气合枝","values":[1,1]}],
+    "adjusts": [{"name":"当期接穗","values":[0,0]},{"name":"提前接穗","values":[-1,1]},{"name":"缓接养根","values":[1,-1]}],
+    "briefs": [{"name":"固沙栽苗","targets":[2,0]},{"name":"春圃取穗","targets":[0,2]},{"name":"迁圃保种","targets":[1,1]}]
+  }
+]

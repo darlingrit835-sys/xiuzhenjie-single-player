@@ -53,6 +53,11 @@ public final class GoodsService {
         return all(role).size();
     }
 
+    static GameData.GongFaDef book(Map<String, Object> goods) {
+        if (goods == null || num(goods, "Type", 0) != 1) return null;
+        return GameData.book(str(goods, "TemplateId"), str(goods, "Name"));
+    }
+
     public static boolean isEquipmentType(int type) {
         return type == 14 || type == 15 || type == 16 || type == 21
                 || type == 26 || type == 29 || type == 32;
@@ -70,6 +75,14 @@ public final class GoodsService {
                                           int level, int fiveElement, String templateId, int count,
                                           double volume, int recyclePrice) {
         List<Map<String, Object>> list = all(role);
+        GameData.GongFaDef method = type == 1 ? GameData.book(templateId, name) : null;
+        if (method != null) {
+            templateId = method.id;
+            name = method.name;
+            rank = method.rank;
+            level = method.levelReq;
+            fiveElement = RoleUtil.methodElement(role, method);
+        }
         if (count <= 0) count = 1;
         if (!isEquipmentType(type)) {
             for (Map<String, Object> g : list) {
@@ -91,7 +104,7 @@ public final class GoodsService {
         g.put("Type", type);
         g.put("Rank", Math.max(1, rank));
         g.put("Level", Math.max(1, level));
-        g.put("FiveElement", Math.max(1, Math.min(5, fiveElement)));
+        g.put("FiveElement", method != null ? fiveElement : Math.max(1, Math.min(5, fiveElement)));
         g.put("TemplateId", templateId);
         g.put("Count", count);
         g.put("Volume", volume <= 0 ? 1.0 : volume);

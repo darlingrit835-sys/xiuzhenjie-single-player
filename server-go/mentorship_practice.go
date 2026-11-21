@@ -25,12 +25,20 @@ func mentorPracticeUnavailable(student Record, day string) bool {
 	return roleString(student, "MentorPracticeDay") >= day || mentorSet(student, "MentorPendingPractice") != nil
 }
 
+func mentorPracticeAmount(student, reward Record) int64 {
+	raw := roleInt(reward, "Amount")
+	if roleInt(reward, "Type") != mentorPower || raw <= 0 || raw > math.MaxInt32 {
+		return raw
+	}
+	return max(1, int64(math.Round(float64(raw)/lateRealmTimeFactor(roleInt(student, "Level")))))
+}
+
 func fillMentorPending(student Record, out protoreflect.Message) {
 	reward := mentorSet(student, "MentorPendingPractice")
 	set(out, "IsGetTmcg", reward == nil)
 	if reward != nil {
 		set(out, "TmcgType", roleInt(reward, "Type"))
-		set(out, "TmcgNum", roleInt(reward, "Amount"))
+		set(out, "TmcgNum", mentorPracticeAmount(student, reward))
 	}
 }
 
@@ -88,13 +96,12 @@ func (s *Server) mentorSendPractice(peer *Peer, req, out protoreflect.Message, k
 		if gain == 20 {
 			amount = min(2*amount, math.MaxInt32)
 		}
-		if available := roleInt(teacher, "CurrentVigor"); available < cost {
+		updatedTeacher := tx.Get(teacherID)
+		if !spendArtisanVigor(updatedTeacher, cost) {
 			return previewReject(4618)
-		} else {
-			vigor = available - cost
 		}
+		vigor = roleInt(updatedTeacher, "CurrentVigor")
 		intimacy = min(previous+gain, math.MaxInt32)
-		tx.Get(teacherID)["CurrentVigor"] = vigor
 		pupil := tx.Get(studentID)
 		pupil["MentorIntimacy"] = intimacy
 		pupil["MentorPracticeDay"] = day
@@ -102,6 +109,7 @@ func (s *Server) mentorSendPractice(peer *Peer, req, out protoreflect.Message, k
 		pupil["MentorPendingPractice"] = Record{"Type": kind, "Amount": amount, "Teacher": Record{
 			"Id": teacherID, "UserId": roleString(teacher, "UserId"), "Name": roleString(teacher, "Name"),
 		}}
+		amount = mentorPracticeAmount(pupil, mentorSet(pupil, "MentorPendingPractice"))
 		return tx.RecordHistory(socialHistory(event, teacherID, teacher, studentID, student, Record{
 			"amount": amount, "vigorCost": cost, "intimacyGain": intimacy - previous, "intimacy": intimacy, "promoted": previous < 100 && intimacy >= 100,
 		}))
@@ -132,7 +140,7 @@ func (s *Server) mentorClaimPractice(peer *Peer, _, out protoreflect.Message) (f
 			return previewReject(4577)
 		}
 		teacher := mentorSet(reward, "Teacher")
-		teacherID, kind, amount := roleString(teacher, "Id"), roleInt(reward, "Type"), roleInt(reward, "Amount")
+		teacherID, kind, amount := roleString(teacher, "Id"), roleInt(reward, "Type"), mentorPracticeAmount(student, reward)
 		if teacherID == "" || amount < 1 || amount > math.MaxInt32 || (kind != mentorMeridians && kind != mentorPower) {
 			return previewReject(5000)
 		}

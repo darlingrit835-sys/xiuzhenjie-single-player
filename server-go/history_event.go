@@ -41,7 +41,7 @@ type historyRecord struct {
 }
 
 func reservedStoreID(id string) bool {
-	return id == previewAuctionStoreID || id == historyOutboxID
+	return id == scheduledAuctionStoreID || id == previewAuctionStoreID || id == historyOutboxID || id == trialExchangeID || strings.HasPrefix(id, smithingStorePrefix) || strings.HasPrefix(id, alchemyStorePrefix) || strings.HasPrefix(id, talismanStorePrefix) || strings.HasPrefix(id, gardenStorePrefix) || strings.HasPrefix(id, voidStorePrefix)
 }
 
 func historyRole(role Record) historyActor {

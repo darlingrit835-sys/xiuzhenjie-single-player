@@ -1,11 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"maps"
 	"math"
 	"math/rand/v2"
 	"slices"
+	"strconv"
 	"strings"
 
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -19,13 +21,16 @@ const (
 type acupointRule struct {
 	baseCost int64
 	parents  []string
+	children []string
+	threads  []int
 }
 
 func (s *Server) loadAcupoints() error {
 	var rows []struct {
-		ID       string `json:"a"`
-		Children string `json:"h"`
-		BaseCost int64  `json:"i"`
+		ID        string `json:"a"`
+		Children  string `json:"h"`
+		Meridians string `json:"e"`
+		BaseCost  int64  `json:"i"`
 	}
 	const table = "b.json"
 	if err := s.readGameTable(table, &rows); err != nil {
@@ -35,11 +40,22 @@ func (s *Server) loadAcupoints() error {
 		return nil
 	}
 	rules := make(map[string]acupointRule, len(rows))
+	var totals [8]int
 	for _, row := range rows {
 		if _, exists := rules[row.ID]; exists || row.ID == "" || row.BaseCost < 1 || row.BaseCost > math.MaxInt32/5 {
 			return fmt.Errorf("穴位表 %s 的编号或点穴消耗无效（编号 %q）", table, row.ID)
 		}
-		rules[row.ID] = acupointRule{baseCost: row.BaseCost}
+		rule := acupointRule{baseCost: row.BaseCost}
+		for name := range strings.SplitSeq(row.Meridians, ",") {
+			if idx := slices.Index(meridianNames[:], name); idx >= 0 {
+				rule.threads = append(rule.threads, idx)
+				totals[idx]++
+			}
+		}
+		if row.Children != "" {
+			rule.children = strings.Split(row.Children, ",")
+		}
+		rules[row.ID] = rule
 	}
 	if _, ok := rules[firstAcupoint]; !ok {
 		return fmt.Errorf("穴位表 %s 缺少起始穴位 %s", table, firstAcupoint)
@@ -58,14 +74,90 @@ func (s *Server) loadAcupoints() error {
 		}
 	}
 	s.game.acupoints = rules
+	s.game.meridianTotals = totals
 	return nil
 }
 
-func acupointPreviewRoutes() []previewRoute {
-	return []previewRoute{
-		{cmd: 1005016, module: "洞府与修炼", response: "OpenAcupointResp_1005016", summary: "内视读取角色已保存的经脉点与穴位", roleFields: []string{"AcupointValue", "Acupoints"}, build: previewAcupoints},
-		{cmd: 1005018, module: "洞府与修炼", request: "BreakAcupointReq_1005018", response: "BreakAcupointResp_1005018", summary: "点通或突破已解锁穴位，按当前层数扣经脉点并保存结果", blocked: true, live: (*Server).breakAcupoint},
+var meridianNames = [...]string{"任脉", "督脉", "冲脉", "带脉", "阴跷脉", "阳跷脉", "阴维脉", "阳维脉"}
+var meridianPBFields = [...]string{"AirSpeedUp", "AirValueUp", "PureBloodValueUp", "PureBloodRecoveryUp", "PerceptionValueUp", "FiveElementAttackUp", "PhysiqueValueUp", "FiveElementDefenseUp"}
+
+func acupointBalance(role Record) int64 {
+	if role["AcupointValue"] == nil && roleInt(role, "Level") >= 2 && len(acupointLevels(role)) == 0 {
+		return 1
 	}
+	return roleInt(role, "AcupointValue")
+}
+
+type meridianProgress struct {
+	count, floor [8]int
+	bonus        [8]float64
+}
+
+func (s *Server) meridianProgress(role Record) meridianProgress {
+	var progress meridianProgress
+	if entries, _ := role["Acupoints"].([]any); len(entries) == 0 {
+		return progress
+	}
+	for id, saved := range acupointLevels(role) {
+		level := int(saved)
+		for _, index := range s.game.acupoints[id].threads {
+			progress.count[index]++
+			if progress.floor[index] == 0 || level < progress.floor[index] {
+				progress.floor[index] = level
+			}
+			points := [...]float64{0, .5, .8, 1}[level]
+			switch index {
+			case 3:
+				points = [...]float64{0, 200, 500, 2000}[level]
+			case 5, 7:
+				points = float64(level)
+			}
+			progress.bonus[index] += points
+		}
+	}
+	for idx, total := range s.game.meridianTotals {
+		if total != progress.count[idx] {
+			progress.floor[idx] = 0
+		}
+	}
+	return progress
+}
+
+func (s *Server) fillMeridianOverview(role Record, response protoreflect.Message) {
+	progress := s.meridianProgress(role)
+	for idx, field := range meridianPBFields {
+		prefix := "ThreadType" + strconv.Itoa(idx+1)
+		set(response, prefix+"Count", progress.count[idx])
+		set(response, prefix+"Level", progress.floor[idx])
+		value := progress.bonus[idx]
+		if idx == 0 {
+			value = -value
+		}
+		set(response, field, 100+value)
+	}
+}
+
+// Battle loadouts and artisan wards use the same percentages as the overview.
+// Refresh at login and after a successful acupoint change so old saves and
+// custom acupoint tables acquire their own current values.
+func (s *Server) refreshBattleMeridians(role Record) {
+	if len(acupointLevels(role)) == 0 {
+		delete(role, "BattleMeridianBonuses")
+		return
+	}
+	progress := s.meridianProgress(role)
+	bonuses := Record{}
+	for i := 2; i < len(progress.bonus); i++ {
+		if progress.bonus[i] > 0 {
+			bonuses[meridianPBFields[i]] = int64(math.Round(progress.bonus[i] * 100))
+		}
+	}
+	role["BattleMeridianBonuses"] = bonuses
+}
+
+func battleMeridianBPS(role Record, field string) int64 {
+	bonuses, _ := role["BattleMeridianBonuses"].(Record)
+	return roleInt(bonuses, field)
 }
 
 func acupointLevels(role Record) map[string]int64 {
@@ -81,8 +173,8 @@ func acupointLevels(role Record) map[string]int64 {
 	return levels
 }
 
-func previewAcupoints(role Record, _, out protoreflect.Message) {
-	set(out, "AcupointValue", min(max(0, roleInt(role, "AcupointValue")), math.MaxInt32))
+func fillAcupoints(role Record, out protoreflect.Message) {
+	set(out, "AcupointValue", min(max(0, acupointBalance(role)), math.MaxInt32))
 	levels := acupointLevels(role)
 	for _, id := range slices.Sorted(maps.Keys(levels)) {
 		entry := addMessage(out, "Acupoints")
@@ -116,34 +208,48 @@ type acupointReceipts struct {
 	next   int
 }
 
-func (s *Server) breakAcupoint(peer *Peer, req, out protoreflect.Message) (func(), error) {
+func (s *Server) breakAcupoint(peer *Peer, msg Message, req, out protoreflect.Message) {
+	err := s.commitAcupoint(peer, msg.Msid, req, out)
+	if err != nil {
+		var code previewReject
+		if !errors.As(err, &code) {
+			code = 5000
+		}
+		statusPB(out, false, int(code))
+	}
+}
+
+func (s *Server) commitAcupoint(peer *Peer, requestID int, req, out protoreflect.Message) error {
+	if peer.currentRoleID() == "" || (s.preview != nil && !s.previewWrites) {
+		return previewReject(previewDeniedCode)
+	}
 	roleID, pointID := peer.currentRoleID(), getString(req, "AcupointId")
-	if peer.acupointReceipts != nil && peer.gameRequestID > 0 {
+	if peer.acupointReceipts != nil && requestID > 0 {
 		for _, receipt := range peer.acupointReceipts.recent {
-			if receipt.requestID != peer.gameRequestID || receipt.roleID != roleID {
+			if receipt.requestID != requestID || receipt.roleID != roleID {
 				continue
 			}
 			if receipt.pointID != pointID {
-				return nil, previewReject(4008)
+				return previewReject(4008)
 			}
 			receipt.result.write(out)
-			return nil, nil
+			return nil
 		}
 	}
 	result, err := s.applyAcupointBreak(roleID, pointID, rand.IntN)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	if peer.gameRequestID > 0 {
+	if requestID > 0 {
 		if peer.acupointReceipts == nil {
 			peer.acupointReceipts = new(acupointReceipts)
 		}
 		receipts := peer.acupointReceipts
-		receipts.recent[receipts.next] = acupointReceipt{peer.gameRequestID, roleID, pointID, result}
+		receipts.recent[receipts.next] = acupointReceipt{requestID, roleID, pointID, result}
 		receipts.next = (receipts.next + 1) % len(receipts.recent)
 	}
 	result.write(out)
-	return nil, nil
+	return nil
 }
 
 func (s *Server) applyAcupointBreak(roleID, pointID string, roll func(int) int) (acupointResult, error) {
@@ -172,7 +278,7 @@ func (s *Server) applyAcupointBreak(roleID, pointID string, roll func(int) int) 
 			return previewReject(4146)
 		}
 		cost := rule.baseCost * (2*current + 1)
-		points := roleInt(role, "AcupointValue")
+		points := acupointBalance(role)
 		if points < cost {
 			return previewReject(4144)
 		}
@@ -185,7 +291,18 @@ func (s *Server) applyAcupointBreak(roleID, pointID string, roll func(int) int) 
 			for _, id := range friendTitleIDs(role) {
 				bonus = max(bonus, s.game.acupointTitleBonus[id])
 			}
-			chance = min(100, int(90-40*current)+bonus)
+			links := 0
+			for _, id := range rule.parents {
+				if levels[id] > 0 {
+					links++
+				}
+			}
+			for _, id := range rule.children {
+				if levels[id] > 0 && !slices.Contains(rule.parents, id) {
+					links++
+				}
+			}
+			chance = min(100, int(90-40*current)+bonus+min(2, links)*10)
 		}
 		updated := tx.Get(roleID)
 		result = acupointResult{code: 4145, level: current, points: points - cost}
@@ -194,6 +311,8 @@ func (s *Server) applyAcupointBreak(roleID, pointID string, roll func(int) int) 
 		if chance == 100 || roll(100) < chance {
 			result.code, result.level = 4142, current+1
 			setAcupointLevel(updated, pointID, result.level)
+			s.refreshBattleMeridians(updated)
+			recomputeGamePower(updated)
 			event = "cultivation.acupoint_broken"
 		}
 		history := newHistoryEvent(event, role, nil, "acupoint", pointID,

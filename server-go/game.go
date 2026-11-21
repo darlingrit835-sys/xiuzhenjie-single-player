@@ -135,10 +135,55 @@ func (s *Server) gameQuestComplete(peer *Peer) {
 
 func (s *Server) handleGame(peer *Peer, msg Message) {
 	switch msg.Cmd {
+	case 1005005, 1005007, 1005021, 1005022, 1005023:
+		s.handleChamberStorage(peer, msg)
+	case caveMatrixCommand:
+		s.handleCaveMatrix(peer, msg)
+	case voidFacilityCommand:
+		s.handleVoidFacility(peer, msg)
+	case 1008001, 1008002, 1008004:
+		s.handleTowerRecord(peer, msg)
+	case voidCommand:
+		s.handleVoidRealm(peer, msg)
+	case concordCommand:
+		s.handleConcordDesk(peer, msg)
+	case gardenCommand:
+		s.handleGarden(peer, msg)
+	case talismanCommand:
+		s.handleTalisman(peer, msg)
+	case alchemyCommand:
+		s.handleAlchemy(peer, msg)
+	case fixedPurchaseHistoryCommand:
+		s.handleFixedPurchaseHistory(peer, msg)
+	case scheduledAuctionCommand:
+		s.handleScheduledAuction(peer, msg)
+	case guildCourtRead, guildCourtAct, guildCharterRead, guildCharterAct:
+		s.handleSectCourt(peer, msg)
+	case smithingCatalogCmd, smithingCreateCmd, smithingSupplyCmd, smithingTemplateCmd, smithingPlanCmd, smithingCastPlanCmd, smithingCastCmd, smithingSampleCmd:
+		s.handleSmithing(peer, msg)
 	case privateChatHistory, privateChatSend:
 		s.handlePrivateChat(peer, msg)
+	case worldChatJoin, worldChatSend, worldChatLeave:
+		s.handleWorldChat(peer, msg)
+	case friendOfferCreate, friendOfferList, friendOfferDecide, friendOfferAck:
+		s.handleFriendOffers(peer, msg)
 	case 9000000:
 		return
+	case 1008066:
+		if s.preview != nil && s.handlePreview(peer, msg) {
+			return
+		}
+		out := s.gameResponse("EnterEquipmentAssociationResp_1008066", true, 2000)
+		if peer.currentRoleID() == "" {
+			statusPB(out, false, 4007)
+		} else {
+			s.smithingAssociation(peer, nil, out)
+		}
+		s.sendGame(peer, msg, out)
+	case 1005038:
+		s.openSpellPractice(peer, msg)
+	case 1005040:
+		s.practiceSpell(peer, msg)
 	case 1002001:
 		s.createGameRole(peer, msg)
 	case 1002002:
@@ -229,9 +274,18 @@ func (s *Server) loginGameRole(peer *Peer, msg Message) {
 		if s.accountSessionsRequired() && !s.verifyPreviewSession(getString(req, "GameServerIpManageId"), roleString(r, "UserId"), time.Now()) {
 			return previewReject(previewDeniedCode)
 		}
+		if s.previewWrites {
+			syncTrialSignInLogin(r, time.Now())
+		}
 		s.ensureGameRole(r)
+		resumePracticeGuide(r)
 		s.checkQuest(r)
 		s.applyOffline(r)
+		_, achievementsReady := achievementSummary(r)
+		r["TianShuBeiStatus"] = 0
+		if achievementsReady {
+			r["TianShuBeiStatus"] = achievementReady
+		}
 		m := b.ProtoReflect()
 		// RoleLoginResp fields deliberately share the Java JSON keys except for TianDaoLing.
 		fields := m.Descriptor().Fields()
@@ -245,9 +299,15 @@ func (s *Server) loginGameRole(peer *Peer, msg Message) {
 			set(b, "MapName", name)
 		}
 		fillFriendTransferTitles(b, r)
+		if s.previewWrites {
+			set(b, "IsNewLetter", mailUnread(r))
+		}
 		set(b, "IsTianDaoLing", roleBool(r, "TianDaoLing"))
 		if s.config.CompleteBattleGuide {
 			set(b, "BattleGuideVal", 100)
+		}
+		if s.config.SkipAcupointGuide {
+			set(b, "AcupointGuideVal", 100)
 		}
 		notice = roleBool(r, "StarterKitNotice")
 		if notice {
@@ -266,6 +326,8 @@ func (s *Server) loginGameRole(peer *Peer, msg Message) {
 	if err == nil {
 		if s.previewWrites {
 			s.fillGuildLogin(id, b)
+			markFriendOffersAvailable(b.ProtoReflect())
+			s.expireFriendLocks(id)
 		}
 		s.bindGameRole(peer, id)
 		statusPB(b, true, 2000)
@@ -286,11 +348,11 @@ func (s *Server) offlineGameRole(peer *Peer, msg Message) {
 	if msg.Cmd == 1002003 {
 		b := s.gameResponse("RoleOfflineResp_1002003", r != nil, 4181)
 		putPB(b, Record{
-			"SuperAir":    min(roleInt(r, "OfflineSuperAir"), math.MaxInt32),
-			"Perception":  min(roleInt(r, "OfflinePerception"), math.MaxInt32),
-			"Physique":    min(roleInt(r, "OfflinePhysique"), math.MaxInt32),
+			"SuperAir":    roleInt(r, "OfflineSuperAir"),
+			"Perception":  roleInt(r, "OfflinePerception"),
+			"Physique":    roleInt(r, "OfflinePhysique"),
 			"OfflineTime": roleInt(r, "OfflineTime"), "IsFullTime": roleBool(r, "OfflineIsFull"),
-			"OfflineVigor": 1, "OfflineClever": 1,
+			"OfflineVigor": roleInt(r, "OfflineVigor"), "OfflineClever": 0, "Age": roleInt(r, "OfflineAge"),
 		})
 		s.sendGame(peer, msg, b)
 		return
@@ -320,8 +382,8 @@ func (s *Server) newRole(req protoreflect.Message) Record {
 		"Id": newGameID(16), "UserId": getString(req, "UserId"),
 		"Name": getString(req, "Name"), "MapId": mapID, "MapName": mapName,
 		"Sex": 0, "HeadPortraitId": getInt(req, "HeadPortraitId"),
-		"Level": 1, "CurrentAge": 16, "MaxAge": 100, "ShinyStone": 500, "ShinyJade": 100,
-		"FlexibleRoot": "0", "SuperAir": int64(lvl.upgradeLimit), "Perception": int64(lvl.perception),
+		"Level": 1, "CurrentAge": 16, "MaxAge": 100, "ShinyStone": 500, "ShinyJade": 10,
+		"FlexibleRoot": "0", "SuperAir": realmStartingAir(1, lvl), "Perception": int64(lvl.perception),
 		"Physique": int64(lvl.toughTenacity), "PureBlood": max(100, int64(math.Round(lvl.perception*0.01))),
 		"RunMask": 4, "RunLocation": 3, "DongFuRank": 0, "JuLingRank": 0, "KongLingRank": 0,
 		"CurrentVigor": 100, "CurrentClever": 100, "Vigor": 100, "Clever": 100, "CurrentPoisonVal": 0,
@@ -358,12 +420,18 @@ func setRoleDefault(r Record, field string, value any) {
 }
 
 func (s *Server) ensureGameRole(r Record) {
+	for _, key := range cultivationRootFields[1:] {
+		setRoleDefault(r, key, roleFloat(r, strings.TrimPrefix(key, "Has")) > 0)
+	}
 	level := max(1, min(90, roleInt(r, "Level")))
 	lvl := s.levelInfo(level)
 	r["Level"] = level
+	if r["AcupointValue"] == nil && level >= 2 {
+		r["AcupointValue"] = acupointBalance(r)
+	}
 	first := !roleBool(r, "StatsInitialized") || roleInt(r, "StatsVersion") < 2
 	if r["SuperAir"] == nil || roleInt(r, "SuperAir") < 0 {
-		r["SuperAir"] = int64(lvl.upgradeLimit)
+		r["SuperAir"] = realmStartingAir(level, lvl)
 	}
 	base := Record{
 		"Perception": int64(lvl.perception), "Physique": int64(lvl.toughTenacity),
@@ -380,14 +448,15 @@ func (s *Server) ensureGameRole(r Record) {
 	current := Record{
 		"CurrentSuperAir": roleInt(r, "Perception") * 2, "CurrentPerception": roleInt(r, "Perception"),
 		"CurrentPhysique": roleInt(r, "Physique"), "CurrentPureBlood": roleInt(r, "PureBlood"),
-		"CurrentVigor": 100 + level*5, "CurrentClever": 100 + level*5,
+		"CurrentClever": 100 + level*5,
 	}
 	for key, val := range current {
 		if first || roleInt(r, key) <= 0 {
 			r[key] = val
 		}
 	}
-	r["Vigor"] = max(100, roleInt(r, "Vigor"), roleInt(r, "CurrentVigor"))
+	r["Vigor"] = max(vigorCapacity(level), roleInt(r, "Vigor"), roleInt(r, "CurrentVigor"))
+	setRoleDefault(r, "CurrentVigor", r["Vigor"])
 	r["Clever"] = max(100, roleInt(r, "Clever"), roleInt(r, "CurrentClever"))
 	if roleInt(r, "HunLiVal") < 500 {
 		r["HunLiVal"] = 1000
@@ -408,7 +477,9 @@ func (s *Server) ensureGameRole(r Record) {
 	if roleInt(r, "LastOnline") <= 0 {
 		r["LastOnline"] = time.Now().UnixMilli()
 	}
-	ensureGamesMethods(r)
+	s.ensureGamesMethods(r)
+	s.refreshMethodAffixes(r)
+	s.refreshBattleMeridians(r)
 	s.ensureQuest(r)
 	ensureStarterItems(r)
 	r["StatsInitialized"], r["StatsVersion"] = true, 2
@@ -416,31 +487,59 @@ func (s *Server) ensureGameRole(r Record) {
 }
 
 func recomputeGamePower(r Record) {
-	power := roleInt(r, "Level")*1000 + roleInt(r, "Perception")*10 + roleInt(r, "Physique")*10 + roleInt(r, "SuperAir")/10
-	power = min(power, math.MaxInt32)
+	power := battlePower(r)
 	r["Power"], r["CurrentPower"] = power, power
 }
 
-func (s *Server) applyOffline(r Record) {
-	now := time.Now().UnixMilli()
+func (s *Server) applyOffline(r Record) { s.applyOfflineAt(r, time.Now().UnixMilli()) }
+
+func (s *Server) applyOfflineAt(r Record, now int64) {
 	seconds := (now - roleInt(r, "LastOnline")) / 1000
+	setRoleDefault(r, "VigorRecoveredAt", roleInt(r, "LastOnline")/1000)
+	r["OfflineVigor"] = recoverRoleVigor(r, now/1000)
+	r["LastReportedVigor"] = roleInt(r, "CurrentVigor")
 	r["LastOnline"] = now
+	r["OfflineIsFull"], r["OfflineAge"] = false, int64(0)
 	r["OfflineTime"], r["OfflineSuperAir"], r["OfflinePerception"], r["OfflinePhysique"] = 0, 0, 0, 0
 	if seconds < 60 {
 		return
 	}
-	seconds = min(seconds, int64(s.config.OfflineCapHours)*3600)
+	limitSeconds := int64(s.config.OfflineCapHours) * 3600
+	reachedTimeLimit := seconds >= limitSeconds
+	seconds = min(seconds, limitSeconds)
 	lvl := s.levelInfo(roleInt(r, "Level"))
-	rate := s.gameRate(r, 3) * 0.8
-	superAir := roleInt(r, "SuperAir")
-	superGain := min(int64(math.Floor(rate*float64(seconds))), max(0, int64(lvl.upgradeLimit)-superAir))
-	r["SuperAir"], r["OfflineSuperAir"] = superAir+superGain, superGain
-	gain := int64(math.Floor(rate * float64(seconds) * 0.02))
-	for key, ceiling := range map[string]float64{"Perception": lvl.limitPerception, "Physique": lvl.limitToughTenacity} {
+	mask := roleInt(r, "RunMask")
+	var elapsed int64
+	allFull := true
+	for index, key := range [...]string{"Perception", "Physique", "SuperAir"} {
+		if mask&(1<<index) == 0 {
+			continue
+		}
+		rate := s.gameRate(r, index+1) * 0.8
+		ceiling := lvl.upgradeLimit
+		if index < 2 {
+			rate *= .5
+			ceiling = float64(lvl.trainingCap(index + 1))
+		}
 		total := roleInt(r, key)
-		applied := min(gain, max(0, int64(ceiling*1.5)-total))
-		r[key], r["Current"+key], r["Offline"+key] = total+applied, total+applied, applied
+		active := productiveTrainingSeconds(r, key, ceiling, rate, seconds)
+		elapsed = max(elapsed, active)
+		applied := min(int64(math.Floor(rate*float64(active))), max(0, int64(ceiling)-total))
+		r[key], r["Offline"+key] = total+applied, applied
+		if total+applied < int64(ceiling) && !(index == 2 && roleInt(r, "Level") >= 90) {
+			allFull = false
+		}
+		if index < 2 && applied > 0 {
+			r["Current"+key] = total + applied
+		}
 	}
-	r["OfflineTime"], r["OfflineIsFull"] = seconds, superGain == 0 && roleInt(r, "SuperAir") >= int64(lvl.upgradeLimit)
+	ageBefore := max(16, roleInt(r, "CurrentAge"))
+	ageCultivation(r, elapsed)
+	r["OfflineAge"] = max(0, roleInt(r, "CurrentAge")-ageBefore)
+	if roleInt(r, "OfflinePhysique") > 0 {
+		blood := max(100, roleInt(r, "PureBlood"), int64(math.Round(float64(roleInt(r, "Physique"))*.01)))
+		r["PureBlood"], r["CurrentPureBlood"] = blood, blood
+	}
+	r["OfflineTime"], r["OfflineIsFull"] = seconds, reachedTimeLimit || mask != 0 && allFull
 	recomputeGamePower(r)
 }

@@ -13,6 +13,24 @@ import java.util.Map;
 public final class GuideRewardService {
     private GuideRewardService() {}
 
+    static final String STARTER_METHOD = "gf_3_1";
+
+    static boolean needsStarterPractice(Map<String, Object> role) {
+        return RoleUtil.num(role, "PracticeGuideVal") == 2 && !RoleUtil.bool(role, "PracticeStarterUnderstood");
+    }
+
+    static void resumePractice(Map<String, Object> role) {
+        if (RoleUtil.num(role, "PracticeGuideVal") != 1 || RoleUtil.num(role, "StarterKitVersion") < 1) return;
+        if (!RoleUtil.bool(role, "PracticeStarterRead")) {
+            for (Map<String, Object> item : GoodsService.all(role)) {
+                if (GoodsService.num(item, "Type", 0) == 1 &&
+                        (STARTER_METHOD.equals(item.get("TemplateId")) || "启灵经".equals(item.get("Name")))) return;
+            }
+        }
+        role.put("PracticeGuideVal", 2);
+        grant(role, 1, 2);
+    }
+
     @SuppressWarnings("unchecked")
     private static List<String> claimed(Map<String, Object> role) {
         Object o = role.get("GuideRewardClaimed");

@@ -15,13 +15,25 @@ public class UnderstandMethodHandler implements MsgHandler {
             RoleUtil.ensureDefaults(session.role);
             if (req.getType() == 2) {
                 GameData.GongFaDef g = GameData.gongFa(req.getId());
-                if (g != null) {
+                boolean guide = GuideRewardService.STARTER_METHOD.equals(req.getId()) && GuideRewardService.needsStarterPractice(session.role);
+                if (g == null) {
+                    b.setIsSuccess(false).setCode(4049);
+                } else if (!RoleUtil.matchesRoot(session.role, g)) {
+                    b.setIsSuccess(false).setCode(4961);
+                } else if (!guide && RoleUtil.isLearned(session.role, g.id)) {
+                    b.setIsSuccess(true).setCode(4048);
+                } else if (!RoleUtil.isRecorded(session.role, g)) {
+                    b.setIsSuccess(false).setCode(4962);
+                } else if (RoleUtil.num(session.role, "Level", 1) < g.levelReq) {
+                    b.setIsSuccess(false).setCode(4057);
+                } else {
                     RoleUtil.addOwned(session.role, g.id);
+                    if (guide) {
+                        session.role.put("PracticeStarterUnderstood", true);
+                    }
                     questDone = QuestService.onGongFa(session.role, g.rank);
                     RoleUtil.save(session.role);
                     b.setIsSuccess(true).setCode(4048);
-                } else {
-                    b.setIsSuccess(false).setCode(4049);
                 }
             } else {
                 // 其它类型暂未设计，先返回“参悟失败”，避免客户端误以为成功

@@ -30,7 +30,7 @@ public class JsonStore {
     }
 
     /** 老数据是 GBK 编码，新写入统一 UTF-8；先严格按 UTF-8 解，失败再按 GBK。 */
-    private static String decode(byte[] bytes) {
+    public static String decode(byte[] bytes) {
         try {
             return StandardCharsets.UTF_8.newDecoder()
                     .onMalformedInput(CodingErrorAction.REPORT)

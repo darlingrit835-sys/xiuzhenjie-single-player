@@ -42,7 +42,7 @@ public class ChangeAchievementPanelHandler implements MsgHandler {
         o.setUsedCount(0);
         o.setLevel(g.levelReq);
         o.setRank(g.rank);
-        o.setFiveElement(g.fiveElement);
+        o.setFiveElement(RoleUtil.methodElement(role, g));
         return o;
     }
 }

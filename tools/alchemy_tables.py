@@ -15,6 +15,8 @@ SHEETS = {
         "recipes", "丹方键 成品模板键 主药模板键 最低丹师品阶ID 基础成丹率基点 基础最少粒 基础最多粒 本炉上限粒 药效键 单粒基础药效 说明",
         "id outputId primaryId minRank successBps minQty maxQty yieldCap effectId baseEffect note",
     ),
+    "药材估值": ("materialEconomy", "材料模板键 材料名 单份参考灵石 药柜单价灵石 定价说明", "id name value buyPrice note"),
+    "丹药调衡": ("recipeEconomy", "丹方键 丹药名 药效口径 每粒丹毒 下品回收 中品回收 上品回收", "id name basis poison low medium high"),
     "丹药药效": ("effects", "药效键 名称 计量单位 作用说明", "id name unit note"),
     "丹师工艺": ("ranks", "丹师品阶ID 名称 成丹修正基点 出丹修正基点 药效修正基点 说明",
                 "id name successBps yieldBps potencyBps note"),
@@ -127,7 +129,7 @@ def compile_alchemy(config, sheets, world):
     @lru_cache(maxsize=None)
     def has_region_source(item):
         source = world["resourceSources"].get(item, {})
-        if "gather" in source or "drop" in source:
+        if source.get("gather") or source.get("drop") or source.get("legacyTypes"):
             return True
         # 造物用料已完成无环校验。加工料的原料都必须可追到地区。
         inputs = ingredients.get(item)
@@ -164,6 +166,45 @@ def compile_alchemy(config, sheets, world):
         by_output[output], recipe_notes[key] = key, {"note": row["note"]}
     if not recipes:
         raise ValueError("丹方表至少须登记一条丹方")
+    materials, prices = {}, {}
+    for location, row in sheets["药材估值"]:
+        key = row["id"]
+        if key not in templates or row["name"] != templates[key]["name"]:
+            raise ValueError(f"{location} 药材编号与名称不符")
+        value = limited_value(row, "value", location, 1, 1000000)
+        price = limited_value(row, "buyPrice", location, 0, 1000000)
+        if price and price < value:
+            raise ValueError(f"{location} 药柜单价低于参考估值")
+        write_row(materials, key, {"value": value, "buyPrice": price}, location)
+    expected = {key for key, uses in world["resourceUses"].items() if "alchemy" in uses}
+    if set(materials) != expected:
+        raise ValueError("药材估值须覆盖全部炼丹材料")
+    quantities = {(r["outputId"], r["inputId"]): r["quantity"] for r in config["creationInputs"]}
+    for location, row in sheets["丹药调衡"]:
+        key = row["id"]
+        if key not in recipes or row["name"] != templates[recipes[key]["outputId"]]["name"]:
+            raise ValueError(f"{location} 丹方编号与名称不符")
+        recipe = recipes[key]
+        basis = row["basis"]
+        if basis != "flat" and (basis, recipe["effectId"]) not in {
+            ("realm_air", "gain_super_air"), ("max_blood", "recover_blood")
+        }:
+            raise ValueError(f"{location} 药效口径与作用不符")
+        if basis != "flat" and recipe["baseEffect"] > 7500:
+            raise ValueError(f"{location} 比例基础药效超过75%")
+        recipe["effectBasis"] = basis
+        recipe["poisonCost"] = limited_value(row, "poison", location, 0, 12)
+        if recipe["effectId"] == "reduce_poison" and recipe["poisonCost"]:
+            raise ValueError(f"{location} 清毒丹不能增加丹毒")
+        sell = [limited_value(row, f, location, 0, 1000000) for f in ("low", "medium", "high")]
+        main = recipe["primaryId"]
+        if sell != sorted(sell) or (materials[main]["buyPrice"] and
+                sell[-1] * recipe["yieldCap"] > materials[main]["buyPrice"] * quantities[recipe["outputId"],main]):
+            raise ValueError(f"{location} 回收倒挂或整炉回收超过单买主药成本")
+        write_row(prices, key, {"sellPrices": sell}, location)
+    if set(prices) != set(recipes):
+        raise ValueError("每张丹方须有一行丹药调衡")
+    runtime["economy"] = {"materials": materials, "recipes": prices}
     runtime.update({"recipes": recipes, "recipeByOutput": by_output})
     locale["recipes"] = recipe_notes
     return ({key: dict(sorted(table.items())) for key, table in runtime.items()},

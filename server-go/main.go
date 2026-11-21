@@ -26,21 +26,28 @@ import (
 const serverVersion = "1.3.5"
 
 type Config struct {
-	PublicIP              string  `json:"publicIp"`
-	GamePort              int     `json:"-"`
-	AccountPort           int     `json:"-"`
-	BattlePort            int     `json:"battlePort"`
-	BattleDurationSeconds int     `json:"battleDurationSeconds"`
-	MonsterCount          int     `json:"monsterCount"`
-	MonsterDifficulty     float64 `json:"monsterDifficulty"`
-	DropMultiplier        float64 `json:"dropMultiplier"`
-	CultivationSpeed      float64 `json:"cultivationSpeed"`
-	OfflineCapHours       int     `json:"offlineCapHours"`
-	CompleteBattleGuide   bool    `json:"completeBattleGuide"`
+	AccountsDir               string                         `json:"-"`
+	AuctionCalendar           map[string]auctionCalendarRule `json:"auctionCalendar,omitempty"`
+	TrialExchangeStoneReserve int64                          `json:"trialExchangeStoneReserve"`
+	PublicIP                  string                         `json:"publicIp"`
+	GamePort                  int                            `json:"-"`
+	AccountPort               int                            `json:"-"`
+	BattlePort                int                            `json:"battlePort"`
+	BattleDurationSeconds     int                            `json:"battleDurationSeconds"`
+	MonsterCount              int                            `json:"monsterCount"`
+	MonsterDifficulty         float64                        `json:"monsterDifficulty"`
+	DropMultiplier            float64                        `json:"dropMultiplier"`
+	CultivationSpeed          float64                        `json:"cultivationSpeed"`
+	OfflineCapHours           int                            `json:"offlineCapHours"`
+	CompleteBattleGuide       bool                           `json:"completeBattleGuide"`
+	SkipAcupointGuide         bool                           `json:"skipAcupointGuide"`
 }
 
 type Server struct {
+	alchemy               *alchemyRoom
+	smithing              *smithingWorkshop
 	privateChat           privateChatStore
+	auctionChatCache      sync.Map // tier -> immutable public message window
 	config                Config
 	dataDir               string
 	protocol              *Protocol
@@ -63,7 +70,8 @@ type Server struct {
 
 func readConfig(dataDir string) (Config, error) {
 	defaults := Config{
-		PublicIP: "127.0.0.1", GamePort: 17666, AccountPort: 9443, BattlePort: 17667,
+		TrialExchangeStoneReserve: 100_000,
+		PublicIP:                  "127.0.0.1", GamePort: 17666, AccountPort: 9443, BattlePort: 17667,
 		BattleDurationSeconds: 600, MonsterCount: 6, MonsterDifficulty: 0.85,
 		DropMultiplier: 1, CultivationSpeed: 1, OfflineCapHours: 12, CompleteBattleGuide: true,
 	}
@@ -77,6 +85,9 @@ func readConfig(dataDir string) (Config, error) {
 	}
 	if err := json.Unmarshal(content, &config); err != nil {
 		return config, fmt.Errorf("parse server.json: %w", err)
+	}
+	if err := validateAuctionCalendar(config.AuctionCalendar); err != nil {
+		return config, err
 	}
 	if config.PublicIP == "" {
 		config.PublicIP = defaults.PublicIP
@@ -110,7 +121,14 @@ func openServer(config Config, data string) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	users, err := OpenStore(data, "users")
+	accountsDir := data
+	if config.AccountsDir != "" {
+		accountsDir = config.AccountsDir
+		if _, err := os.Stat(filepath.Join(accountsDir, "users.json")); err != nil {
+			return nil, fmt.Errorf("open existing account directory: %w", err)
+		}
+	}
+	users, err := OpenStore(accountsDir, "users")
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +138,12 @@ func openServer(config Config, data string) (*Server, error) {
 	}
 	s := &Server{config: config, dataDir: data, protocol: protocol, users: users, roles: roles}
 	if err := s.loadGameTables(); err != nil {
+		return nil, err
+	}
+	if err := s.loadSmithingWorkshop(); err != nil {
+		return nil, err
+	}
+	if err := s.loadAlchemy(); err != nil {
 		return nil, err
 	}
 	return s, nil
@@ -133,15 +157,28 @@ func (s *Server) bindGameRole(peer *Peer, id string) {
 		}
 	}
 	peer.writes.Lock()
+	peer.worldChatJoined.Store(false)
+	if peer.roleID != id {
+		peer.worldChatNextSend = time.Time{}
+		peer.lastLegacySpellPractice = 0
+	}
 	peer.roleID = id
+	clear(peer.inventory[:])
 	peer.onlineRole.Store(id)
 	peer.writes.Unlock()
 	s.online.Store(id, peer)
 }
 
 func (s *Server) pushGame(roleID string, cmd int, data proto.Message) {
+	s.pushGameIf(roleID, cmd, data, nil)
+}
+
+func (s *Server) pushGameIf(roleID string, cmd int, data proto.Message, current func() bool) {
 	if peer, ok := s.online.Load(roleID); ok {
-		_ = peer.(*Peer).send(cmd, 0, data)
+		payload, err := proto.Marshal(data)
+		if err == nil {
+			peer.(*Peer).writeFrameForRole(roleID, encodeFrame(cmd, 0, payload), current)
+		}
 	}
 }
 
@@ -211,6 +248,16 @@ func (s *Server) run(ctx context.Context, host string, cert tls.Certificate) err
 		workers.Add(1)
 		go func() {
 			defer workers.Done()
+			s.runScheduledAuctions(ticks)
+		}()
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
+			s.runSectCalendar(ticks)
+		}()
+		workers.Add(1)
+		go func() {
+			defer workers.Done()
 			s.advancePreviewAuctions(ticks)
 		}()
 	}
@@ -253,6 +300,7 @@ func (s *Server) run(ctx context.Context, host string, cert tls.Certificate) err
 
 func main() {
 	data := flag.String("data", "../server/data", "Java-compatible data directory")
+	accountsDir := flag.String("accounts-data", "", "use an existing users.json from this directory; only one game process may write these accounts")
 	host := flag.String("bind", "127.0.0.1", "listen address")
 	public := flag.String("public-ip", "", "address advertised to the client")
 	account := flag.Int("account-port", 0, "override the account HTTPS port")
@@ -260,6 +308,7 @@ func main() {
 	battle := flag.Int("battle-port", 0, "override the battle TCP port")
 	preview := flag.Bool("interface-preview", false, "enable trial-only frontend replies")
 	previewWrites := flag.Bool("interface-writes", false, "enable persistent auction, guild, friend, mentorship and acupoint actions in interface preview")
+	skipAcupointGuide := flag.Bool("skip-acupoint-guide", false, "omit the required meridian tutorial on login without changing saved progress")
 	emailRegistration := flag.Bool("email-registration", false, "enable email/password registration and sign-in for accounts")
 	catalog := flag.Bool("interface-catalog", false, "print interface metadata without starting the server")
 	historyDir := flag.String("history-dir", "", "game event archive directory, defaults to <data>/history")
@@ -304,6 +353,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	config.SkipAcupointGuide = config.SkipAcupointGuide || *skipAcupointGuide
+	config.AccountsDir = *accountsDir
 	if *public != "" {
 		config.PublicIP = *public
 	}

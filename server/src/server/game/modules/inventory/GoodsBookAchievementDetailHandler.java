@@ -17,16 +17,7 @@ public class GoodsBookAchievementDetailHandler implements MsgHandler {
         synchronized (session.role) {
             RoleUtil.ensureDefaults(session.role);
             Map<String, Object> g = GoodsService.find(session.role, req.getId());
-            GameData.GongFaDef def = null;
-            if (g != null) {
-                def = GameData.gongFa(GoodsService.str(g, "TemplateId"));
-                if (def == null) {
-                    String name = GoodsService.str(g, "Name");
-                    for (GameData.GongFaDef d : GameData.gongFaAll()) {
-                        if (d.name.equals(name)) { def = d; break; }
-                    }
-                }
-            }
+            GameData.GongFaDef def = GoodsService.book(g);
             if (def == null) {
                 b.setIsSuccess(false).setCode(4605);
             } else {

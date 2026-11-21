@@ -26,18 +26,29 @@ type Message struct {
 }
 
 type Peer struct {
-	privateReceipts          *privateChatReceipts
-	privatePushes            privateChatPushes
-	conn                     net.Conn
-	writes                   sync.Mutex
-	onlineRole               atomic.Value
-	roleID                   string
-	dungeonID                string
-	lastHomeUpgradeMessageID int
-	lastPracticeGuideID      int
-	gameRequestID            int
-	transferReceipts         *friendTransferReceipts
-	acupointReceipts         *acupointReceipts
+	trialReceipts             *trialReceipts
+	inventory                 [storageSlots + 1]*inventorySnapshot
+	privateReceipts           *privateChatReceipts
+	privatePushes             privateChatPushes
+	conn                      net.Conn
+	writes                    sync.Mutex
+	onlineRole                atomic.Value
+	worldChatJoined           atomic.Bool
+	worldChatNextSend         time.Time
+	roleID                    string
+	dungeonID                 string
+	lastHomeUpgradeMessageID  int
+	lastPracticeGuideID       int
+	lastLegacySpellPractice   int
+	gameRequestID             int
+	guildDisbandReceipt       *guildDisbandReceipt
+	guildSiteOwner, guildSite string
+	sectPermitOwner           string
+	guildSiteReady            bool
+	transferReceipts          *friendTransferReceipts
+	acupointReceipts          *acupointReceipts
+	shopReceipts              *trialShopReceipts
+	auctionReceipts           *fixedAuctionReceipts
 }
 
 func (p *Peer) currentRoleID() string {
@@ -62,6 +73,16 @@ func (p *Peer) sendPayload(cmd, msid int, payload []byte) error {
 	p.writes.Lock()
 	defer p.writes.Unlock()
 	return p.writeFrameLocked(frame)
+}
+
+// The connection can switch roles after a sender looks it up in online.
+// bindGameRole takes the same lock when it changes the active role.
+func (p *Peer) writeFrameForRole(roleID string, frame []byte, current func() bool) {
+	p.writes.Lock()
+	defer p.writes.Unlock()
+	if roleID != "" && p.currentRoleID() == roleID && (current == nil || current()) {
+		_ = p.writeFrameLocked(frame)
+	}
 }
 
 func (p *Peer) writeFrameLocked(frame []byte) error {

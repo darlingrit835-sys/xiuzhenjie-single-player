@@ -239,7 +239,16 @@ public final class QuestService {
     public static void prepareLogin(Map<String, Object> r) {
         ensureRole(r);
         syncEquippedGongFa(r);
+        syncLearnedCount(r);
         if (RoleUtil.num(r, "TaskStatus", 0) == 0) evaluate(r, false);
+    }
+
+    private static void syncLearnedCount(Map<String, Object> r) {
+        int learned = 0;
+        for (GameData.GongFaDef method : GameData.gongFaAll()) {
+            if (RoleUtil.isLearned(r, method.id)) learned++;
+        }
+        r.put("QuestGongFaCount", Math.max(RoleUtil.num(r, "QuestGongFaCount"), learned));
     }
 
     private static void syncEquippedGongFa(Map<String, Object> r) {
@@ -358,6 +367,7 @@ public final class QuestService {
     /** 装备/参悟功法。 */
     public static boolean onGongFa(Map<String, Object> r, int rank) {
         ensureRole(r);
+        syncLearnedCount(r);
         int old = RoleUtil.num(r, "QuestGongFaRank", 0);
         if (rank > old) r.put("QuestGongFaRank", rank);
         if (RoleUtil.num(r, "TaskStatus", 0) == 1) return false;

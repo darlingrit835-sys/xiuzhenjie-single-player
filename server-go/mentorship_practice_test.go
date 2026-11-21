@@ -66,7 +66,7 @@ func TestMentorshipPracticeWireOfflineAndClaim(t *testing.T) {
 	if getInt(update, "SuperAir") != 155 || getInt(update, "CurrentSuperAir") != 60 || !getBool(update, "IsBreak") {
 		t.Fatalf("stale live cultivation: %v", update)
 	}
-	s.cultivatePeer(student, &[3]float64{0, 0, 1}, 15)
+	s.cultivatePeerAs(student, student.currentRoleID(), &[3]float64{0, 0, 1}, 15)
 	studentConn.receive(t, s, 9001004, 0, "SuperAirUpResp_9001004")
 	if out := call(student, studentConn, 1014025, nil, 4577); getBool(out, "IsSuccess") {
 		t.Fatal(out)

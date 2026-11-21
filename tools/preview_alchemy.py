@@ -163,7 +163,8 @@ def brew_plan(catalog, locale, recipe, rank, flame, method=None, region=None, ro
     bounds = [max(low, min(high, edge + total["potencyBps"])) for edge in (low, high)]
     return {"primaryElementId": primary_element, "adjustments": parts, "successBps": success,
             "yieldMultiplierBps": multiplier, "yieldTickets": distribution, "yieldTotalTickets": sum(distribution.values()),
-            "potencyBps": bounds, "effectRange": [(recipe["baseEffect"] * value + 5000) // 10000 for value in bounds]}
+            "potencyBps": bounds, "effectBasis": recipe.get("effectBasis", "flat"), "poisonCost": recipe.get("poisonCost", 0),
+            "effectRange": [(recipe["baseEffect"] * value + 5000) // 10000 for value in bounds]}
 
 
 def print_sources(locale, source, indent):
@@ -192,7 +193,11 @@ def print_plan(plan, recipe, locale):
     low, high = plan["effectRange"]
     print(f"成丹率 {plan['successBps'] / 100:.2f}%")
     print(f"成功后出丹　{distribution}")
-    print(f"单粒{effect['name']}　{low}～{high} {effect['unit']}")
+    basis = {"realm_air": "本层突破门槛", "max_blood": "自身气血上限"}.get(plan["effectBasis"])
+    amount = f"{basis}的 {low / 100:g}%～{high / 100:g}%" if basis else f"{low}～{high} {effect['unit']}"
+    print(f"单粒{effect['name']}　{amount}")
+    if plan["poisonCost"]:
+        print(f"每粒丹毒　+{plan['poisonCost']}")
     source_names = {"rank": "丹师", "flame": "丹火", "flameElement": "丹火五行",
                     "methodElement": "功法五行", "place": "炉址地利"}
     for part in plan["adjustments"]:

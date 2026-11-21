@@ -23,6 +23,16 @@ public class GuideInfoUpdateHandler implements MsgHandler {
         String reward = null;
         synchronized (session.role) {
             RoleUtil.ensureDefaults(session.role);
+            if (type == 1 && msg.getMsid() > 0 && msg.getMsid() <= session.lastPracticeGuideMessageId) {
+                session.send(1002013, msg.getMsid(), b.setIsSuccess(true).setCode(2000).build());
+                return;
+            }
+            boolean starterUnread = RoleUtil.num(session.role, "PracticeGuideVal") == 1 &&
+                    !RoleUtil.bool(session.role, "PracticeStarterRead");
+            if (type == 1 && (starterUnread || GuideRewardService.needsStarterPractice(session.role))) {
+                session.send(1002013, msg.getMsid(), b.setIsSuccess(false).setCode(4008).build());
+                return;
+            }
             switch (type) {
                 case 1: {
                     int v = Math.max(1, RoleUtil.num(session.role, "PracticeGuideVal", 1)) + 1;
@@ -61,6 +71,7 @@ public class GuideInfoUpdateHandler implements MsgHandler {
                     break;
             }
             RoleUtil.save(session.role);
+            if (type == 1 && msg.getMsid() > 0) session.lastPracticeGuideMessageId = msg.getMsid();
             b.setIsSuccess(true).setCode(2000);
         }
         session.send(1002013, msg.getMsid(), b.build());

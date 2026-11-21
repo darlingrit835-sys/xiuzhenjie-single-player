@@ -160,6 +160,8 @@ func (s *Server) trialFriendAccept(peer *Peer, req, out protoreflect.Message) (f
 		actor, other = tx.Get(actorID), tx.Get(otherID)
 		putFriendEntry(actor, friendLinks, otherID, 0)
 		putFriendEntry(other, friendLinks, actorID, 0)
+		preserveAchievementFriendPeak(actor)
+		preserveAchievementFriendPeak(other)
 		delete(friendMap(actor, friendInbox), otherID)
 		delete(friendMap(other, friendInbox), actorID)
 		// Each player's first friend belongs to that player, including the applicant.
@@ -203,8 +205,11 @@ func (s *Server) trialFriendRemove(peer *Peer, req, out protoreflect.Message) (f
 		if _, exists := friendMap(actor, friendLinks)[otherID]; !exists {
 			return previewReject(4407)
 		}
-		delete(friendMap(tx.Get(actorID), friendLinks), otherID)
-		delete(friendMap(tx.Get(otherID), friendLinks), actorID)
+		actor, other = tx.Get(actorID), tx.Get(otherID)
+		preserveAchievementFriendPeak(actor)
+		preserveAchievementFriendPeak(other)
+		delete(friendMap(actor, friendLinks), otherID)
+		delete(friendMap(other, friendLinks), actorID)
 		return tx.RecordHistory(socialHistory("friend.removed", actorID, actor, otherID, other, nil))
 	})
 	if err == nil {

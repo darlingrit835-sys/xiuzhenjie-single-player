@@ -18,10 +18,13 @@ public class RoleLoginHandler implements MsgHandler {
             b.setIsSuccess(false).setCode(3001);
         } else {
             RoleUtil.ensureDefaults(r);
+            GuideRewardService.resumePractice(r);
             QuestService.prepareLogin(r);
             RoleUtil.applyOffline(r);
             RoleUtil.save(r);
             session.roleId = (String) r.get("Id");
+            session.lastPracticeGuideMessageId = 0;
+            session.role.clear();
             session.role.putAll(r);
             fill(b, r);
             b.setIsSuccess(true).setCode(2000);

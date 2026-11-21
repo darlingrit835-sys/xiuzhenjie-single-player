@@ -2,327 +2,91 @@
   {
     "Id": 1,
     "Name": "筑基丹",
-    "TypeName": "筑基丹（提升筑基成功率）",
+    "TypeName": "筑基丹（练气圆满前补充修为）",
     "FiveElement": 0,
     "TemplateId": "sys_zhu_ji_dan_huang",
     "Rank": 4,
-    "Level": 1,
+    "Level": 10,
     "Stage": 1,
     "GoodsType": 19,
     "XTL_GoodsType": 1,
     "BuyType": 1,
-    "GoodsPrice": 500,
-    "GoodsDescribe": "数种灵草熔炼而成，显著提升筑基成功率",
-    "GoodsDetail": [ "药效,提升筑基成功率20%", "服用等级,练气十层", "占用体积,0.3立方", "回收价格,1灵石" ]
+    "GoodsPrice": 60,
+    "GoodsDescribe": "练气十层可服，补足筑基所需修为，满额后留丹。",
+    "GoodsDetail": [
+      "药效,增加当层修为的20%",
+      "服用等级,练气十层",
+      "占用体积,0.3立方",
+      "回收价格,1灵石"
+    ]
   },
   {
     "Id": 2,
     "Name": "筑基丹",
-    "TypeName": "筑基丹（提升筑基成功率）",
+    "TypeName": "筑基丹（练气圆满前补充修为）",
     "FiveElement": 0,
     "TemplateId": "sys_zhu_ji_dan_xuan",
     "Rank": 8,
-    "Level": 1,
+    "Level": 10,
     "Stage": 1,
     "GoodsType": 19,
     "XTL_GoodsType": 1,
     "BuyType": 1,
-    "GoodsPrice": 1500,
-    "GoodsDescribe": "数十种灵草熔炼而成，显著提升筑基成功率",
-    "GoodsDetail": [ "药效,提升筑基成功率40%", "服用等级,练气十层", "占用体积,0.3立方", "回收价格,1灵石" ]
+    "GoodsPrice": 120,
+    "GoodsDescribe": "练气十层可服，补足筑基所需修为，满额后留丹。",
+    "GoodsDetail": [
+      "药效,增加当层修为的40%",
+      "服用等级,练气十层",
+      "占用体积,0.3立方",
+      "回收价格,1灵石"
+    ]
   },
   {
     "Id": 3,
     "Name": "筑基丹",
-    "TypeName": "筑基丹（提升筑基成功率）",
+    "TypeName": "筑基丹（练气圆满前补充修为）",
     "FiveElement": 0,
     "TemplateId": "sys_zhu_ji_dan_di",
     "Rank": 12,
-    "Level": 1,
+    "Level": 10,
     "Stage": 1,
     "GoodsType": 19,
     "XTL_GoodsType": 1,
     "BuyType": 1,
-    "GoodsPrice": 3000,
-    "GoodsDescribe": "百种灵草熔炼而成，显著提升筑基成功率",
-    "GoodsDetail": [ "药效,提升筑基成功率60%", "服用等级,练气十层", "占用体积,0.3立方", "回收价格,1灵石" ]
+    "GoodsPrice": 180,
+    "GoodsDescribe": "练气十层可服，补足筑基所需修为，满额后留丹。",
+    "GoodsDetail": [
+      "药效,增加当层修为的60%",
+      "服用等级,练气十层",
+      "占用体积,0.3立方",
+      "回收价格,1灵石"
+    ]
   },
   {
     "Id": 4,
     "Name": "筑基丹",
-    "TypeName": "筑基丹（提升筑基成功率）",
+    "TypeName": "筑基丹（练气圆满前补充修为）",
     "FiveElement": 0,
     "TemplateId": "sys_zhu_ji_dan_tian",
     "Rank": 16,
-    "Level": 1,
+    "Level": 10,
     "Stage": 1,
     "GoodsType": 19,
     "XTL_GoodsType": 1,
     "BuyType": 1,
-    "GoodsPrice": 6000,
-    "GoodsDescribe": "数百种灵草熔炼而成，显著提升筑基成功率",
-    "GoodsDetail": [ "药效,提升筑基成功率80%", "服用等级,练气十层", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 5,
-    "Name": "二阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_er",
-    "Rank": 16,
-    "Level": 11,
-    "Stage": 2,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 1000,
-    "GoodsDescribe": "由十年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,筑基期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 6,
-    "Name": "三阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_san",
-    "Rank": 16,
-    "Level": 21,
-    "Stage": 3,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 5000,
-    "GoodsDescribe": "由五十年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,结丹期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 7,
-    "Name": "四阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_si",
-    "Rank": 16,
-    "Level": 31,
-    "Stage": 4,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 25000,
-    "GoodsDescribe": "由百年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,元婴期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 8,
-    "Name": "五阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_wu",
-    "Rank": 16,
-    "Level": 41,
-    "Stage": 5,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 125000,
-    "GoodsDescribe": "由二百年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,分神期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 9,
-    "Name": "六阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_liu",
-    "Rank": 16,
-    "Level": 51,
-    "Stage": 6,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 625000,
-    "GoodsDescribe": "由三百年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,炼虚期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 10,
-    "Name": "七阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_qi",
-    "Rank": 16,
-    "Level": 61,
-    "Stage": 7,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 3125000,
-    "GoodsDescribe": "由五百年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,合体期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 11,
-    "Name": "八阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_ba",
-    "Rank": 16,
-    "Level": 71,
-    "Stage": 8,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 9375000,
-    "GoodsDescribe": "由千年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,渡劫期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 12,
-    "Name": "九阶大还丹",
-    "TypeName": "大还丹（修复受损经脉）",
-    "FiveElement": 0,
-    "TemplateId": "da_huan_dan_jiu",
-    "Rank": 16,
-    "Level": 81,
-    "Stage": 9,
-    "GoodsType": 19,
-    "XTL_GoodsType": 2,
-    "BuyType": 1,
-    "GoodsPrice": 28125000,
-    "GoodsDescribe": "由万年珍贵灵草炼制而成，对经脉修复有极大用处",
-    "GoodsDetail": [ "药效,立即修复受损的经脉", "服用等级,大乘期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 13,
-    "Name": "二阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_er",
-    "Rank": 16,
-    "Level": 11,
-    "Stage": 2,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 10000,
-    "GoodsDescribe": "使用雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害50%", "服用等级,筑基期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 14,
-    "Name": "三阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_san",
-    "Rank": 16,
-    "Level": 21,
-    "Stage": 3,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 50000,
-    "GoodsDescribe": "使用十年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害45%", "服用等级,结丹期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 15,
-    "Name": "四阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_si",
-    "Rank": 16,
-    "Level": 31,
-    "Stage": 4,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 100000,
-    "GoodsDescribe": "使用五十年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害40%", "服用等级,元婴期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 16,
-    "Name": "五阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_wu",
-    "Rank": 16,
-    "Level": 41,
-    "Stage": 5,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 500000,
-    "GoodsDescribe": "使用百年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害30%", "服用等级,分神期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 17,
-    "Name": "六阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_liu",
-    "Rank": 16,
-    "Level": 51,
-    "Stage": 6,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 1000000,
-    "GoodsDescribe": "使用二百年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害20%", "服用等级,炼虚期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 18,
-    "Name": "七阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_qi",
-    "Rank": 16,
-    "Level": 61,
-    "Stage": 7,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 5000000,
-    "GoodsDescribe": "使用三百年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害20%", "服用等级,合体期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 19,
-    "Name": "八阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_ba",
-    "Rank": 16,
-    "Level": 71,
-    "Stage": 8,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 10000000,
-    "GoodsDescribe": "使用五百年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害20%", "服用等级,渡劫期", "占用体积,0.3立方", "回收价格,1灵石" ]
-  },
-  {
-    "Id": 20,
-    "Name": "九阶渡劫丹",
-    "TypeName": "渡劫丹（降低雷劫伤害）",
-    "FiveElement": 0,
-    "TemplateId": "sys_po_lei_dan_jiu",
-    "Rank": 16,
-    "Level": 81,
-    "Stage": 9,
-    "GoodsType": 19,
-    "XTL_GoodsType": 3,
-    "BuyType": 1,
-    "GoodsPrice": 30000000,
-    "GoodsDescribe": "使用千年雷灵木果实制作，具备极强的抗雷属性",
-    "GoodsDetail": [ "药效,降低受到的雷劫伤害20%", "服用等级,大乘期", "占用体积,0.3立方", "回收价格,1灵石" ]
+    "GoodsPrice": 240,
+    "GoodsDescribe": "练气十层可服，补足筑基所需修为，满额后留丹。",
+    "GoodsDetail": [
+      "药效,增加当层修为的80%",
+      "服用等级,练气十层",
+      "占用体积,0.3立方",
+      "回收价格,1灵石"
+    ]
   },
   {
     "Id": 21,
     "Name": "地黄丸",
-    "TypeName": "恢复精气神",
+    "TypeName": "地黄丸（调养气血）",
     "FiveElement": 0,
     "TemplateId": "ti_li_dan",
     "Rank": 16,
@@ -332,8 +96,13 @@
     "XTL_GoodsType": 4,
     "BuyType": 2,
     "GoodsPrice": 20,
-    "GoodsDescribe": "由熟地黄、山茱萸、牡丹皮、淮山药、薏苡仁、泽泻制成，具有强大的恢复体力特性",
-    "GoodsDetail": [ "药效,恢复体力100点", "服用等级,不限", "占用体积,0.3立方", "回收价格,20灵石" ]
+    "GoodsDescribe": "回城调息时服下，恢复气血。",
+    "GoodsDetail": [
+      "药效,恢复气血100点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,20灵石"
+    ]
   },
   {
     "Id": 22,
@@ -349,7 +118,12 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "由人参、五味子、麦冬制成，具有强大的恢复精力特性",
-    "GoodsDetail": [ "药效,恢复精力100点", "服用等级,不限", "占用体积,0.3立方", "回收价格,20灵石" ]
+    "GoodsDetail": [
+      "药效,恢复精力100点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,20灵石"
+    ]
   },
   {
     "Id": 23,
@@ -365,7 +139,12 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "由聪明枝、聪明子、聪明果制成，具有强大的恢复悟性特性",
-    "GoodsDetail": [ "药效,恢复悟性100点", "服用等级,不限", "占用体积,0.3立方", "回收价格,20灵石" ]
+    "GoodsDetail": [
+      "药效,恢复悟性100点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,20灵石"
+    ]
   },
   {
     "Id": 25,
@@ -381,7 +160,12 @@
     "BuyType": 2,
     "GoodsPrice": 10,
     "GoodsDescribe": "由玄参、决明子、连翘、乌蕨、知母制成，具有强大的解毒特性",
-    "GoodsDetail": [ "药效,降低丹毒10点", "服用等级,不限", "占用体积,0.3立方", "回收价格,10灵石" ]
+    "GoodsDetail": [
+      "药效,降低丹毒10点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,10灵石"
+    ]
   },
   {
     "Id": 26,
@@ -397,8 +181,12 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "由玄参、决明子、连翘、乌蕨、知母、板蓝根制成，具有强大的解毒特性",
-    "GoodsDetail": [ "药效,降低丹毒20点", "服用等级,不限", "占用体积,0.3立方", "回收价格,30灵石" ]
-
+    "GoodsDetail": [
+      "药效,降低丹毒20点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,30灵石"
+    ]
   },
   {
     "Id": 27,
@@ -414,7 +202,12 @@
     "BuyType": 2,
     "GoodsPrice": 45,
     "GoodsDescribe": "由玄参、决明子、连翘、乌蕨、知母、板蓝根、金银花制成，具有强大的解毒特性",
-    "GoodsDetail": [ "药效,降低丹毒50点", "服用等级,不限", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,降低丹毒50点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 28,
@@ -430,7 +223,12 @@
     "BuyType": 2,
     "GoodsPrice": 80,
     "GoodsDescribe": "由玄参、决明子、连翘、乌蕨、知母、板蓝根、金银花、夏枯草制成，具有强大的解毒特性",
-    "GoodsDetail": [ "药效,降低丹毒100点", "服用等级,不限", "占用体积,0.3立方", "回收价格,300灵石" ]
+    "GoodsDetail": [
+      "药效,降低丹毒100点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,300灵石"
+    ]
   },
   {
     "Id": 29,
@@ -446,7 +244,12 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "夺天地之造化，化五行之气以淬炼经脉，配方极其神秘，数量屈指可数",
-    "GoodsDetail": [ "药效,增加2点经脉点", "服用等级,不限", "占用体积,0.3立方", "回收价格,10灵石" ]
+    "GoodsDetail": [
+      "药效,增加2点经脉点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,10灵石"
+    ]
   },
   {
     "Id": 30,
@@ -462,7 +265,12 @@
     "BuyType": 2,
     "GoodsPrice": 50,
     "GoodsDescribe": "夺天地之造化，化五行之气以淬炼经脉，配方极其神秘，数量屈指可数",
-    "GoodsDetail": [ "药效,增加6点经脉点", "服用等级,不限", "占用体积,0.3立方", "回收价格,30灵石" ]
+    "GoodsDetail": [
+      "药效,增加6点经脉点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,30灵石"
+    ]
   },
   {
     "Id": 31,
@@ -478,7 +286,12 @@
     "BuyType": 2,
     "GoodsPrice": 100,
     "GoodsDescribe": "夺天地之造化，化五行之气以淬炼经脉，配方极其神秘，数量屈指可数",
-    "GoodsDetail": [ "药效,增加13点经脉点", "服用等级,不限", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加13点经脉点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 32,
@@ -494,7 +307,12 @@
     "BuyType": 2,
     "GoodsPrice": 200,
     "GoodsDescribe": "夺天地之造化，化五行之气以淬炼经脉，配方极其神秘，数量屈指可数",
-    "GoodsDetail": [ "药效,增加28点经脉点", "服用等级,不限", "占用体积,0.3立方", "回收价格,300灵石" ]
+    "GoodsDetail": [
+      "药效,增加28点经脉点",
+      "服用等级,不限",
+      "占用体积,0.3立方",
+      "回收价格,300灵石"
+    ]
   },
   {
     "Id": 33,
@@ -510,7 +328,11 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "《道经》残卷，可以补全一阶任意功法",
-    "GoodsDetail": [ "用途,替代任意一阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意一阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 34,
@@ -526,7 +348,11 @@
     "BuyType": 2,
     "GoodsPrice": 30,
     "GoodsDescribe": "《道经》残卷，可以补全二阶任意功法",
-    "GoodsDetail": [ "用途,替代任意二阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意二阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 35,
@@ -542,7 +368,11 @@
     "BuyType": 2,
     "GoodsPrice": 40,
     "GoodsDescribe": "《道经》残卷，可以补全三阶任意功法",
-    "GoodsDetail": [ "用途,替代任意三阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意三阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 36,
@@ -558,7 +388,11 @@
     "BuyType": 2,
     "GoodsPrice": 60,
     "GoodsDescribe": "《道经》残卷，可以补全四阶任意功法",
-    "GoodsDetail": [ "用途,替代任意四阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意四阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 37,
@@ -574,7 +408,11 @@
     "BuyType": 2,
     "GoodsPrice": 80,
     "GoodsDescribe": "《道经》残卷，可以补全五阶任意功法",
-    "GoodsDetail": [ "用途,替代任意五阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意五阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 38,
@@ -590,7 +428,11 @@
     "BuyType": 2,
     "GoodsPrice": 100,
     "GoodsDescribe": "《道经》残卷，可以补全六阶任意功法",
-    "GoodsDetail": [ "用途,替代任意六阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意六阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 39,
@@ -606,7 +448,11 @@
     "BuyType": 2,
     "GoodsPrice": 150,
     "GoodsDescribe": "《道经》残卷，可以补全七阶任意功法",
-    "GoodsDetail": [ "用途,替代任意七阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意七阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 40,
@@ -622,7 +468,11 @@
     "BuyType": 2,
     "GoodsPrice": 200,
     "GoodsDescribe": "《道经》残卷，可以补全八阶任意功法",
-    "GoodsDetail": [ "用途,替代任意八阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意八阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 41,
@@ -638,7 +488,11 @@
     "BuyType": 2,
     "GoodsPrice": 300,
     "GoodsDescribe": "《道经》残卷，可以补全九阶任意功法",
-    "GoodsDetail": [ "用途,替代任意九阶功法残卷", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,替代任意九阶功法残卷",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 42,
@@ -654,7 +508,11 @@
     "BuyType": 2,
     "GoodsPrice": 5,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,一阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,一阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 43,
@@ -670,7 +528,11 @@
     "BuyType": 2,
     "GoodsPrice": 10,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,二阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,二阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 44,
@@ -686,7 +548,11 @@
     "BuyType": 2,
     "GoodsPrice": 15,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,三阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,三阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 45,
@@ -702,7 +568,11 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,四阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,四阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 46,
@@ -718,7 +588,11 @@
     "BuyType": 2,
     "GoodsPrice": 30,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,五阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,五阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 47,
@@ -734,7 +608,11 @@
     "BuyType": 2,
     "GoodsPrice": 40,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,六阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,六阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 48,
@@ -750,7 +628,11 @@
     "BuyType": 2,
     "GoodsPrice": 60,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,七阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,七阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 49,
@@ -766,7 +648,11 @@
     "BuyType": 2,
     "GoodsPrice": 80,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,八阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,八阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 50,
@@ -782,7 +668,11 @@
     "BuyType": 2,
     "GoodsPrice": 100,
     "GoodsDescribe": "一种神奇的石头，相传它在是道祖悟道时所坐石块，后散裂各地",
-    "GoodsDetail": [ "用途,九阶功法洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,九阶功法洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 51,
@@ -798,7 +688,11 @@
     "BuyType": 2,
     "GoodsPrice": 5,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,一阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,一阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 52,
@@ -814,7 +708,11 @@
     "BuyType": 2,
     "GoodsPrice": 10,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,二阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,二阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 53,
@@ -830,7 +728,11 @@
     "BuyType": 2,
     "GoodsPrice": 15,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,三阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,三阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 54,
@@ -846,7 +748,11 @@
     "BuyType": 2,
     "GoodsPrice": 20,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,四阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,四阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 55,
@@ -862,7 +768,11 @@
     "BuyType": 2,
     "GoodsPrice": 30,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,五阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,五阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 56,
@@ -878,7 +788,11 @@
     "BuyType": 2,
     "GoodsPrice": 40,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,六阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,六阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 57,
@@ -894,7 +808,11 @@
     "BuyType": 2,
     "GoodsPrice": 60,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,七阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,七阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 58,
@@ -910,7 +828,11 @@
     "BuyType": 2,
     "GoodsPrice": 80,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,八阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,八阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 59,
@@ -926,7 +848,11 @@
     "BuyType": 2,
     "GoodsPrice": 100,
     "GoodsDescribe": "天外陨铁，其坚硬无比，还散发着异样的幽光",
-    "GoodsDetail": [ "用途,九阶法器洗炼可使用此物", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "用途,九阶法器洗炼可使用此物",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 60,
@@ -940,9 +866,13 @@
     "GoodsType": 19,
     "XTL_GoodsType": 9,
     "BuyType": 2,
-    "GoodsPrice": 5000,
+    "GoodsPrice": 180,
     "GoodsDescribe": "其来源极其神秘，具有补全灵根，逆天之功效，一人一生仅可服用一枚",
-    "GoodsDetail": [ "药效,增加金系灵根", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加金系灵根",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 61,
@@ -956,9 +886,13 @@
     "GoodsType": 19,
     "XTL_GoodsType": 9,
     "BuyType": 2,
-    "GoodsPrice": 5000,
+    "GoodsPrice": 180,
     "GoodsDescribe": "其来源极其神秘，具有补全灵根，逆天之功效，一人一生仅可服用一枚",
-    "GoodsDetail": [ "药效,增加木系灵根", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加木系灵根",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 62,
@@ -972,9 +906,13 @@
     "GoodsType": 19,
     "XTL_GoodsType": 9,
     "BuyType": 2,
-    "GoodsPrice": 5000,
+    "GoodsPrice": 180,
     "GoodsDescribe": "其来源极其神秘，具有补全灵根，逆天之功效，一人一生仅可服用一枚",
-    "GoodsDetail": [ "药效,增加水系灵根", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加水系灵根",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 63,
@@ -988,9 +926,13 @@
     "GoodsType": 19,
     "XTL_GoodsType": 9,
     "BuyType": 2,
-    "GoodsPrice": 5000,
+    "GoodsPrice": 180,
     "GoodsDescribe": "其来源极其神秘，具有补全灵根，逆天之功效，一人一生仅可服用一枚",
-    "GoodsDetail": [ "药效,增加火系灵根", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加火系灵根",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 64,
@@ -1004,89 +946,13 @@
     "GoodsType": 19,
     "XTL_GoodsType": 9,
     "BuyType": 2,
-    "GoodsPrice": 5000,
+    "GoodsPrice": 180,
     "GoodsDescribe": "其来源极其神秘，具有补全灵根，逆天之功效，一人一生仅可服用一枚",
-    "GoodsDetail": [ "药效,增加土系灵根", "占用体积,0.3立方", "回收价格,100灵石" ]
-  },
-  {
-    "Id": 65,
-    "Name": "灵傀",
-    "TypeName": "灵傀",
-    "FiveElement": 0,
-    "TemplateId": "ling_kui_4",
-    "Rank": 4,
-    "Level": 1,
-    "Stage": 1,
-    "GoodsType": 36,
-    "XTL_GoodsType": 10,
-    "BuyType": 2,
-    "GoodsPrice": 10,
-    "GoodsDescribe": "此傀儡出自奇巧宗师之手，可以代为处理许多事物",
-    "GoodsDetail": [ "用途,代为炼制黄阶物品", "占用体积,0.3立方", "回收价格,100灵石" ]
-  },
-  {
-    "Id": 66,
-    "Name": "灵傀",
-    "TypeName": "灵傀",
-    "FiveElement": 0,
-    "TemplateId": "ling_kui_8",
-    "Rank": 8,
-    "Level": 1,
-    "Stage": 1,
-    "GoodsType": 36,
-    "XTL_GoodsType": 10,
-    "BuyType": 2,
-    "GoodsPrice": 20,
-    "GoodsDescribe": "此傀儡出自奇巧宗师之手，可以代为处理许多事物",
-    "GoodsDetail": [ "用途,代为炼制玄阶物品", "占用体积,0.3立方", "回收价格,100灵石" ]
-  },
-  {
-    "Id": 67,
-    "Name": "灵傀",
-    "TypeName": "灵傀",
-    "FiveElement": 0,
-    "TemplateId": "ling_kui_12",
-    "Rank": 12,
-    "Level": 1,
-    "Stage": 1,
-    "GoodsType": 36,
-    "XTL_GoodsType": 10,
-    "BuyType": 2,
-    "GoodsPrice": 30,
-    "GoodsDescribe": "此傀儡出自奇巧宗师之手，可以代为处理许多事物",
-    "GoodsDetail": [ "用途,代为炼制地阶物品", "占用体积,0.3立方", "回收价格,100灵石" ]
-  },
-  {
-    "Id": 68,
-    "Name": "灵傀",
-    "TypeName": "灵傀",
-    "FiveElement": 0,
-    "TemplateId": "ling_kui_16",
-    "Rank": 16,
-    "Level": 1,
-    "Stage": 1,
-    "GoodsType": 36,
-    "XTL_GoodsType": 10,
-    "BuyType": 2,
-    "GoodsPrice": 50,
-    "GoodsDescribe": "此傀儡出自奇巧宗师之手，可以代为处理许多事物",
-    "GoodsDetail": [ "用途,代为炼制天阶物品", "占用体积,0.3立方", "回收价格,100灵石" ]
-  },
-  {
-    "Id": 69,
-    "Name": "替身傀儡",
-    "TypeName": "其他",
-    "FiveElement": 0,
-    "TemplateId": "ti_shen_kui_lei",
-    "Rank": 16,
-    "Level": 1,
-    "Stage": 1,
-    "GoodsType": 37,
-    "XTL_GoodsType": 11,
-    "BuyType": 2,
-    "GoodsPrice": 50,
-    "GoodsDescribe": "放置一个傀儡，代为承受必杀伤害",
-    "GoodsDetail": [ "用途,战斗中复活一次并随机传送", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加土系灵根",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 24,
@@ -1102,7 +968,11 @@
     "BuyType": 2,
     "GoodsPrice": 100,
     "GoodsDescribe": "由冥界幽冥花炼制，增强神魂之力，极其稀有",
-    "GoodsDetail": [ "药效,增加魂力5点", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增加魂力5点",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 70,
@@ -1118,7 +988,16 @@
     "BuyType": 0,
     "GoodsPrice": 0,
     "GoodsDescribe": "孕五行之灵气，夺天地之造化，此剑非金非石，光华流转间，一股强大的威势含而不发。",
-    "GoodsDetail": [ "激发灵气值,2700", "可承受灵气值,150000", "灵衍值,2.09", "神识占用,1500", "坚韧,30", "特效,随机两种", "占用体积,3立方尺", "回收价格,600灵石" ]
+    "GoodsDetail": [
+      "激发灵气值,2700",
+      "可承受灵气值,150000",
+      "灵衍值,2.09",
+      "神识占用,1500",
+      "坚韧,30",
+      "特效,随机两种",
+      "占用体积,3立方尺",
+      "回收价格,600灵石"
+    ]
   },
   {
     "Id": 71,
@@ -1134,7 +1013,16 @@
     "BuyType": 0,
     "GoodsPrice": 0,
     "GoodsDescribe": "孕五行之灵气，夺天地之造化，此剑非金非石，光华流转间，一股强大的威势含而不发。",
-    "GoodsDetail": [ "激发灵气值,2.00", "可承受灵气值,700.00", "灵衍值,2.09", "神识占用,300", "坚韧,20", "特效,随机两种", "占用体积,3立方尺", "回收价格,30灵石" ]
+    "GoodsDetail": [
+      "激发灵气值,2.00",
+      "可承受灵气值,700.00",
+      "灵衍值,2.09",
+      "神识占用,300",
+      "坚韧,20",
+      "特效,随机两种",
+      "占用体积,3立方尺",
+      "回收价格,30灵石"
+    ]
   },
   {
     "Id": 72,
@@ -1150,7 +1038,16 @@
     "BuyType": 0,
     "GoodsPrice": 0,
     "GoodsDescribe": "孕五行之灵气，夺天地之造化，此剑非金非石，光华流转间，一股强大的威势含而不发。",
-    "GoodsDetail": [ "激发灵气值,180.00", "可承受灵气值,13896.00", "灵衍值,2.09", "神识占用,800", "坚韧,30", "特效,随机两种", "占用体积,3立方尺", "回收价格,200灵石" ]
+    "GoodsDetail": [
+      "激发灵气值,180.00",
+      "可承受灵气值,13896.00",
+      "灵衍值,2.09",
+      "神识占用,800",
+      "坚韧,30",
+      "特效,随机两种",
+      "占用体积,3立方尺",
+      "回收价格,200灵石"
+    ]
   },
   {
     "Id": 73,
@@ -1166,7 +1063,11 @@
     "BuyType": 2,
     "GoodsPrice": 100,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限20年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限20年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 74,
@@ -1182,7 +1083,11 @@
     "BuyType": 2,
     "GoodsPrice": 200,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限40年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限40年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 75,
@@ -1198,7 +1103,11 @@
     "BuyType": 2,
     "GoodsPrice": 400,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限80年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限80年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 76,
@@ -1214,7 +1123,11 @@
     "BuyType": 2,
     "GoodsPrice": 600,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限160年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限160年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 77,
@@ -1230,7 +1143,11 @@
     "BuyType": 2,
     "GoodsPrice": 800,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限320年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限320年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 78,
@@ -1246,7 +1163,11 @@
     "BuyType": 2,
     "GoodsPrice": 1000,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限640年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限640年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 79,
@@ -1262,7 +1183,11 @@
     "BuyType": 2,
     "GoodsPrice": 1200,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限1240年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限1240年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   },
   {
     "Id": 80,
@@ -1278,7 +1203,10 @@
     "BuyType": 2,
     "GoodsPrice": 2000,
     "GoodsDescribe": "增长寿元",
-    "GoodsDetail": [ "药效,增长年龄上限2560年", "占用体积,0.3立方", "回收价格,100灵石" ]
+    "GoodsDetail": [
+      "药效,增长年龄上限2560年",
+      "占用体积,0.3立方",
+      "回收价格,100灵石"
+    ]
   }
-
 ]

@@ -30,6 +30,8 @@ func main() {
 	battle := flag.String("battle", "127.0.0.1:34667", "loopback battle TCP address")
 	fingerprint := flag.String("account-sha256", "", "SHA-256 fingerprint of the account HTTPS leaf certificate")
 	limitsFile := flag.String("limits-file", "", "optional JSON limits profile reloaded every two seconds")
+	hotUpdateDir := flag.String("hot-update-dir", "", "directory for the public signed Android update channel")
+	fullHotUpdateDir := flag.String("full-hot-update-dir", "", "directory for signed complete Android client releases")
 	logDir := flag.String("log-dir", "", "directory for rotated ingress logs")
 	flag.Parse()
 
@@ -63,6 +65,20 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	handler := newIngress(ctx, key, *account, pin, *game, *battle)
+	if *hotUpdateDir != "" {
+		updates, err := newHotUpdateChannel(*hotUpdateDir)
+		if err != nil {
+			log.Fatal(err)
+		}
+		handler.hotUpdate = updates
+	}
+	if *fullHotUpdateDir != "" {
+		updates, err := newFullHotUpdateChannel(*fullHotUpdateDir)
+		if err != nil {
+			log.Fatal(err)
+		}
+		handler.fullHotUpdate = updates
+	}
 	if *limitsFile != "" {
 		profile, err := readIngressLimits(*limitsFile)
 		if err != nil {

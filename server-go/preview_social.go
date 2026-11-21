@@ -12,10 +12,10 @@ const (
 func socialPreviewRoutes() []previewRoute {
 	const module = "社交与宗门"
 	return []previewRoute{
-		{cmd: 1003001, module: module, response: "LetterQueryResp_1003001", summary: "列出一封已读、无附件的演示信件", build: previewMailList},
-		{cmd: 1003004, module: module, request: "DeleteLetterReq_1003004", response: "ActionBoolResp_1001001", summary: "拒绝删除试用信件", blocked: true},
-		{cmd: 1003005, module: module, request: "ReadLetterReq_1003005", response: "ActionBoolResp_1001001", summary: "打开已读演示信件的正文", build: previewReadMail},
-		{cmd: 1003006, module: module, request: "ReceiveLetterReq_1003006", response: "ReceiveLetterResp_1003006", summary: "拒绝领取试用邮件附件", blocked: true},
+		{cmd: 1003001, module: module, response: "LetterQueryResp_1003001", summary: "读取角色自己的信件、已读状态和附件状态", build: previewMailList, live: (*Server).trialMailList},
+		{cmd: 1003004, module: module, request: "DeleteLetterReq_1003004", response: "ActionBoolResp_1001001", summary: "批量删除已读且无未领取附件的信件", blocked: true, live: (*Server).trialMailDelete},
+		{cmd: 1003005, module: module, request: "ReadLetterReq_1003005", response: "ActionBoolResp_1001001", summary: "将角色自己的信件设为已读", build: previewReadMail, live: (*Server).trialMailRead},
+		{cmd: 1003006, module: module, request: "ReceiveLetterReq_1003006", response: "ReceiveLetterResp_1003006", summary: "领取当前信件的库存或货币附件并返回余额", blocked: true, live: (*Server).trialMailClaim},
 		{cmd: 1015001, module: module, request: "GuildListReq_1015001", response: "GuildListResp_1015001", summary: "查看当前林地宗门及自己的成员关系", build: previewGuildList, live: (*Server).trialListGuilds},
 		{cmd: 1015003, module: module, request: "GuildDetailReq_1015003", response: "GuildDetailResp_1015003", summary: "查看宗门的品阶、人数与数值", build: previewGuildDetail, live: (*Server).trialGuildDetail},
 		{cmd: 1015004, module: module, request: "GuildJoinReq_1015004", response: "GuildJoinResp_1015004", summary: "在写入试用中递交宗门拜帖", blocked: true, live: (*Server).trialGuildApply},
@@ -24,6 +24,10 @@ func socialPreviewRoutes() []previewRoute {
 		{cmd: 1015010, module: module, response: "GuildJoinListResp_1015010", summary: "由宗主查看尚待审批的拜帖", blocked: true, live: (*Server).trialGuildApplications},
 		{cmd: 1015012, module: module, request: "GuildJoinHandleReq_1015012", response: "GuildJoinHandleResp_1015012", summary: "由宗主同意或拒绝拜帖", blocked: true, live: (*Server).trialGuildDecide},
 		{cmd: 1015015, module: module, response: "GuildInfoResp_1015015", summary: "查看本宗门的位置与成员数", blocked: true, live: (*Server).trialGuildInfo},
+		{cmd: 1015038, module: module, response: "IntoWaiWuResp_1015038", summary: "读取本人的宗门寻物悬赏与贡献", blocked: true, live: (*Server).guildBountyList},
+		{cmd: 1015143, module: module, request: "WaiWuXuanShangGoodsSearchReq_1015143", response: "WaiWuXuanShangGoodsSearchResp_1015143", summary: "按类型与全名查找本世界寻物模板", blocked: true, live: (*Server).guildBountySearch},
+		{cmd: 1015059, module: module, request: "WaiWuFaBuXuanShangReq_1015059", response: "WaiWuFaBuXuanShangResp_1015059", summary: "支付报酬与贡献发布本宗寻物", blocked: true, live: (*Server).guildBountyPublish},
+		{cmd: 1015041, module: module, request: "WaiWuJieSuanXuanShangReq_1015041", response: "WaiWuJieSuanXuanShangResp_1015041", summary: "结算已到期的个人寻物并入纳戒", blocked: true, live: (*Server).guildBountySettle},
 		{cmd: 1015020, module: module, response: "IntoDaDianResp_1015020", summary: "读取主峰入口和宗主信息", blocked: true, live: (*Server).trialGuildHall},
 	}
 }

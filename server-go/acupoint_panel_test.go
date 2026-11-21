@@ -1,6 +1,8 @@
 package main
 
 import (
+	"google.golang.org/protobuf/proto"
+	"math"
 	"os"
 	"path/filepath"
 	"testing"
@@ -19,10 +21,20 @@ func acupointTestServer(t *testing.T, saveDir string) *Server {
 	return s
 }
 
+func acupointRequest(t *testing.T, s *Server, requestID int, id string) Message {
+	t.Helper()
+	req := s.pb("BreakAcupointReq_1005018")
+	set(req, "AcupointId", id)
+	body, err := proto.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return Message{Cmd: 1005018, Msid: requestID, Data: body}
+}
+
 func acupointTestBreak(t *testing.T, s *Server, peer *Peer, requestID int, id string) protoreflect.Message {
 	t.Helper()
-	msg := auctionTestMessage(t, s, 1005018, Record{"AcupointId": id})
-	msg.Msid = requestID
+	msg := acupointRequest(t, s, requestID, id)
 	s.handleGame(peer, msg)
 	return peer.conn.(*auctionTestConnection).receive(t, s, msg.Cmd, msg.Msid, "BreakAcupointResp_1005018")
 }
@@ -131,7 +143,7 @@ func TestAcupointConcurrentSessionsCannotSpendOnePointTwice(t *testing.T) {
 	}
 	peer1, c1 := auctionTestRole(t, s, "actor", nil)
 	peer2, c2 := auctionTestRole(t, s, "actor", nil)
-	msg := auctionTestMessage(t, s, 1005018, Record{"AcupointId": "1"})
+	msg := acupointRequest(t, s, 7, "1")
 	start, done := make(chan struct{}), make(chan struct{})
 	go func() { defer close(done); <-start; s.handleGame(peer1, msg) }()
 	close(start)
@@ -278,4 +290,53 @@ func TestAcupointExistingInjuryAndMissingTableCannotSpend(t *testing.T) {
 		t.Fatal(out)
 	}
 	checkAcupointPanel(t, s, peer, 2, nil)
+}
+
+func TestMeridianProgressAndPracticeAcrossCoreRoutes(t *testing.T) {
+	s := acupointTestServer(t, t.TempDir())
+	s.preview = nil
+	s.previewWrites = false
+	s.config.CultivationSpeed = 1
+	actor := Record{"Id": "p", "Level": 10, "AcupointValue": 12}
+	on, off := auctionTestRole(t, s, "p", nil)
+	if err := s.roles.Put("p", actor); err != nil {
+		t.Fatal(err)
+	}
+	base := s.gameRate(actor, 3)
+	for step, id := range []string{"1", "2"} {
+		reply := acupointTestBreak(t, s, on, step+1, id)
+		if !getBool(reply, "BreakSuccess") {
+			t.Fatal(reply)
+		}
+	}
+	r := s.roles.Get("p")
+	msg := Message{Cmd: 1005020, Msid: 22}
+	s.handleGame(on, msg)
+	detail := off.receive(t, s, msg.Cmd, msg.Msid, "AcupointDetailResp_1005020")
+	for key, want := range map[string]int64{"ThreadType1Count": 2, "ThreadType2Count": 2, "ThreadType3Count": 2, "ThreadType1Level": 0} {
+		if getInt(detail, key) != want {
+			t.Fatal(detail)
+		}
+	}
+	eff := detail.Get(field(detail, "AirValueUp")).Float()
+	period := detail.Get(field(detail, "AirSpeedUp")).Float()
+	if math.Abs(s.gameRate(r, 3)/base-eff/period) > 1e-6 || eff != 101 || period != 99 {
+		t.Fatal(detail, base, s.gameRate(r, 3))
+	}
+	got, err := s.applyAcupointBreak("p", "1", func(int) int { return 59 })
+	if err != nil || got.code != 4142 {
+		t.Fatalf("lit neighbor grants 10 points of chance: %v, %v", got, err)
+	}
+	s.levelUpGameRole(r)
+	if roleInt(r, "AcupointValue") != 19 {
+		t.Fatal("10 -> 11 must award the 10 points in the level table", r)
+	}
+	legacy := Record{"Level": 30}
+	if acupointBalance(legacy) != 1 {
+		t.Fatal("legacy starter")
+	}
+	legacy["AcupointValue"] = 0
+	if acupointBalance(legacy) != 0 {
+		t.Fatal("spent balance must remain spent")
+	}
 }

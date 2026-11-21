@@ -2,6 +2,14 @@ package server.game;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.annotations.SerializedName;
+import server.common.Config;
+import server.common.JsonStore;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +19,8 @@ import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Map;
 
 /**
@@ -38,13 +48,19 @@ public final class GameData {
     public static final class GongFaDef {
         public String id;
         public String name;
-        public int type;          // 1=炼神 2=锻体 3=纳气
+        @SerializedName("kind") public int type;          // 1=炼神 2=锻体 3=纳气
         public int rank;          // 1..16
-        public int fiveElement;   // 1金 2木 3水 4火 5土
+        @SerializedName("element") public int fiveElement;   // 1金 2木 3水 4火 5土
         public double baseCircle;
-        public int levelReq;
-        public int effectType1, effectType2;
+        @SerializedName("learningLevel") public int levelReq;
+        @SerializedName("effect1") public int effectType1;
+        @SerializedName("effect2") public int effectType2;
         public int effectValue1, effectValue2;
+
+        public int polarity, qi;
+        public String description;
+
+        public boolean isSystem() { return polarity != 0; }
 
         public String rankName() { return GameData.rankName(rank); }
         public String typeName() {
@@ -203,9 +219,43 @@ public final class GameData {
         }
     }
 
+    private static final class SystemCatalog { GongFaDef[] methods; }
+
+    private static void loadSystemMethods() {
+        Path path = Paths.get(Config.DATA_DIR, "config", "system_cultivation_methods.json");
+        if (!Files.exists(path)) return;
+        try {
+            SystemCatalog catalog = new Gson().fromJson(JsonStore.decode(Files.readAllBytes(path)), SystemCatalog.class);
+            if (catalog == null || catalog.methods == null) throw new IllegalStateException("系统传承书目无效");
+            Set<String> names = new HashSet<>();
+            for (GongFaDef original : GONGFA) names.add(original.name);
+            for (GongFaDef method : catalog.methods) {
+                if (method == null || method.polarity < 1 || method.polarity > 2 ||
+                        method.fiveElement < 1 || method.fiveElement > 5 || method.qi < 1 || method.qi > 12 ||
+                        !("sys_" + method.polarity + "_" + method.fiveElement + "_" + method.qi).equals(method.id) ||
+                        method.name == null || method.name.trim().isEmpty() || !names.add(method.name) || method.type < 1 || method.type > 3 ||
+                        method.rank < 1 || method.rank > 15 || method.rank % 4 == 0 ||
+                        method.levelReq != 1 + 10 * ((method.rank - 1) / 4) ||
+                        !(method.baseCircle > 0) || !Double.isFinite(method.baseCircle) || GONGFA_BY_ID.containsKey(method.id))
+                    throw new IllegalStateException("系统传承的编号或修炼参数无效");
+                GONGFA.add(method);
+                GONGFA_BY_ID.put(method.id, method);
+            }
+        } catch (IOException error) {
+            throw new IllegalStateException("无法读取系统传承书目", error);
+        }
+    }
+
     public static List<GongFaDef> gongFaAll() { return GONGFA; }
 
     public static GongFaDef gongFa(String id) { return id == null ? null : GONGFA_BY_ID.get(id); }
+
+    static GongFaDef book(String templateId, String name) {
+        GongFaDef def = gongFa(templateId);
+        if (def != null) return def;
+        for (GongFaDef method : GONGFA) if (method.name.equals(name)) return method;
+        return null;
+    }
 
     public static List<GongFaDef> gongFaByType(int type) {
         List<GongFaDef> out = new ArrayList<>();
@@ -229,5 +279,6 @@ public final class GameData {
     static {
         loadLevels();
         buildGongFa();
+        loadSystemMethods();
     }
 }

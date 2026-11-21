@@ -20,7 +20,7 @@ public class SpaceGoodsHandler implements MsgHandler {
             b.setIsSuccess(true).setCode(2000).setLocation(location);
             if (location == GoodsService.LOCATION_NAJIE || location == 0) {
                 List<Map<String, Object>> list = GoodsService.all(session.role);
-                for (Map<String, Object> g : list) b.addGoodsInfos(toProto(g));
+                for (Map<String, Object> g : list) b.addGoodsInfos(toProto(session.role, g));
             }
             b.setNowCapacity(GoodsService.capacity(session.role));
             b.setMaxCapacity(GoodsService.MAX_CAPACITY);
@@ -29,19 +29,20 @@ public class SpaceGoodsHandler implements MsgHandler {
         session.send(1004002, msg.getMsid(), b.build());
     }
 
-    static Xzj.SpaceGoodsResp_1004002.GoodsInfoResp_1004003 toProto(Map<String, Object> g) {
+    static Xzj.SpaceGoodsResp_1004002.GoodsInfoResp_1004003 toProto(Map<String, Object> role, Map<String, Object> g) {
         Xzj.SpaceGoodsResp_1004002.GoodsInfoResp_1004003.Builder o =
                 Xzj.SpaceGoodsResp_1004002.GoodsInfoResp_1004003.newBuilder();
+        GameData.GongFaDef method = GoodsService.book(g);
         o.setGoodsId(GoodsService.str(g, "GoodsId"));
-        o.setName(GoodsService.str(g, "Name"));
-        o.setFiveElement(GoodsService.num(g, "FiveElement", 1));
-        o.setRank(GoodsService.num(g, "Rank", 1));
-        o.setLevel(GoodsService.num(g, "Level", 1));
+        o.setName(method == null ? GoodsService.str(g, "Name") : method.name);
+        o.setFiveElement(method == null ? GoodsService.num(g, "FiveElement", 1) : RoleUtil.methodElement(role, method));
+        o.setRank(method == null ? GoodsService.num(g, "Rank", 1) : method.rank);
+        o.setLevel(method == null ? GoodsService.num(g, "Level", 1) : method.levelReq);
         o.setType(GoodsService.num(g, "Type", 0));
         o.setIsUsing(GoodsService.bool(g, "IsUsing"));
         o.setIsBinding(GoodsService.bool(g, "IsBinding"));
         o.setRecyclePrice(GoodsService.num(g, "RecyclePrice", 0));
-        o.setTemplateId(GoodsService.str(g, "TemplateId"));
+        o.setTemplateId(method == null ? GoodsService.str(g, "TemplateId") : method.id);
         o.setConversionRate(GoodsService.num(g, "ConversionRate", 1));
         o.setVolume(GoodsService.num(g, "Volume", 1));
         o.setIsLock(GoodsService.bool(g, "IsLock"));

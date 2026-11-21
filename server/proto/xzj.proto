@@ -140,6 +140,7 @@ message BattleEndRingOutGoodsResp_1004036 {
 message BattleRoleEnterReq_8001001 {
   string DungeonId = 1;
   string RoleId = 2;
+  int32 WorldVersion = 3;
 }
 
 message BattleRoleEnterResp_8001001 {
@@ -157,6 +158,11 @@ message BattleRoleEnterResp_8001001 {
   repeated DropGoodsInfoResp_8001004 Minerals = 12;
   int32 RoleIndex = 13;
   DropGoodsInfoResp_8001004 SecretArea = 14;
+  int64 OverTime = 15;
+  bytes WorldTiles = 16;
+  string RegionId = 17;
+  bytes Explored = 18;
+  bytes Landmarks = 19;
   message ObjectInfoResp_8001002 {
     int32 ObjectIndex = 1;
     double PosX = 2;
@@ -234,6 +240,7 @@ message BattleRoleEnterResp_8001001 {
     int32 Level = 8;
     int32 Rank = 9;
     string GoodsId = 10;
+    int32 Count = 11;
   }
 
 }
@@ -742,10 +749,16 @@ message EnterAuctionResp_1006001 {
 }
 
 message EnterBattleHomeResp_1005038 {
+  int32 CurrentVigor = 4;
   repeated SkillResp_1005039 Skill = 1;
   bool IsSuccess = 2;
   int32 Code = 3;
   message SkillResp_1005039 {
+    int32 ForceEffort = 10;
+    int32 PracticeAffix = 11;
+    int32 PendingAffix = 12;
+    int32 PracticeRevision = 13;
+    int32 BaseCastMS = 14;
     string SkillId = 1;
     string Name = 2;
     int32 Proficiency = 3;
@@ -830,6 +843,9 @@ message EnterEquipmentResp_1009005 {
     int32 Level = 5;
     int32 Type = 6;
     int32 Icon = 7;
+    string BlankId = 8;
+    string TemplateId = 9;
+    bool IsLock = 10;
   }
 
 }
@@ -2307,11 +2323,17 @@ message PracticeAchievementResp_1005042 {
 }
 
 message PracticeSkillReq_1005040 {
+  int32 PracticeAction = 3;
+  int32 ExpectedRevision = 4;
   string MethodSkillId = 1;
   int32 PracticeNum = 2;
 }
 
 message PracticeSkillResp_1005040 {
+  int32 ForceEffort = 9;
+  int32 PracticeAffix = 10;
+  int32 PendingAffix = 11;
+  int32 PracticeRevision = 12;
   bool IsSuccess = 1;
   int32 Code = 2;
   int32 Proficiency = 3;
@@ -2624,6 +2646,8 @@ message RoleJoinDungeonResp_1010002 {
   double AllDamageAvoidance = 27;
   double AttackDistance = 28;
   message BattleSkillReq_1010003 {
+    int32 ForgeResonancePercent = 27;
+    int32 PracticeAffix = 26;
     int32 Icon = 1;
     int32 Type = 2;
     int32 SkillType = 12;
@@ -3152,6 +3176,10 @@ message SpaceGoodsResp_1004002 {
     string TemplateId = 10;
     double ConversionRate = 11;
     double Volume = 12;
+    bool IsLock = 13;
+    int32 Count = 14;
+    string BlankId = 15;
+    bool OfferPending = 16;
   }
 
 }

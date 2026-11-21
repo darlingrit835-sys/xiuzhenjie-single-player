@@ -190,8 +190,9 @@ func (s *Server) handlePrivateChat(peer *Peer, msg Message) {
 // A slow receiver only occupies its own delivery worker. Messages that exceed
 // the bounded live queue are already durable and available through history.
 type privateChatDelivery struct {
-	role  string
-	frame []byte
+	role    string
+	frame   []byte
+	current func() bool
 }
 
 type privateChatPushes struct {
@@ -201,13 +202,21 @@ type privateChatPushes struct {
 }
 
 func (p *Peer) queuePrivatePush(role string, payload []byte) {
+	p.queueRolePush(role, privateChatPush, payload)
+}
+
+func (p *Peer) queueRolePush(role string, cmd int, payload []byte) {
+	p.queueRoleFrame(role, encodeFrame(cmd, 0, payload), nil)
+}
+
+func (p *Peer) queueRoleFrame(role string, frame []byte, current func() bool) {
 	q := &p.privatePushes
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	if len(q.pending) >= 32 {
 		return
 	}
-	q.pending = append(q.pending, privateChatDelivery{role: role, frame: encodeFrame(privateChatPush, 0, payload)})
+	q.pending = append(q.pending, privateChatDelivery{role: role, frame: frame, current: current})
 	if !q.running {
 		q.running = true
 		go p.deliverPrivatePush()
@@ -229,10 +238,6 @@ func (p *Peer) deliverPrivatePush() {
 		q.pending = q.pending[1:]
 		q.mu.Unlock()
 
-		p.writes.Lock()
-		if p.currentRoleID() == delivery.role {
-			_ = p.writeFrameLocked(delivery.frame)
-		}
-		p.writes.Unlock()
+		p.writeFrameForRole(delivery.role, delivery.frame, delivery.current)
 	}
 }

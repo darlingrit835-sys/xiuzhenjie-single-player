@@ -225,6 +225,56 @@ func TestEquippedMethodContributesToForgePlan(t *testing.T) {
 	}
 }
 
+func TestForgeMasteryChallengeAndIngredientTradeoffs(t *testing.T) {
+	c := loadBundled(t)
+	const blank = "wp.minglei_spear"
+	recipe := map[string]int{"mat.thunder_horn": 1, "mat.cloudwood": 2}
+	preview := func(rank int, fire string, difficulty int, material map[string]int) ForgePlan {
+		t.Helper()
+		ctx := ForgeContext{SmithRank: rank, FlameID: fire, GradeID: 7, PatternDifficulty: difficulty}
+		p, err := c.PlanForge(blank, material, ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var sum ForgeFactor
+		for _, row := range p.Sources {
+			sum = sum.add(row)
+		}
+		out, err := c.ResolveForge(blank, material, ctx, 818)
+		if err != nil || out.Plan != p || p.ForgeFactor != sum {
+			t.Fatalf("estimate and settlement differ: %v vs %v, rows sum to %v (%v)", p, out.Plan, sum, err)
+		}
+		return p
+	}
+	apprentice := preview(1, "flame.star", 5, recipe)
+	ember := preview(1, "flame.ember", 5, recipe)
+	master := preview(9, "flame.star", 5, recipe)
+	if apprentice.FlameMastery.RequiredRank != 9 || apprentice.SuccessBPS <= 0 || apprentice.SuccessBPS >= ember.SuccessBPS ||
+		apprentice.ExpBPS <= ember.ExpBPS || master.SuccessBPS <= apprentice.SuccessBPS || master.RollBiasBPS <= apprentice.RollBiasBPS ||
+		master.ReturnBPS <= apprentice.ReturnBPS || master.Sources[FireControl] != (ForgeFactor{}) {
+		t.Fatalf("fire/rank tradeoffs missing: apprentice %+v, ember %+v, master %+v", apprentice, ember, master)
+	}
+	if apprentice.Sources[PatternLoad] != (ForgeFactor{SuccessBPS: -1400, ReturnBPS: -600}) ||
+		master.Sources[PatternLoad] != (ForgeFactor{SuccessBPS: -200}) ||
+		preview(1, "flame.star", 1, recipe).Sources[PatternLoad] != (ForgeFactor{}) {
+		t.Fatal("blueprint complexity did not respond to proficiency")
+	}
+	substitute := preview(1, "flame.star", 5, map[string]int{"mat.chilie_sand": 3})
+	if apprentice.Matched != 3 || substitute.Matched != 0 || apprentice.Sources[RecipeMatch].RollBiasBPS <= substitute.Sources[RecipeMatch].RollBiasBPS ||
+		apprentice.Sources[FlameAffinity] == substitute.Sources[FlameAffinity] || apprentice.Sources[MaterialGrade] == substitute.Sources[MaterialGrade] {
+		t.Fatal("recipe, material grades and element relationships must track the actual inputs")
+	}
+	previous := apprentice.ForgeFactor
+	for rank := 2; rank <= 9; rank++ {
+		now := preview(rank, "flame.star", 5, recipe)
+		if now.SuccessBPS < previous.SuccessBPS || now.ReturnBPS < previous.ReturnBPS || now.RollBiasBPS < previous.RollBiasBPS {
+			t.Fatalf("rank %d lost a learned art", rank)
+		}
+		previous = now.ForgeFactor
+	}
+	t.Logf("grade 7 spear, challenge 5, success/return/bias/XP bps: rank 1 star %+v; rank 1 ember %+v; rank 9 star %+v; rank 1 star alternate sand %+v", apprentice.ForgeFactor, ember.ForgeFactor, master.ForgeFactor, substitute.ForgeFactor)
+}
+
 func TestWideMethodInfluence(t *testing.T) {
 	factor := ForgeFactor{SuccessBPS: 200, ReturnBPS: -50, ExpBPS: 13}
 	got, err := factor.scaleMethod(math.MaxInt, math.MaxInt)

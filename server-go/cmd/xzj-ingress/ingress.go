@@ -38,12 +38,14 @@ const (
 )
 
 type ingress struct {
-	ctx          context.Context
-	keyHash      [32]byte
-	account      [laneGame]http.Handler
-	game, battle string
-	dialer       net.Dialer
-	limits       ingressLimitPolicy
+	ctx           context.Context
+	keyHash       [32]byte
+	account       [laneGame]http.Handler
+	game, battle  string
+	dialer        net.Dialer
+	limits        ingressLimitPolicy
+	hotUpdate     *hotUpdateChannel
+	fullHotUpdate *hotUpdateChannel
 }
 
 func newIngress(ctx context.Context, key, account string, accountPin [32]byte, game, battle string) *ingress {
@@ -105,6 +107,14 @@ func newAccountProxy(account string, accountPin [32]byte) *httputil.ReverseProxy
 }
 
 func (s *ingress) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.TLS != nil {
+		if s.hotUpdate != nil && s.hotUpdate.serve(w, r) {
+			return
+		}
+		if s.fullHotUpdate != nil && s.fullHotUpdate.serve(w, r) {
+			return
+		}
+	}
 	keys := r.Header.Values(ingressKeyHeader)
 	if r.TLS == nil || len(keys) != 1 {
 		http.Error(w, "forbidden", http.StatusForbidden)

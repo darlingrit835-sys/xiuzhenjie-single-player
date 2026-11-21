@@ -20,7 +20,7 @@ const (
 
 var previewFixedAuctionListing = previewListing{
 	id: "preview-auction-elixir", template: previewTreasureTemplate, name: previewTreasureName,
-	shop: 82, kind: 19, rank: previewTreasureRank, stage: 1, level: 1, price: 500,
+	shop: 82, kind: 19, rank: previewTreasureRank, stage: 1, level: 1, price: 500, count: 1,
 }
 
 // Membership is tied to the game connection. The original room omits the stage
@@ -92,7 +92,7 @@ func editPreviewAuctionRoom(tx *StoreTx, stage int) Record {
 }
 
 func (s *Server) previewAuctionRoom(stage int) Record {
-	return previewAuctionRoom(s.roles.Get(previewAuctionStoreID), stage)
+	return previewAuctionRoom(s.roles.project(previewAuctionStoreID, []string{"Rooms"}), stage)
 }
 
 func previewAuctionPrice(room Record) int64 {
@@ -128,10 +128,7 @@ func previewAuctionEnterGate(role Record, stage int) error {
 }
 
 func (s *Server) listPreviewAuction(_ *Peer, req, out protoreflect.Message) (func(), error) {
-	var listings []previewListing
-	if roleString(s.roles.project(previewAuctionStoreID, []string{"FixedBuyer"}), "FixedBuyer") == "" {
-		listings = []previewListing{previewFixedAuctionListing}
-	}
+	listings := s.fixedAuctionListings("", getInt(req, "ShopType"), time.Now())
 	statusPB(out, true, 4160)
 	fillPreviewAuctionListings(req, out, listings)
 	return nil, nil
@@ -139,7 +136,7 @@ func (s *Server) listPreviewAuction(_ *Peer, req, out protoreflect.Message) (fun
 
 func (s *Server) buyPreviewAuction(peer *Peer, req, out protoreflect.Message) (func(), error) {
 	if getString(req, "AuctionId") != previewFixedAuctionListing.id {
-		return nil, previewReject(4038)
+		return s.settleFixedAuction(peer, req, out, false)
 	}
 	roleID := peer.currentRoleID()
 	price := previewFixedAuctionListing.price
@@ -163,6 +160,8 @@ func (s *Server) buyPreviewAuction(peer *Peer, req, out protoreflect.Message) (f
 		balance -= price
 		role["ShinyStone"] = balance
 		tx.GetOrCreate(previewAuctionStoreID)["FixedBuyer"] = roleID
+		lot := previewFixedAuctionListing
+		addFixedPurchase(role, Record{"Name": lot.name, "Type": lot.kind, "Rank": lot.rank, "Count": lot.count}, "奇珍阁", price, time.Now())
 		return tx.RecordHistory(newHistoryEvent("auction.purchase", buyer, nil, "auction.listing", previewFixedAuctionListing.id, Record{
 			"amount": price, "currency": "ShinyStone", "templateId": previewFixedAuctionListing.template,
 		}))
@@ -334,7 +333,7 @@ func canReceivePreviewAuctionElixir(role Record) bool {
 			return roleInt(goods, "Count") < math.MaxInt32
 		}
 	}
-	return len(goodsList(role)) < 100
+	return len(goodsList(role)) < ringCapacity(role)
 }
 
 func givePreviewAuctionElixir(role Record) bool {
@@ -355,7 +354,7 @@ func previewAuctionSettlementDue(room Record, now time.Time) bool {
 }
 
 func (s *Server) settlePreviewAuctions(now time.Time) error {
-	state := s.roles.Get(previewAuctionStoreID)
+	state := s.roles.project(previewAuctionStoreID, []string{"Rooms"})
 	var pendingErrors []error
 	for stage := previewAuctionMinStage; stage <= previewAuctionMaxStage; stage++ {
 		if !previewAuctionSettlementDue(previewAuctionRoom(state, stage), now) {

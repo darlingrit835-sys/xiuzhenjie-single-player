@@ -237,6 +237,14 @@
     "mat.core": {
       "name": "内丹",
       "meaning": "妖兽凝练的内丹，记为原料，可投入丹方或灵植养护。"
+    },
+    "obj.robe": {
+      "name": "衣甲",
+      "meaning": "法袍、战衣与甲胄的器胚，成器后穿在躯干。"
+    },
+    "obj.boots": {
+      "name": "足具",
+      "meaning": "成双炼制的云靴与战履，成器后穿在脚上。"
     }
   },
   "itemTemplates": {
@@ -431,6 +439,74 @@
     "obj.shuangmai_pill": {
       "name": "霜脉清毒丹",
       "note": "以寒渊灵植、矿砂和妖兽材料炼成的清毒丹。"
+    },
+    "obj.yunwen_robe": {
+      "name": "云纹法衣",
+      "note": "衣襟的护纹分散来袭力道。"
+    },
+    "obj.tafeng_boots": {
+      "name": "踏风灵靴",
+      "note": "两靴共用一组踏风纹，炼成后成双穿戴。"
+    },
+    "obj.qingxi_pill": {
+      "name": "清息散",
+      "note": "入门行路时小量回精，单株灵草即可起炉。"
+    },
+    "obj.zhizhang_pill": {
+      "name": "止瘴丸",
+      "note": "服强药后只积少量丹毒，可用小剂量清去，节省重药。"
+    },
+    "obj.chitai_pill": {
+      "name": "赤苔续血散",
+      "note": "小伤分次补血，一份主药多出几粒，留大丹应急。"
+    },
+    "obj.xingqi_pill": {
+      "name": "行气散",
+      "note": "突破门槛升高后，按本层需求补修为；门槛低时青脉丹更有效。"
+    },
+    "obj.tieyi_pill": {
+      "name": "铁衣丸",
+      "note": "历练前服用。比镇壤护体丹备盾更厚，同场只取最强护盾。"
+    },
+    "obj.huanyuan_pill": {
+      "name": "还元丹",
+      "note": "精力缺口较大时服用，梦泽莲可在云梦郡采集或灵田种植。"
+    },
+    "obj.bisui_pill": {
+      "name": "碧髓丹",
+      "note": "以玄水鳞为主，按自身气血上限回血，适合高体魄角色。"
+    },
+    "obj.jingsui_pill": {
+      "name": "净髓丹",
+      "note": "清除中度丹毒，寒渊采矿可备主药。"
+    },
+    "obj.jinguan_pill": {
+      "name": "金关丹",
+      "note": "冲关前补足修为的小缺口，适合采集阳燧晶的火域路线。"
+    },
+    "obj.yanjia_pill": {
+      "name": "岩甲丹",
+      "note": "厚土熊爪炼成的重盾，留给精英或首领战。"
+    },
+    "obj.sanhua_pill": {
+      "name": "三华复脉丹",
+      "note": "大量梦泽莲换取深伤急救，按服用者血上限恢复。"
+    },
+    "obj.changxi_pill": {
+      "name": "长息丹",
+      "note": "长途历练耗尽精力后服用，避免小缺口浪费药力。"
+    },
+    "obj.jingchen_pill": {
+      "name": "涤尘丹",
+      "note": "重度积毒时一粒大幅清除，可用灵田备芦。"
+    },
+    "obj.taiqing_pill": {
+      "name": "太清归元丹",
+      "note": "以清场妖丹为主药，一炉少出丹，服用后增加较多丹毒。"
+    },
+    "obj.xuanyue_pill": {
+      "name": "玄岳镇身丹",
+      "note": "以四份熊爪凝成一次强盾，适合挑战首领前使用。"
     }
   },
   "profiles": {
@@ -729,6 +805,74 @@
     "pill.shuangmai": {
       "name": "霜脉清毒丹",
       "note": "以寒渊灵植、矿砂和妖兽材料炼成的清毒丹。"
+    },
+    "gear.yunwen_robe": {
+      "name": "云纹法衣",
+      "note": "将云纹木纤维浸露抽丝，织成贴身的柔韧法衣。"
+    },
+    "gear.tafeng_boots": {
+      "name": "踏风灵靴",
+      "note": "兽皮裁面，木片压底，以轻韧的靴底承载步法。"
+    },
+    "pill.qingxi": {
+      "name": "清息散",
+      "note": "入门行路时小量回精，单株灵草即可起炉。"
+    },
+    "pill.zhizhang": {
+      "name": "止瘴丸",
+      "note": "服强药后只积少量丹毒，可用小剂量清去，节省重药。"
+    },
+    "pill.chitai": {
+      "name": "赤苔续血散",
+      "note": "小伤分次补血，一份主药多出几粒，留大丹应急。"
+    },
+    "pill.xingqi": {
+      "name": "行气散",
+      "note": "突破门槛升高后，按本层需求补修为；门槛低时青脉丹更有效。"
+    },
+    "pill.tieyi": {
+      "name": "铁衣丸",
+      "note": "历练前服用。比镇壤护体丹备盾更厚，同场只取最强护盾。"
+    },
+    "pill.huanyuan": {
+      "name": "还元丹",
+      "note": "精力缺口较大时服用，梦泽莲可在云梦郡采集或灵田种植。"
+    },
+    "pill.bisui": {
+      "name": "碧髓丹",
+      "note": "以玄水鳞为主，按自身气血上限回血，适合高体魄角色。"
+    },
+    "pill.jingsui": {
+      "name": "净髓丹",
+      "note": "清除中度丹毒，寒渊采矿可备主药。"
+    },
+    "pill.jinguan": {
+      "name": "金关丹",
+      "note": "冲关前补足修为的小缺口，适合采集阳燧晶的火域路线。"
+    },
+    "pill.yanjia": {
+      "name": "岩甲丹",
+      "note": "厚土熊爪炼成的重盾，留给精英或首领战。"
+    },
+    "pill.sanhua": {
+      "name": "三华复脉丹",
+      "note": "大量梦泽莲换取深伤急救，按服用者血上限恢复。"
+    },
+    "pill.changxi": {
+      "name": "长息丹",
+      "note": "长途历练耗尽精力后服用，避免小缺口浪费药力。"
+    },
+    "pill.jingchen": {
+      "name": "涤尘丹",
+      "note": "重度积毒时一粒大幅清除，可用灵田备芦。"
+    },
+    "pill.taiqing": {
+      "name": "太清归元丹",
+      "note": "以清场妖丹为主药，一炉少出丹，服用后增加较多丹毒。"
+    },
+    "pill.xuanyue": {
+      "name": "玄岳镇身丹",
+      "note": "以四份熊爪凝成一次强盾，适合挑战首领前使用。"
     }
   },
   "profileOrigins": {
@@ -1624,6 +1768,142 @@
       },
       "mat.river_scale": {
         "purpose": "药引。玄水鳞纳入辅材五行。"
+      }
+    },
+    "obj.yunwen_robe": {
+      "mat.cloudwood": {
+        "purpose": "抽取木纤维，织就衣胎。"
+      },
+      "mat.cold_dew": {
+        "purpose": "浸润衣胎，定下云纹。"
+      }
+    },
+    "obj.tafeng_boots": {
+      "mat.common_hide": {
+        "purpose": "裁成左右靴面。"
+      },
+      "mat.cloudwood": {
+        "purpose": "削成轻薄靴底。"
+      }
+    },
+    "obj.qingxi_pill": {
+      "mat.wild_herb": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.ninglu_herb": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.zhizhang_pill": {
+      "mat.cold_dew": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.wild_herb": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.chitai_pill": {
+      "mat.ember_moss": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.cold_dew": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.xingqi_pill": {
+      "mat.wind_slate": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.wild_herb": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.tieyi_pill": {
+      "mat.chilie_sand": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.earth_claw": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.huanyuan_pill": {
+      "mat.dream_lotus": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.cold_dew": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.bisui_pill": {
+      "mat.river_scale": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.dream_lotus": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.jingsui_pill": {
+      "mat.frost_silver": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.frost_reed": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.jinguan_pill": {
+      "mat.sunstone": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.ember_moss": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.yanjia_pill": {
+      "mat.earth_claw": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.dune_thorn": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.sanhua_pill": {
+      "mat.dream_lotus": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.river_scale": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.changxi_pill": {
+      "mat.wind_sinew": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.cold_dew": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.jingchen_pill": {
+      "mat.frost_reed": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.frost_silver": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.taiqing_pill": {
+      "mat.common_core": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.cold_dew": {
+        "purpose": "推荐配伍。允许换料或空置。"
+      }
+    },
+    "obj.xuanyue_pill": {
+      "mat.earth_claw": {
+        "purpose": "本方固定主药，结算时按份扣取。"
+      },
+      "mat.frost_silver": {
+        "purpose": "推荐配伍。允许换料或空置。"
       }
     }
   },
@@ -3165,8 +3445,29 @@
       }
     },
     "recipes": {
+      "dan.bisui": {
+        "note": "以玄水鳞为主，按自身气血上限回血，适合高体魄角色。"
+      },
+      "dan.changxi": {
+        "note": "长途历练耗尽精力后服用，避免小缺口浪费药力。"
+      },
+      "dan.chitai": {
+        "note": "小伤分次补血，一份主药多出几粒，留大丹应急。"
+      },
       "dan.chiyang": {
         "note": "火行振元丹。赤绒苔作主药，阳燧晶与焰纹狼牙为辅。"
+      },
+      "dan.huanyuan": {
+        "note": "精力缺口较大时服用，梦泽莲可在云梦郡采集或灵田种植。"
+      },
+      "dan.jingchen": {
+        "note": "重度积毒时一粒大幅清除，可用灵田备芦。"
+      },
+      "dan.jingsui": {
+        "note": "清除中度丹毒，寒渊采矿可备主药。"
+      },
+      "dan.jinguan": {
+        "note": "冲关前补足修为的小缺口，适合采集阳燧晶的火域路线。"
       },
       "dan.ninglu": {
         "note": "初阶回春丹。沿用现有凝露草与寒露液用料，木行主药成水润丹。"
@@ -3174,13 +3475,37 @@
       "dan.qingmai": {
         "note": "木行纳气丹。朝露郡的药草、青石与青木猿材料可配齐一炉。"
       },
+      "dan.qingxi": {
+        "note": "入门行路时小量回精，单株灵草即可起炉。"
+      },
+      "dan.sanhua": {
+        "note": "大量梦泽莲换取深伤急救，按服用者血上限恢复。"
+      },
       "dan.shuangmai": {
         "note": "金行清毒丹。寒渊银砂与玄水鳞调和霜节芦的寒性。"
       },
+      "dan.taiqing": {
+        "note": "以清场妖丹为主药，一炉少出丹，服用后增加较多丹毒。"
+      },
+      "dan.tieyi": {
+        "note": "历练前服用。比镇壤护体丹备盾更厚，同场只取最强护盾。"
+      },
+      "dan.xingqi": {
+        "note": "突破门槛升高后，按本层需求补修为；门槛低时青脉丹更有效。"
+      },
+      "dan.xuanyue": {
+        "note": "以四份熊爪凝成一次强盾，适合挑战首领前使用。"
+      },
+      "dan.yanjia": {
+        "note": "厚土熊爪炼成的重盾，留给精英或首领战。"
+      },
       "dan.zhenrang": {
         "note": "土行护体丹。沙海郡的锁砂棘、赤烈砂、厚土熊爪系同郡寻材。"
+      },
+      "dan.zhizhang": {
+        "note": "服强药后只积少量丹毒，可用小剂量清去，节省重药。"
       }
     }
   },
-  "catalogVersion": "b0ae6bb04b9c171328d153b9b6f59be872ec0bd39f789079be0221482bb0135e"
+  "catalogVersion": "0cab1ac1b47adcb8046679846b58405350e109d8d809841885df54904bf9884f"
 }

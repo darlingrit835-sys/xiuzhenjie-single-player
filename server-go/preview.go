@@ -50,7 +50,8 @@ func loadPreview(p *Protocol) (previewRegistry, error) {
 	registry := make(previewRegistry)
 	for _, module := range [][]previewRoute{
 		commercePreviewRoutes(), socialPreviewRoutes(), friendPreviewRoutes(), mentorshipPreviewRoutes(), mentorshipPracticeRoutes(), mentorshipGraduationRoutes(),
-		acupointPreviewRoutes(), craftingPreviewRoutes(),
+		craftingPreviewRoutes(), guildGovernanceRoutes(), roleExtraRoutes(),
+		pendingGameRoutes(), storageRoutes(),
 	} {
 		for _, route := range module {
 			if _, exists := registry[route.cmd]; exists || p.java[route.cmd] {
@@ -128,7 +129,7 @@ func (s *Server) handlePreview(peer *Peer, msg Message) bool {
 		req = in
 	}
 	if live {
-		s.handleLivePreview(peer, msg, route, req)
+		s.runLiveRoute(peer, msg, route.previewRoute, req)
 		return true
 	}
 	var role Record
@@ -147,21 +148,22 @@ func (s *Server) handlePreview(peer *Peer, msg Message) bool {
 	return true
 }
 
-func (s *Server) handleLivePreview(peer *Peer, msg Message, route compiledPreview, req protoreflect.Message) {
+func (s *Server) runLiveRoute(peer *Peer, msg Message, route previewRoute, req protoreflect.Message) {
+	desc := s.protocol.messages[route.response]
 	if peer.currentRoleID() == "" {
-		_ = peer.sendPayload(msg.Cmd, msg.Msid, route.failure)
+		s.sendGame(peer, msg, responseStatus(desc, false, previewDeniedCode))
 		return
 	}
-	out := responseStatus(route.respDesc, true, 2000)
+	out := responseStatus(desc, true, 2000)
 	peer.gameRequestID = msg.Msid
 	afterReply, err := route.live(s, peer, req, out)
 	if err != nil {
 		var code previewReject
 		if errors.As(err, &code) {
-			out = responseStatus(route.respDesc, false, int(code))
+			out = responseStatus(desc, false, int(code))
 		} else {
 			log.Printf("试用处理 cmd=%d: %v", msg.Cmd, err)
-			out = responseStatus(route.respDesc, false, previewDeniedCode)
+			out = responseStatus(desc, false, previewDeniedCode)
 		}
 	}
 	s.sendGame(peer, msg, out)
@@ -190,15 +192,22 @@ func writeInterfaceCatalog(dest io.Writer) error {
 		return err
 	}
 	var catalog struct {
-		GameNative []int                 `json:"game_native"`
-		Preview    []previewCatalogEntry `json:"preview"`
-		Fallback   map[int]string        `json:"fallback"`
+		GameNative    []int                 `json:"game_native"`
+		DefaultDenied []int                 `json:"default_denied"`
+		Preview       []previewCatalogEntry `json:"preview"`
+		Fallback      map[int]string        `json:"fallback"`
 	}
 	for cmd := range p.java {
 		catalog.GameNative = append(catalog.GameNative, cmd)
 	}
-	catalog.GameNative = append(catalog.GameNative, privateChatSend, privateChatHistory)
+	catalog.GameNative = append(catalog.GameNative, privateChatSend, privateChatHistory, achievementListCmd, achievementClaimCmd)
+	for _, route := range chamberStorageRoutes {
+		catalog.GameNative = append(catalog.GameNative, route.cmd)
+	}
 	sort.Ints(catalog.GameNative)
+	for _, route := range pendingGameRoutes() {
+		catalog.DefaultDenied = append(catalog.DefaultDenied, route.cmd)
+	}
 	for _, route := range routes {
 		catalog.Preview = append(catalog.Preview, previewCatalogEntry{
 			Cmd: route.cmd, Module: route.module, Request: route.request, Response: route.response,

@@ -18,11 +18,11 @@ public class MethodAchievementDetailHandler implements MsgHandler {
                 b.setIsSuccess(true).setCode(2000);
                 b.setActionScope(g.type);
                 b.setLevel(g.levelReq);
-                b.setStudyLevel(1);
+                b.setStudyLevel(g.isSystem() ? RoleUtil.chong(session.role, g.id) : 1);
                 b.setBasedConcentration(1);
                 b.setConversionRate(g.baseCircle);
                 b.setRunSpeed(2);
-                b.setCreatedBy("天道");
+                b.setCreatedBy(g.isSystem() ? "天道传承" : "天道");
                 b.setEffectType1(g.effectType1);
                 b.setEffectValue1(g.effectValue1);
                 b.setEffectType2(g.effectType2);

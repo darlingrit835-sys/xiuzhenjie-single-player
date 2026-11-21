@@ -143,7 +143,7 @@ func compileForge(c *Catalog, tables forgeTables) (*forgeIndex, error) {
 	}
 	for id, item := range c.items {
 		table := c.categories[item.CategoryID].DetailTable
-		if table != "material" && table != "weapon" {
+		if table != "material" && c.ForgeEquipmentType(item.CategoryID) == 0 {
 			continue
 		}
 		profile, ok := c.profiles[item.ProfileID]
@@ -188,6 +188,22 @@ func compileForge(c *Catalog, tables forgeTables) (*forgeIndex, error) {
 	f.blankIDs = slices.Sorted(maps.Keys(f.blanks))
 	f.materialIDs = slices.Sorted(maps.Keys(f.materials))
 	return f, nil
+}
+
+// ForgeEquipmentType maps the catalog form to the inventory's physical equipment type.
+func (c *Catalog) ForgeEquipmentType(category string) int {
+	switch category {
+	case "obj.armor":
+		return 16
+	case "obj.robe":
+		return 26
+	case "obj.boots":
+		return 29
+	}
+	if c.categories[category].DetailTable == "weapon" {
+		return 15
+	}
+	return 0
 }
 
 func validRange(b []int) bool {
@@ -393,6 +409,32 @@ func (c *Catalog) finishForge(order forgeOrder, plan ForgePlan, roll *rand.Rand)
 		BaseAttack: ((10*position+2+order.matched)*grade.MultiplierBPS + 5000) / 10000, BaseDefense: ((2*position+order.blank.grade)*grade.MultiplierBPS + 5000) / 10000,
 		BaseBonuses: make(map[string]int), Bonuses: make(map[string]int), Inputs: maps.Clone(order.inputs),
 	}
+	// A defensive form spends the same stock of stat points principally on protection.
+	if c.ForgeEquipmentType(result.CategoryID) != 15 {
+		result.BaseAttack, result.BaseDefense = result.BaseDefense, result.BaseAttack
+	}
 	f.rollAffixes(&result, grade, plan.RollBiasBPS, roll)
 	return result
+}
+
+// CastForge uses the recorded mold grade as a ceiling. Replacing the original
+// recipe with lower-grade material lowers the result by the average grade gap.
+func (c *Catalog) CastForge(blank string, original, selected map[string]int, moldGrade int, seed int64) (*ForgedWeapon, error) {
+	base, err := c.prepareForge(blank, original)
+	if err != nil {
+		return nil, err
+	}
+	order, err := c.prepareForge(blank, selected)
+	if err != nil {
+		return nil, err
+	}
+	index := slices.Index(c.forging.gradeIDs[:], moldGrade)
+	if index < 0 || order.total != base.total {
+		return nil, fmt.Errorf("incompatible mold recipe")
+	}
+	loss := max(0, (base.gradePoints-order.gradePoints+order.total/2)/order.total)
+	grade := c.forging.gradeIDs[max(0, index-loss)]
+	roll := rand.New(rand.NewSource(seed))
+	weapon := c.finishForge(order, ForgePlan{GradeID: grade}, roll)
+	return &weapon, nil
 }

@@ -14,12 +14,12 @@ const commerceModule = "商店与活动"
 
 func commercePreviewRoutes() []previewRoute {
 	return []previewRoute{
-		{cmd: 1002016, module: commerceModule, response: "SearchShinyStoneRatioResp_1002016", summary: "查询试用兑换汇率和可兑换总量", build: previewExchangeRate},
-		{cmd: 1002018, module: commerceModule, response: "SearchSignInAwardResp_1002018", summary: "查看七日签到奖励示例", build: previewSignInAwards},
+		{cmd: 1002016, module: commerceModule, response: "SearchShinyStoneRatioResp_1002016", summary: "查询试用兑换汇率与持久化兑换池余额", build: previewExchangeRate, live: (*Server).readTrialExchange},
+		{cmd: 1002018, module: commerceModule, response: "SearchSignInAwardResp_1002018", summary: "查看七日试用签到奖励与当前角色签到进度", build: previewSignInAwards, live: (*Server).trialSignInCatalog},
 		{cmd: 1002024, module: commerceModule, request: "RealmRankedReq_1002024", response: "RealmRankedResp_1002024", summary: "按当前角色显示单机境界榜，其余类别为空", roleFields: []string{"Id", "Name", "Level", "Heat"}, build: previewRealmRanking},
-		{cmd: 1004033, module: commerceModule, response: "EnterXuanTianLouResp_1004033", summary: "显示玄天楼限量商品价格和热销推荐", build: previewXuanTianLou},
+		{cmd: 1004033, module: commerceModule, response: "EnterXuanTianLouResp_1004033", summary: "查询玄天楼商品价格及当日限量商品已购数", build: previewXuanTianLou, live: (*Server).trialShopCatalog},
 		{cmd: 1006001, module: commerceModule, request: "EnterAuctionReq_1006001", response: "EnterAuctionResp_1006001", summary: "按分类、关键词及价格等条件查询奇珍阁试用挂牌", build: previewBrowseAuctions, live: (*Server).listPreviewAuction},
-		{cmd: 1006003, module: commerceModule, request: "EnterMyAuctionReq_1006003", response: "EnterMyAuctionResp_1006003", summary: "我的挂牌空态及分页", build: previewMyAuctions},
+		{cmd: 1006003, module: commerceModule, request: "EnterMyAuctionReq_1006003", response: "EnterMyAuctionResp_1006003", summary: "分页查询本人在当前奇珍阁的委托", build: previewMyAuctions, live: (*Server).myFixedAuctions},
 		{cmd: 1006011, module: commerceModule, request: "EnterTreasureRoomReq_1006011", response: "EnterTreasureRoomResp_1006011", summary: "查看拍卖会试用拍品和场次", build: previewTreasureRoom, live: (*Server).listPreviewAuctionRoom},
 		{cmd: 1006014, module: commerceModule, response: "OnShelfListResp_1006014", summary: "我的拍卖会挂牌空态", build: previewNoListings},
 		{cmd: 1006017, module: commerceModule, request: "EnterTreasureReq_1006017", response: "EnterTreasureResp_1006017", summary: "进入拍卖场次并查询当前灵石和竞价状态", roleFields: []string{"ShinyStone"}, build: previewEnterTreasure, live: (*Server).enterPreviewAuction},
@@ -30,13 +30,13 @@ func commercePreviewRoutes() []previewRoute {
 		{cmd: 1017001, module: commerceModule, request: "EnterChouJiangChiReq_1017001", response: "EnterChouJiangChiResp_1017001", summary: "查看试用抽奖池的次数和积分", build: previewEventPool},
 		{cmd: 1017004, module: commerceModule, response: "EnterJiFenResp_1017004", summary: "查看试用积分兑换档位", build: previewPointAwards},
 
-		{cmd: 1002017, module: commerceModule, request: "ShinyJadeExchangeShinyStoneReq_1002017", response: "ShinyJadeExchangeShinyStoneResp_1002017", summary: "灵玉兑换灵石", blocked: true},
-		{cmd: 1002021, module: commerceModule, response: "GetSignInAwardResp_1002021", summary: "领取签到奖励（签到窗口自动发出）", blocked: true},
+		{cmd: 1002017, module: commerceModule, request: "ShinyJadeExchangeShinyStoneReq_1002017", response: "ShinyJadeExchangeShinyStoneResp_1002017", summary: "将灵玉兑换为灵石，在同一事务更新余额和兑换池", blocked: true, live: (*Server).trialExchange},
+		{cmd: 1002021, module: commerceModule, response: "GetSignInAwardResp_1002021", summary: "每日首次打开签到窗口后发放当日灵石奖励邮件", blocked: true, live: (*Server).trialSignInClaim},
 		{cmd: 1002026, module: commerceModule, request: "MoBaiReq_1002026", response: "MoBaiResp_1002026", summary: "膜拜排行榜", blocked: true},
-		{cmd: 1004035, module: commerceModule, request: "BuyXuanTianLouGoodsReq_1004035", response: "BuyXuanTianLouGoodsResp_1004035", summary: "购买玄天楼物品", blocked: true},
-		{cmd: 1006008, module: commerceModule, request: "EntrustAuctionReq_1006008", response: "EntrustAuctionResp_1006008", summary: "委托奇珍阁上架", blocked: true},
-		{cmd: 1006009, module: commerceModule, request: "AuctionGoodsCancelReq_1006009", response: "AuctionGoodsCancelResp_1006009", summary: "撤销奇珍阁挂牌", blocked: true},
-		{cmd: 1006010, module: commerceModule, request: "AuctionBuyReq_1006010", response: "AuctionBuyResp_1006010", summary: "买入奇珍阁的限量试用丹药", blocked: true, live: (*Server).buyPreviewAuction},
+		{cmd: 1004035, module: commerceModule, request: "BuyXuanTianLouGoodsReq_1004035", response: "BuyXuanTianLouGoodsResp_1004035", summary: "按既有目录价格购买一件商品并更新纳戒和余额", blocked: true, live: (*Server).trialShopBuy},
+		{cmd: 1006008, module: commerceModule, request: "EntrustAuctionReq_1006008", response: "EntrustAuctionResp_1006008", summary: "按单价和数量委托本人物品并收取挂牌费", blocked: true, live: (*Server).consignFixedAuction},
+		{cmd: 1006009, module: commerceModule, request: "AuctionGoodsCancelReq_1006009", response: "AuctionGoodsCancelResp_1006009", summary: "撤销本人的委托并退回纳戒", blocked: true, live: (*Server).cancelFixedAuction},
+		{cmd: 1006010, module: commerceModule, request: "AuctionBuyReq_1006010", response: "AuctionBuyResp_1006010", summary: "买入奇珍阁挂牌并向卖家结算灵石", blocked: true, live: (*Server).buyPreviewAuction},
 		{cmd: 1006013, module: commerceModule, request: "OnShelfTreasureReq_1006013", response: "OnShelfTreasureResp_1006013", summary: "上架拍卖会拍品", blocked: true},
 		{cmd: 1006016, module: commerceModule, request: "TreasureGoodsCancelReq_1006016", response: "TreasureGoodsCancelResp_1006016", summary: "撤销拍卖会挂牌", blocked: true},
 		{cmd: 1006020, module: commerceModule, request: "TreasureBuyReq_1006020", response: "TreasureBuyResp_1006020", summary: "拍卖会竞价，超价返还及到期结算", blocked: true, live: (*Server).bidPreviewAuction},
@@ -50,15 +50,7 @@ func commercePreviewRoutes() []previewRoute {
 func previewExchangeRate(_ Record, _, out protoreflect.Message) {
 	// The exchange button stays disabled because there is no live liquidity.
 	fixtureTime := time.Date(2026, time.November, 18, 0, 0, 0, 0, time.UTC).UnixMilli()
-	putPB(out, Record{"ExchangeRatio": 100, "ExchangeShinyStoneSum": 0, "UpdateAt": fixtureTime})
-}
-
-func previewSignInAwards(_ Record, _, out protoreflect.Message) {
-	for day, amount := range [...]int{50, 80, 100, 120, 150, 180, 300} {
-		entry := addMessage(out, "SignInAward")
-		set(entry, "SignInDay", day+1)
-		putPB(addMessage(entry, "Award"), Record{"GoodsName": "灵石（试用）", "Num": amount, "Type": 100, "Rank": 4})
-	}
+	putPB(out, Record{"ExchangeRatio": trialExchangeRate, "ExchangeShinyStoneSum": 0, "UpdateAt": fixtureTime})
 }
 
 func previewXuanTianLou(_ Record, _, out protoreflect.Message) {
@@ -73,13 +65,14 @@ func previewXuanTianLou(_ Record, _, out protoreflect.Message) {
 }
 
 type previewListing struct {
-	id, template, name  string
-	shop, kind, element int64
-	rank, stage, level  int64
-	price               int64
+	id, template, name           string
+	shop, kind, element, subtype int64
+	rank, stage, level           int64
+	price                        int64
+	count, hours                 int64
 }
 
-// These are read-only fixtures. The writable market uses only the bundled elixir.
+// The read-only preview uses these fixtures.
 var sampleAuctionListings = [...]previewListing{
 	{id: "preview-auction-sign", template: "preview-sign", name: "试用·轻身符", shop: 81, kind: 21, element: 2, rank: 4, stage: 1, level: 1, price: 120},
 	previewFixedAuctionListing,
@@ -92,19 +85,37 @@ var sampleAuctionListings = [...]previewListing{
 }
 
 type previewAuctionFilter struct {
-	shop, kind, element, stage, rank, minPrice, maxPrice int64
-	name                                                 string
+	shop, kind, subtype, element, stage, rank, minPrice, maxPrice int64
+	name                                                          string
 }
 
 func (f previewAuctionFilter) matches(item previewListing) bool {
+	forged := item.kind == 15 && strings.HasPrefix(item.template, "ugc.")
+	equipment := item.shop == 83 && item.kind != 4
+	subtype := item.subtype
+	if equipment {
+		subtype = item.kind
+	}
+	gradeMatches := f.rank == 0 || f.rank == item.rank
+	if f.rank < 0 {
+		// A negative rank selects all four qualities of a named grade.
+		gradeMatches = item.rank > 0 && (item.rank-1)/4+1 == -f.rank
+	}
+	elementMatches := f.element <= 0 || f.element == item.element
+	if f.element == -2 {
+		elementMatches = item.element == 0
+	}
+	// The market filter calls the two inventory map kinds "秘境地图" (28).
+	secretMap := f.kind == 28 && item.shop == 88 && (item.kind == 30 || item.kind == 31)
 	return (f.shop <= 0 || f.shop == item.shop) &&
-		(f.kind <= 0 || f.kind == item.kind) &&
-		(f.element <= 0 || f.element == item.element) &&
+		(f.kind <= 0 || f.kind == item.kind || equipment && f.kind == 14 || secretMap) &&
+		(f.subtype <= 0 || f.subtype == subtype) &&
+		elementMatches &&
 		(f.stage <= 0 || f.stage == item.stage) &&
-		(f.rank <= 0 || f.rank == item.rank) &&
+		gradeMatches &&
 		(f.minPrice <= 0 || f.minPrice <= item.price) &&
 		(f.maxPrice <= 0 || item.price <= f.maxPrice) &&
-		strings.Contains(item.name, f.name)
+		(strings.Contains(item.name, f.name) || forged && f.name == item.template)
 }
 
 func previewBrowseAuctions(_ Record, req, out protoreflect.Message) {
@@ -113,17 +124,14 @@ func previewBrowseAuctions(_ Record, req, out protoreflect.Message) {
 
 func fillPreviewAuctionListings(req, out protoreflect.Message, listings []previewListing) {
 	filter := previewAuctionFilter{
-		shop: getInt(req, "ShopType"), kind: getInt(req, "GoodsType"), element: getInt(req, "FiveElement"),
+		shop: getInt(req, "ShopType"), kind: getInt(req, "GoodsType"), subtype: getInt(req, "Type"), element: getInt(req, "FiveElement"),
 		stage: getInt(req, "Stage"), rank: getInt(req, "Rank"), minPrice: getInt(req, "MinFinalPrice"),
 		maxPrice: getInt(req, "MaxFinalPrice"), name: strings.TrimSpace(getString(req, "Name")),
 	}
 	var rows []previewListing
-	if getInt(req, "Type") <= 0 {
-		// Functional subtypes in the live auction are not available offline.
-		for _, item := range listings {
-			if filter.matches(item) {
-				rows = append(rows, item)
-			}
+	for _, item := range listings {
+		if filter.matches(item) {
+			rows = append(rows, item)
 		}
 	}
 	priceOrder, rankOrder := getString(req, "FinalPriceSort"), getString(req, "RankSort")
@@ -135,10 +143,14 @@ func fillPreviewAuctionListings(req, out protoreflect.Message, listings []previe
 	})
 	page, size := previewAuctionPage(req, out, len(rows))
 	for _, item := range rows[(page-1)*size : min(page*size, len(rows))] {
+		count, hours := item.count, item.hours
+		if count == 0 {
+			count, hours = 1, 24
+		} // Read-only and legacy sample.
 		putPB(addMessage(out, "Object"), Record{
 			"Id": item.id, "GoodsId": item.template, "Name": item.name, "GoodsType": item.kind,
-			"FiveElement": item.element, "FixedPrice": item.price, "RemainHours": 24,
-			"Stage": item.stage, "Rank": item.rank, "Level": item.level, "Count": 1,
+			"FiveElement": item.element, "FixedPrice": item.price, "RemainHours": hours,
+			"Stage": item.stage, "Rank": item.rank, "Level": item.level, "Count": count,
 		})
 	}
 }

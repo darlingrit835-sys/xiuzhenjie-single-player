@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/json"
 	"maps"
@@ -32,9 +31,17 @@ func (s *Server) loadSocialTitles() error {
 		return err
 	}
 	s.game.transferDiscounts = make(map[int]int64)
+	s.game.auctionDiscounts = make(map[int]int64)
 	s.game.graduationTitleLuck = make(map[int]int64)
 	s.game.acupointTitleBonus = make(map[int]int)
+	s.game.cultivationTitles = make(map[int]int)
 	for _, title := range titles {
+		if (title.Type == 13 || title.Type == 15 || title.Type == 24) && title.EffectValue > 0 {
+			s.game.cultivationTitles[title.ID] = title.EffectValue
+		}
+		if title.Type == 2 && title.EffectValue > 0 {
+			s.game.auctionDiscounts[title.ID] = int64(title.EffectValue)
+		}
 		if title.Type == 14 && title.EffectValue > 0 && title.EffectValue <= 100 {
 			s.game.acupointTitleBonus[title.ID] = title.EffectValue
 		}
@@ -111,12 +118,7 @@ func (s *Server) trialFriendTransfer(peer *Peer, req, out protoreflect.Message) 
 		if err != nil {
 			return err
 		}
-		var discount int64
-		for _, id := range friendTitleIDs(from) {
-			discount = max(discount, s.game.transferDiscounts[id])
-		}
-		// Do not multiply the full price by the percentage: legacy balances are int64.
-		price -= price/100*discount + price%100*discount/100
+		price = s.friendTransferFee(from, price)
 		balance := roleInt(from, "ShinyStone")
 		if balance < price {
 			return previewReject(4398)
@@ -144,8 +146,31 @@ func (s *Server) trialFriendTransfer(peer *Peer, req, out protoreflect.Message) 
 }
 
 func transferFriendGoods(from, to Record, requested protoreflect.List) ([]any, int64, error) {
+	selections, price, err := inspectFriendGoods(from, requested)
+	if err != nil {
+		return nil, 0, err
+	}
+	items, err := moveFriendGoods(from, to, selections)
+	return items, price, err
+}
+
+func (s *Server) friendTransferFee(from Record, price int64) int64 {
+	var discount int64
+	for _, id := range friendTitleIDs(from) {
+		discount = max(discount, s.game.transferDiscounts[id])
+	}
+	return price - (price/100*discount + price%100*discount/100)
+}
+
+type friendGoodsSelection struct {
+	id    string
+	count int64
+	goods Record
+}
+
+func inspectFriendGoods(from Record, requested protoreflect.List) ([]friendGoodsSelection, int64, error) {
 	seen := make(map[string]bool, requested.Len())
-	items := make([]any, 0, requested.Len())
+	items := make([]friendGoodsSelection, 0, requested.Len())
 	var price int64
 	for i := 0; i < requested.Len(); i++ {
 		row := requested.Get(i).Message()
@@ -170,9 +195,18 @@ func transferFriendGoods(from, to Record, requested protoreflect.List) ([]any, i
 			return nil, 0, previewReject(4398)
 		}
 		price += 100 * count * rank * stage
-		receivedID, err := receiveFriendGoods(to, goods, count)
+		items = append(items, friendGoodsSelection{id, count, goods})
+	}
+	return items, price, nil
+}
+
+func moveFriendGoods(from, to Record, selected []friendGoodsSelection) ([]any, error) {
+	items := make([]any, 0, len(selected))
+	for _, item := range selected {
+		id, count, goods := item.id, item.count, item.goods
+		receivedID, err := receiveInventoryGoods(to, goods, count)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 		items = append(items, Record{"goodsId": id, "receivedGoodsId": receivedID, "templateId": roleString(goods, "TemplateId"), "count": count})
 		left := transferStackCount(goods) - count
@@ -185,7 +219,7 @@ func transferFriendGoods(from, to Record, requested protoreflect.List) ([]any, i
 			})
 		}
 	}
-	return items, price, nil
+	return items, nil
 }
 
 func transferStackCount(goods Record) int64 {
@@ -204,38 +238,10 @@ func transferStackAttributes(goods Record) ([]byte, error) {
 	return json.Marshal(metadata)
 }
 
-func receiveFriendGoods(to, goods Record, count int64) (string, error) {
-	items := goodsList(to)
-	if !isGameEquipment(roleInt(goods, "Type")) {
-		attributes, err := transferStackAttributes(goods)
-		if err != nil {
-			return "", err
-		}
-		for _, item := range items {
-			target, _ := item.(Record)
-			if roleString(target, "TemplateId") != roleString(goods, "TemplateId") || roleInt(target, "Type") != roleInt(goods, "Type") {
-				continue
-			}
-			other, err := transferStackAttributes(target)
-			if err != nil {
-				return "", err
-			}
-			available := transferStackCount(target)
-			if bytes.Equal(attributes, other) && roleString(target, "GoodsId") != "" && available > 0 && available <= math.MaxInt32-count {
-				target["Count"] = available + count
-				return roleString(target, "GoodsId"), nil
-			}
-		}
+func (s *Server) cultivationTitlePercent(r Record) int {
+	best := 0
+	for _, id := range friendTitleIDs(r) {
+		best = max(best, s.game.cultivationTitles[id])
 	}
-	if len(items) >= 100 {
-		return "", previewReject(4527)
-	}
-	received := cloneRecord(goods)
-	id := roleString(goods, "GoodsId")
-	if count < transferStackCount(goods) || locateGoods(to, id) != nil {
-		id = "g_" + newGameID(8)
-	}
-	received["GoodsId"], received["Count"] = id, count
-	to["Goods"] = append(items, received)
-	return id, nil
+	return best
 }

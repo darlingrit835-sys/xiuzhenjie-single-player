@@ -11,14 +11,17 @@ public class EnterHomeHandler implements MsgHandler {
         synchronized (session.role) {
             try {
                 Map<String, Object> saved = session.roleId == null ? null : RoleStore.INSTANCE.getRole(session.roleId);
-                Map<String, Object> role = saved == null ? session.role : saved;
-                int grade = HomeGrades.grade(role);
-                if (saved != null) session.role.put("DongFuRank", grade);
-                b.setCode(2000).setIsSuccess(true);
-                b.setName(HomeGrades.homeName(role));
-                b.setRank(HomeGrades.wireRank(grade));
-                b.setLive1Type(1);
-                b.setLive2Type(2);
+                if (saved == null) {
+                    b.setCode(4007).setIsSuccess(false);
+                } else {
+                    int grade = HomeGrades.grade(saved);
+                    session.role.put("DongFuRank", grade);
+                    b.setCode(2000).setIsSuccess(true);
+                    b.setName(HomeGrades.homeName(saved));
+                    b.setRank(HomeGrades.wireRank(grade));
+                    b.setLive1Type(RoleUtil.num(saved, "Live1Type"));
+                    b.setLive2Type(RoleUtil.num(saved, "Live2Type"));
+                }
             } catch (RuntimeException storageFailure) {
                 b.setCode(5000).setIsSuccess(false);
             }

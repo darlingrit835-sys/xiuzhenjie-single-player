@@ -53,6 +53,13 @@ func loadProtocol() (*Protocol, error) {
 		}
 		return true
 	})
+	for _, route := range pendingGameRoutes() {
+		desc := p.messages[route.response]
+		if desc == nil || !hasResponseStatus(desc) {
+			return nil, fmt.Errorf("invalid explicit rejection descriptor for %d", route.cmd)
+		}
+		p.fallback[route.cmd] = desc
+	}
 	if err := validateEnvelope(p.messages["Msg"]); err != nil {
 		return nil, err
 	}
@@ -108,7 +115,7 @@ func (s *Server) decode(name string, data []byte) (*dynamicpb.Message, error) {
 }
 
 func (s *Server) unknownGame(peer *Peer, msg Message) {
-	if s.preview != nil {
+	if s.preview != nil || explicitlyDeniedGameCommand(msg.Cmd) {
 		s.sendFallback(peer, msg, false, previewDeniedCode)
 		return
 	}

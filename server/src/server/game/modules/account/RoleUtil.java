@@ -76,26 +76,58 @@ public final class RoleUtil {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<String> owned(Map<String, Object> r) {
-        Object o = r.get("GongFaOwned");
+    private static List<String> methodIds(Map<String, Object> r, String field) {
+        Object o = r.get(field);
         List<String> out = new ArrayList<>();
         if (o instanceof List) {
-            for (Object x : (List<Object>) o) if (x != null) out.add(String.valueOf(x));
+            for (Object x : (List<?>) o) if (x instanceof String) out.add((String) x);
         }
         return out;
     }
 
-    public static void addOwned(Map<String, Object> r, String id) {
-        List<String> list = owned(r);
+    private static void addMethodId(Map<String, Object> r, String field, String id) {
+        List<String> list = methodIds(r, field);
         if (!list.contains(id)) {
             list.add(id);
-            r.put("GongFaOwned", list);
+            r.put(field, list);
         }
     }
 
+    static void addOwned(Map<String, Object> r, String id) {
+        addMethodId(r, "GongFaOwned", id);
+    }
+
     public static boolean isLearned(Map<String, Object> r, String id) {
-        return owned(r).contains(id);
+        return containsMethod(r, "GongFaOwned", id);
+    }
+
+    private static boolean containsMethod(Map<String, Object> r, String field, String id) {
+        Object ids = r.get(field);
+        return ids instanceof List && ((List<?>) ids).contains(id);
+    }
+
+    static boolean isRecorded(Map<String, Object> r, GameData.GongFaDef g) {
+        return g.isSystem() || containsMethod(r, "GongFaRead", g.id) ||
+                (GuideRewardService.STARTER_METHOD.equals(g.id) &&
+                        (bool(r, "PracticeStarterRead") || GuideRewardService.needsStarterPractice(r)));
+    }
+
+    static void recordBook(Map<String, Object> r, String id) {
+        addMethodId(r, "GongFaRead", id);
+    }
+
+    static int methodElement(Map<String, Object> r, GameData.GongFaDef g) {
+        if (!GuideRewardService.STARTER_METHOD.equals(g.id)) return g.fiveElement;
+        for (int element = 1; element < ROOT_FIELDS.length; element++) {
+            if (bool(r, ROOT_FIELDS[element])) return element;
+        }
+        return 0;
+    }
+
+    static boolean matchesRoot(Map<String, Object> r, GameData.GongFaDef g) {
+        int element = methodElement(r, g);
+        return GuideRewardService.STARTER_METHOD.equals(g.id) ||
+                (element > 0 && element < ROOT_FIELDS.length && bool(r, ROOT_FIELDS[element]));
     }
 
     @SuppressWarnings("unchecked")
@@ -118,24 +150,12 @@ public final class RoleUtil {
     }
 
     public static GameData.GongFaDef equipped(Map<String, Object> r, int type) {
-        String id = str(r, equipField(type));
-        GameData.GongFaDef g = GameData.gongFa(id);
-        if (g == null || g.type != type) {
-            // 回退到该类型第一本已学功法
-            for (GameData.GongFaDef d : GameData.gongFaByType(type)) {
-                if (isLearned(r, d.id)) {
-                    r.put(equipField(type), d.id);
-                    return d;
-                }
-            }
-            return null;
-        }
-        return g;
+        GameData.GongFaDef g = GameData.gongFa(str(r, equipField(type)));
+        return g != null && g.type == type && isLearned(r, g.id) ? g : null;
     }
 
     public static void equip(Map<String, Object> r, int type, String id) {
         r.put(equipField(type), id);
-        if (!isLearned(r, id)) addOwned(r, id);
     }
 
     // ------------------------------------------------------------ 修炼速度
@@ -187,7 +207,11 @@ public final class RoleUtil {
         return mask;
     }
 
-    private static int switchMask(int locationType) {
+    static boolean canRunLocation(Map<String, Object> r, int location) {
+        return location >= 1 && location <= 6 && (location <= 3 || num(r, "Level", 1) >= 31);
+    }
+
+    static int switchMask(int locationType) {
         switch (locationType) {
             case 1: return 1; // 炼神
             case 2: return 2; // 锻体
@@ -224,6 +248,24 @@ public final class RoleUtil {
         return n >= 2 ? 0.70 : 1.0;
     }
 
+    private static final String[] ROOT_FIELDS = {"", "HasGold", "HasWood", "HasWater", "HasFire", "HasEarth"};
+    private static final int[] GENERATES = {0, 3, 4, 2, 5, 1};
+
+    private static double affinity(Map<String, Object> r, GameData.GongFaDef method) {
+        int element = methodElement(r, method);
+        if (element < 1 || element > 5) return 1.0;
+        double factor = bool(r, ROOT_FIELDS[element]) ? 1.20 : 1.0;
+        if (!isActive(r, method.type)) return factor;
+        for (int kind = 1; kind <= 3; kind++) {
+            if (kind == method.type || !isActive(r, kind)) continue;
+            GameData.GongFaDef other = equipped(r, kind);
+            int otherElement = other == null ? 0 : methodElement(r, other);
+            if (otherElement > 0 && otherElement < GENERATES.length && GENERATES[otherElement] == element)
+                return factor * 1.20;
+        }
+        return factor;
+    }
+
     /**
      * 指定功法类型每秒增加的修为/神识/体魄量。
      *
@@ -231,21 +273,25 @@ public final class RoleUtil {
      * 等级越高，基础耗时缓慢增加；功法品阶/重数、洞府、聚灵、控灵都会缩短耗时。
      */
     public static double rate(Map<String, Object> r, int type) {
+        return rateFor(r, equipped(r, type), type);
+    }
+
+    private static double rateFor(Map<String, Object> r, GameData.GongFaDef g, int type) {
         int lv = Math.max(1, Math.min(GameData.maxLevel(), num(r, "Level", 1)));
         GameData.LevelInfo li = GameData.level(lv);
 
         double baseTarget = 250.0 + 10.0 * (lv - 1); // 秒
-        GameData.GongFaDef g = equipped(r, type);
         double gfFactor;
         if (g == null) {
             gfFactor = 0.5; // 没运行功法，只剩基础纳气
         } else {
-            gfFactor = (g.baseCircle / 0.8) * GameData.chongMultiplier(chong(r, g.id));
+            gfFactor = (g.baseCircle / 0.8) * GameData.chongMultiplier(chong(r, g.id)) * affinity(r, g);
         }
         double bonus = matrixFactor(r) * rootFactor(r) * locationEfficiency(r)
                 * ServerConfig.get().cultivationSpeed;
         double seconds = baseTarget / Math.max(0.05, gfFactor * bonus);
-        return li.upgradeLimit / Math.max(1.0, seconds);
+        double rate = li.upgradeLimit / Math.max(1.0, seconds);
+        return type == TYPE_NAQI ? rate * Meridians.breathFactor(r) : rate;
     }
 
     /** 客户端洞府里显示的“X/周天”。一个周天按 2 秒计。 */
@@ -255,15 +301,7 @@ public final class RoleUtil {
 
     /** 某本功法在更换面板里显示的单本周天效率（按当前装备功法换算）。 */
     public static double circleFor(Map<String, Object> r, GameData.GongFaDef def) {
-        if (def == null) return 0;
-        GameData.GongFaDef eq = equipped(r, def.type);
-        double base = circle(r, def.type);
-        if (eq == null || eq.baseCircle <= 0) {
-            return base * (def.baseCircle / 0.8) * GameData.chongMultiplier(chong(r, def.id));
-        }
-        double ratio = (def.baseCircle / eq.baseCircle)
-                * (GameData.chongMultiplier(chong(r, def.id)) / GameData.chongMultiplier(chong(r, eq.id)));
-        return base * ratio;
+        return def == null ? 0 : 2.0 * rateFor(r, def, def.type);
     }
 
     // ------------------------------------------------------------ 初始化 / 升级
@@ -305,19 +343,20 @@ public final class RoleUtil {
         r.put("StatsVersion", 2);
         r.put("LastOnline", System.currentTimeMillis());
 
-        List<String> all = new ArrayList<>();
-        for (GameData.GongFaDef g : GameData.gongFaAll()) all.add(g.id);
-        r.put("GongFaOwned", all);
+        r.put("GongFaOwned", new ArrayList<String>());
+        r.put("GongFaRead", new ArrayList<String>());
         r.put("GongFaChong", new HashMap<String, Object>());
-        equip(r, TYPE_NAQI, "gf_3_1");
-        equip(r, TYPE_DUANTI, "gf_2_1");
-        equip(r, TYPE_LIANSHEN, "gf_1_1");
         QuestService.ensureRole(r);
         GoodsService.ensureStarterKit(r);
         recomputePower(r);
     }
 
     public static void ensureDefaults(Map<String, Object> r) {
+        // 旧存档可能只保存建角时的五行点数。
+        for (int element = 1; element < ROOT_FIELDS.length; element++) {
+            String flag = ROOT_FIELDS[element];
+            if (!r.containsKey(flag)) r.put(flag, dbl(r, flag.substring(3), 0) > 0);
+        }
         int lv = num(r, "Level", 1);
         if (lv < 1) lv = 1;
         if (lv > GameData.maxLevel()) lv = GameData.maxLevel();
@@ -366,26 +405,24 @@ public final class RoleUtil {
         if (num(r, "ShopGuideVal") <= 0) r.put("ShopGuideVal", 1);
         if (num(r, "SignGuideVal") <= 0) r.put("SignGuideVal", 1);
         if (num(r, "ElixirGuideVal") <= 0) r.put("ElixirGuideVal", 1);
-        QuestService.ensureRole(r);
         GoodsService.ensureStarterKit(r);
 
         if (lng(r, "LastOnline") <= 0) r.put("LastOnline", System.currentTimeMillis());
 
-        // 功法：老角色一次性补全，保证四阶功法都能看到/切换
-        if (owned(r).isEmpty()) {
-            List<String> all = new ArrayList<>();
-            for (GameData.GongFaDef g : GameData.gongFaAll()) all.add(g.id);
-            r.put("GongFaOwned", all);
-        }
+        // 从旧档保留的装备槽恢复缺失的领悟记录，再同步主线计数。
         if (!(r.get("GongFaChong") instanceof Map)) r.put("GongFaChong", new HashMap<String, Object>());
+        if (GuideRewardService.needsStarterPractice(r) &&
+                !containsMethod(r, "GongFaRead", GuideRewardService.STARTER_METHOD)) {
+            recordBook(r, GuideRewardService.STARTER_METHOD);
+        }
         for (int t = 1; t <= 3; t++) {
-            GameData.GongFaDef g = equipped(r, t);
-            if (g == null) {
-                GameData.GongFaDef fallback = GameData.gongFaByType(t).get(0);
-                equip(r, t, fallback.id);
+            GameData.GongFaDef g = GameData.gongFa(str(r, equipField(t)));
+            if (g != null && g.type == t && !isLearned(r, g.id)) {
+                addOwned(r, g.id);
             }
         }
 
+        QuestService.ensureRole(r);
         r.put("StatsInitialized", true);
         r.put("StatsVersion", 2);
         recomputePower(r);
@@ -423,7 +460,7 @@ public final class RoleUtil {
         r.put("Clever", 100 + lv * 5);
         r.put("CurrentPoisonVal", 0);
         recomputePower(r);
-        save(r);
+        RoleStore.INSTANCE.savePromotion(r, lv - 1, li.acupointPromotePoint);
     }
 
     public static boolean canBreak(Map<String, Object> r) {
@@ -441,6 +478,7 @@ public final class RoleUtil {
         r.put("LastOnline", now);
         long sec = Math.max(0, (now - last) / 1000L);
         if (sec < 60) {
+            r.put("OfflineIsFull", false);
             r.put("OfflineTime", 0);
             r.put("OfflineSuperAir", 0L);
             r.put("OfflinePerception", 0L);
@@ -452,32 +490,28 @@ public final class RoleUtil {
 
         int lv = num(r, "Level", 1);
         GameData.LevelInfo li = GameData.level(lv);
-        double rate = rate(r, TYPE_NAQI) * 0.8; // 离线按八成效率
-        long gainSuper = (long) Math.floor(rate * sec);
-        long cur = lng(r, "SuperAir");
-        long max = (long) li.upgradeLimit;
-        if (cur + gainSuper > max) gainSuper = Math.max(0, max - cur);
-        r.put("SuperAir", cur + gainSuper);
-
-        long gainPerc = (long) Math.floor(rate * sec * 0.02);
-        long perc = lng(r, "Perception");
-        long percCap = (long) (li.limitPerception * 1.5);
-        if (perc + gainPerc > percCap) gainPerc = Math.max(0, percCap - perc);
-        r.put("Perception", perc + gainPerc);
-        r.put("CurrentPerception", perc + gainPerc);
-
-        long gainPhys = (long) Math.floor(rate * sec * 0.02);
-        long phys = lng(r, "Physique");
-        long physCap = (long) (li.limitToughTenacity * 1.5);
-        if (phys + gainPhys > physCap) gainPhys = Math.max(0, physCap - phys);
-        r.put("Physique", phys + gainPhys);
-        r.put("CurrentPhysique", phys + gainPhys);
-
+        String[] keys = {"Perception", "Physique", "SuperAir"};
+        double[] ceilings = {li.limitPerception * 1.5, li.limitToughTenacity * 1.5, li.upgradeLimit};
+        for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            long total = lng(r, key);
+            long gained = 0;
+            if (isActive(r, i + 1)) {
+                double perSecond = rate(r, i + 1) * 0.8 * (i < 2 ? 0.5 : 1.0);
+                gained = Math.min((long) Math.floor(perSecond * sec), Math.max(0L, (long) ceilings[i] - total));
+                r.put(key, total + gained);
+                if (i < 2 && gained > 0) r.put("Current" + key, total + gained);
+            }
+            r.put("Offline" + key, gained);
+        }
+        if (lng(r, "OfflinePhysique") > 0) {
+            long blood = Math.max(Math.max(100L, lng(r, "PureBlood")), Math.round(lng(r, "Physique") * 0.01));
+            r.put("PureBlood", blood);
+            r.put("CurrentPureBlood", blood);
+        }
         r.put("OfflineTime", (int) Math.min(Integer.MAX_VALUE, sec));
-        r.put("OfflineSuperAir", gainSuper);
-        r.put("OfflinePerception", gainPerc);
-        r.put("OfflinePhysique", gainPhys);
-        r.put("OfflineIsFull", gainSuper == 0 && lng(r, "SuperAir") >= max);
+        r.put("OfflineIsFull", isActive(r, TYPE_NAQI) && lng(r, "OfflineSuperAir") == 0
+                && lng(r, "SuperAir") >= (long) li.upgradeLimit);
         recomputePower(r);
         save(r);
         return sec;

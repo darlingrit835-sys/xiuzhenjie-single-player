@@ -43,9 +43,11 @@ func (g trialGuild) leader() string { return roleString(g.row, "LeaderId") }
 
 func (g trialGuild) members() []string {
 	var members []string
+	seen := make(map[string]struct{})
 	add := func(id string) {
-		if id != "" && !slices.Contains(members, id) {
+		if _, exists := seen[id]; id != "" && !exists {
 			members = append(members, id)
+			seen[id] = struct{}{}
 		}
 	}
 	add(g.leader())
@@ -69,21 +71,53 @@ func (g trialGuild) applications() Record {
 	return pending
 }
 
-func trialGuildForRole(guilds Record, roleID string) trialGuild {
-	if roleID == "" {
-		return trialGuild{}
+func (g trialGuild) hasMember(roleID string) bool {
+	if roleID == g.leader() {
+		return true
 	}
-	for _, id := range trialGuildIDs(guilds) {
-		guild := trialGuildByID(guilds, id)
-		if slices.Contains(guild.members(), roleID) {
-			return guild
+	switch members := g.row["Members"].(type) {
+	case []string:
+		return slices.Contains(members, roleID)
+	case []any:
+		for _, member := range members {
+			if member == roleID {
+				return true
+			}
 		}
 	}
-	return trialGuild{}
+	return false
+}
+
+func trialGuildForRole(guilds Record, roleID string) trialGuild {
+	var found trialGuild
+	if roleID == "" {
+		return found
+	}
+	// Preserve the lowest guild ID for legacy duplicate memberships.
+	for key, value := range guilds {
+		row, _ := value.(Record)
+		guild := trialGuild{row: row}
+		if !guild.hasMember(roleID) {
+			continue
+		}
+		id, err := strconv.ParseInt(key, 10, 32)
+		if err == nil && id > 0 && key == strconv.FormatInt(id, 10) && (found.row == nil || id < found.id) {
+			found = trialGuild{id: id, row: row}
+		}
+	}
+	return found
+}
+
+func (store *Store) guildForRole(roleID string) trialGuild {
+	store.mu.RLock()
+	defer store.mu.RUnlock()
+	guild := trialGuildForRole(trialGuilds(store.records[trialGuildWorld]), roleID)
+	guild.row = cloneRecord(guild.row)
+	return guild
 }
 
 func (s *Server) currentGuild(peer *Peer) trialGuild {
-	return trialGuildForRole(trialGuilds(s.guilds.Get(trialGuildWorld)), peer.currentRoleID())
+	return s.guilds.guildForRole(peer.currentRoleID())
 }
 
 func fillTrialGuildIdentity(out protoreflect.Message, guild trialGuild) {
@@ -103,7 +137,7 @@ func fillTrialGuildIdentity(out protoreflect.Message, guild trialGuild) {
 
 func (s *Server) fillGuildLogin(id string, out protoreflect.Message) {
 	if s.guilds != nil {
-		fillTrialGuildIdentity(out, trialGuildForRole(trialGuilds(s.guilds.Get(trialGuildWorld)), id))
+		fillTrialGuildIdentity(out, s.guilds.guildForRole(id))
 	}
 }
 
@@ -111,17 +145,40 @@ func (s *Server) trialListGuilds(peer *Peer, req, out protoreflect.Message) (fun
 	guilds := trialGuilds(s.guilds.Get(trialGuildWorld))
 	own := trialGuildForRole(guilds, peer.currentRoleID())
 	mapID := getString(req, "MapId")
+	peer.guildSiteOwner, peer.guildSite, peer.guildSiteReady = "", "", false
+	occupied := false
+	place := gameMapFind(mapID)
+	domain := map[string]bool{}
+	for node := place; node != nil; node = gameMapFind(node.parent) {
+		domain[node.id] = true
+	}
 	for _, id := range trialGuildIDs(guilds) {
 		guild := trialGuildByID(guilds, id)
-		if roleString(guild.row, "MapId") != mapID {
+		if guild.row == nil {
 			continue
 		}
+		site := roleString(guild.row, "MapId")
+		_, _, _, bound := sectRegion(guild)
+		if guild.row["Court"] == nil && sectCountyID(site) == "" {
+			bound = gameMapFind(s.legacySectCounty(guild))
+			for depth := int64(0); depth < (sectStage(guild)-1)/3; depth++ {
+				bound = gameMapFind(bound.parent)
+			}
+		}
+		if site != mapID && !domain[bound.id] {
+			continue
+		}
+		occupied = occupied || site == mapID
 		if id == own.id {
 			self := out.Mutable(field(out, "SelfGuild")).Message()
-			putPB(self, Record{"GuildId": id, "Name": roleString(guild.row, "Name"), "IsCreatedGuild": true, "GuildMapId": mapID})
+			putPB(self, Record{"GuildId": id, "Name": roleString(guild.row, "Name"), "IsCreatedGuild": true, "GuildMapId": site})
 		} else {
 			putPB(addMessage(out, "GuildList"), Record{"GuildId": id, "Name": roleString(guild.row, "Name")})
 		}
+	}
+	if !occupied && own.row == nil && s.validGuildSite(peer.currentRoleID(), mapID) {
+		peer.guildSiteOwner, peer.guildSite = peer.currentRoleID(), mapID
+		putPB(out.Mutable(field(out, "SelfGuild")).Message(), Record{"GuildMapId": mapID, "IsCreatedGuild": false})
 	}
 	return nil, nil
 }
@@ -132,7 +189,7 @@ func (s *Server) trialGuildDetail(_ *Peer, req, out protoreflect.Message) (func(
 		return nil, previewReject(5001)
 	}
 	putPB(out, Record{
-		"GuildId": guild.id, "GuildName": roleString(guild.row, "Name"), "GuildLevel": max(1, roleInt(guild.row, "Stage")),
+		"GuildId": guild.id, "GuildName": roleString(guild.row, "Name"), "GuildLevel": sectStage(guild),
 		"GuildRoleCount": len(guild.members()), "AiDiZiNum": roleInt(guild.row, "AiMemberCount"),
 		"ZhanDouLi": roleInt(guild.row, "Fighting"), "YingXiangLi": roleInt(guild.row, "Influence"),
 	})
@@ -158,6 +215,9 @@ func (s *Server) trialGuildApply(peer *Peer, req, out protoreflect.Message) (fun
 		}
 		if trialGuildForRole(guilds, roleID).row != nil {
 			return previewReject(4694)
+		}
+		if err := guildRejoinCheck(tx, roleID, time.Now()); err != nil {
+			return err
 		}
 		if _, exists := guild.applications()[roleID]; exists {
 			return nil
@@ -209,6 +269,11 @@ func (s *Server) trialGuildDecide(peer *Peer, req, out protoreflect.Message) (fu
 		if approved && trialGuildForRole(guilds, targetID).row != nil {
 			return previewReject(4694)
 		}
+		if approved {
+			if err := guildRejoinCheck(tx, targetID, time.Now()); err != nil {
+				return err
+			}
+		}
 		guildID := strconv.FormatInt(guild.id, 10)
 		details := Record{"guildName": roleString(guild.row, "Name")}
 		guilds = trialGuilds(tx.Get(trialGuildWorld))
@@ -236,7 +301,7 @@ func (s *Server) trialGuildDecide(peer *Peer, req, out protoreflect.Message) (fu
 	}
 	notice := s.gameResponse("GuildInformRoleJoinSuccessResp_1015018", true, 2004)
 	fillTrialGuildIdentity(notice, joined)
-	return func() { s.pushGame(targetID, 1015018, notice) }, nil
+	return func() { s.pushGuildMembership(targetID, joined.id, 1015018, notice) }, nil
 }
 
 func (s *Server) trialGuildHistoryRole(id string) Record {
@@ -261,7 +326,7 @@ func (s *Server) trialGuildEnter(peer *Peer, _, out protoreflect.Message) (func(
 	})
 	// ZongMenWnd uses fixed slots 0..7 and 9. Type 10 identifies the main peak.
 	for index, name := range [...]string{"灵田峰", "冶炼峰", "工坊峰", "内门峰", "炼丹峰", "炼器峰", "制符峰", "阵法峰", "御兽峰", "主峰"} {
-		putPB(addMessage(out, "GuildHills"), Record{"Type": index + 1, "HillName": name, "Stage": max(1, roleInt(guild.row, "Stage"))})
+		putPB(addMessage(out, "GuildHills"), Record{"Type": index + 1, "HillName": name, "Stage": sectStage(guild)})
 	}
 	return nil, nil
 }
@@ -279,7 +344,7 @@ func (s *Server) trialGuildMembers(peer *Peer, _, out protoreflect.Message) (fun
 		return nil, previewReject(4008)
 	}
 	for _, id := range guild.members() {
-		role := s.roles.Get(id)
+		role := s.roles.project(id, []string{"Name", "HeadPortraitId", "Level", "Sex", "CurrentPower"})
 		if role == nil {
 			continue
 		}
@@ -287,9 +352,7 @@ func (s *Server) trialGuildMembers(peer *Peer, _, out protoreflect.Message) (fun
 		fillTrialGuildRole(member, id, role)
 		_, online := s.online.Load(id)
 		putPB(member, Record{"IsOnLine": online, "ZhanDouLi": max(0, roleInt(role, "CurrentPower"))})
-		if guild.leader() == id {
-			set(member, "ZhiWei", 15) // ZhangLaoRenMing.宗主
-		}
+		set(member, "ZhiWei", guild.officeOf(id))
 	}
 	return nil, nil
 }
@@ -330,8 +393,16 @@ func (s *Server) trialGuildInfo(peer *Peer, _, out protoreflect.Message) (func()
 	if guild.row == nil {
 		return nil, previewReject(4008)
 	}
+	place := gameMapName(roleString(guild.row, "MapId"))
+	if place == "" {
+		state, _ := guild.row["Court"].(Record)
+		place = gameMapName(roleString(state, "County"))
+		if place == "" {
+			place = gameMapName(s.legacySectCounty(guild))
+		}
+	}
 	putPB(out, Record{
-		"Name": gameMapName(roleString(guild.row, "MapId")), "BelongHillName": "主峰", "GuildStage": max(1, roleInt(guild.row, "Stage")),
+		"Name": place, "BelongHillName": "主峰", "GuildStage": sectStage(guild),
 		"GuildName": roleString(guild.row, "Name"), "GuildSimpleName": roleString(guild.row, "ShortName"), "MemberCount": len(guild.members()),
 		"AiMemberCount": roleInt(guild.row, "AiMemberCount"), "ZhanDouLi": roleInt(guild.row, "Fighting"), "YingXiangLi": roleInt(guild.row, "Influence"),
 	})
@@ -348,7 +419,7 @@ func (s *Server) trialGuildHall(peer *Peer, _, out protoreflect.Message) (func()
 	fillTrialGuildRole(role, guild.leader(), leader)
 	set(role, "Fighting", roleInt(leader, "CurrentPower"))
 	putPB(out, Record{
-		"Stage": max(1, roleInt(guild.row, "Stage")), "Influence": roleInt(guild.row, "Influence"), "Fighting": roleInt(guild.row, "Fighting"),
+		"Stage": sectStage(guild), "Influence": roleInt(guild.row, "Influence"), "Fighting": roleInt(guild.row, "Fighting"),
 		"FangYu": roleInt(guild.row, "Defend"), "ZhangLaoShuLiang": len(guild.members()), "DiZiShuLiang": roleInt(guild.row, "AiMemberCount"),
 	})
 	return nil, nil

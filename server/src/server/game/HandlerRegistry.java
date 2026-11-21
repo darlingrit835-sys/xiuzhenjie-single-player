@@ -26,6 +26,9 @@ public class HandlerRegistry {
         GameServer.register(1005008, new ExerciseRoomHandler());
         GameServer.register(1005009, new ChangeAchievementPanelHandler());
         GameServer.register(1005011, new ChangeAchievementHandler());
+        GameServer.register(1005016, new MeridianHandler());
+        GameServer.register(1005018, new MeridianHandler());
+        GameServer.register(1005020, new MeridianHandler());
         GameServer.register(1011004, new MethodAchievementDetailHandler());
 
         // 背包 / 地图 / 洞府

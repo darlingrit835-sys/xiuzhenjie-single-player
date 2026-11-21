@@ -1,5 +1,5 @@
 
-¯ò
+Åö
 	xzj.protoxzj"=
 AchievementAcupointReq_1008083
 MethodAchievementId (	"T
@@ -132,10 +132,11 @@ ShinyStone ("2
 Code (
 	IsSuccess (
 NowCapacity (
-GoodsId (	"?
+GoodsId (	"U
 BattleRoleEnterReq_8001001
 	DungeonId (	
-RoleId (	"ö
+RoleId (	
+WorldVersion ("Ð
 BattleRoleEnterResp_8001001
 Code (
 	IsSuccess (
@@ -153,7 +154,12 @@ ShinyStone ("2
 	RoleIndex (N
 
 SecretArea (2:.xzj.BattleRoleEnterResp_8001001.DropGoodsInfoResp_8001013
-OverTime (Ò
+OverTime (
+
+WorldTiles (
+RegionId (	
+Explored (
+	Landmarks (Ò
 ObjectInfoResp_8001002
 ObjectIndex (
 PosX (
@@ -234,7 +240,7 @@ SkillIndex (
 WoodDamageAdd (
 WaterDamageAdd (
 GoldDamageAdd (
-EarthDamageAdd (±
+EarthDamageAdd (À
 DropGoodsInfoResp_8001013
 ObjectIndex (
 PosX (
@@ -246,7 +252,8 @@ ObjectType (
 Level (
 Rank	 (
 GoodsId
- (	"Y
+ (	
+Count ("Y
 BattleRoleMoveReq_8001004
 	RoleIndex (
 PosX (
@@ -791,11 +798,12 @@ FixedPrice (
 Rank	 (
 Level
  (
-Count ("½
+Count ("Ã
 EnterBattleHomeResp_1005038
 Code (
 	IsSuccess (A
-Skill (22.xzj.EnterBattleHomeResp_1005038.SkillResp_1005039¹
+Skill (22.xzj.EnterBattleHomeResp_1005038.SkillResp_1005039
+CurrentVigor (©
 SkillResp_1005039
 SkillId (	
 Name (	
@@ -805,7 +813,14 @@ FixedPrice (
 Rank (
 FiveElement (
 ProficiencyLevel (
-Type	 ("\
+Type	 (
+ForceEffort
+ (
+PracticeAffix (
+PendingAffix (
+PracticeRevision (
+
+BaseCastMS ("\
 EnterCSLResp_1002027
 Code (
 	IsSuccess (
@@ -883,7 +898,7 @@ FixedPrice (
 FiveElement (
 Rank (
 Level (
-Type ("Ê
+Type ("ÿ
 EnterEquipmentResp_1009005
 Code (
 	IsSuccess (T
@@ -898,7 +913,7 @@ FixedPrice (
  (#
 DefenseRecoverValueOnBattle (
 SuperAirPower (
-CanUsePhysique (ˆ
+CanUsePhysique (½
 EquipmentInfoResp_1009006
 GoodsId (	
 Name (	
@@ -906,7 +921,12 @@ FixedPrice (
 Rank (
 Level (
 Type (
-Icon ("Þ
+Icon (
+BlankId (	
+
+TemplateId	 (	
+IsLock
+ ("Þ
 EnterExerciseRoomResp_1005008
 Code (
 	IsSuccess (
@@ -3399,10 +3419,12 @@ Perception (
 PosionDownResp_9001003
 CurrentPosion ("+
 PowerUpResp_9001008
-CurrentPower ("F
+CurrentPower ("x
 PracticeSkillReq_1005040
 MethodSkillId (	
-PracticeNum ("º
+PracticeNum (
+PracticeAction (
+ExpectedRevision ("–
 PracticeSkillResp_1005040
 Code (
 	IsSuccess (
@@ -3411,7 +3433,12 @@ Perception (
 Level (
 CurrentVigor (
 	LiveLevel (
-LiveProficiency ("9
+LiveProficiency (
+ForceEffort	 (
+PracticeAffix
+ (
+PendingAffix (
+PracticeRevision ("9
 PuppetRefiningElixirReq_1005045
 MethodElixirId (	"u
  PuppetRefiningElixirResp_1005045
@@ -3774,7 +3801,8 @@ Perception (
 Power (">
 RoleJoinDungeonReq_1010002
 	DungeonId (	
-MapId (	"ö	
+MapId (	"¬
+
 RoleJoinDungeonResp_1010002
 Code (
 	IsSuccess (
@@ -3802,7 +3830,7 @@ Perception (
 WaterDamageAvoidance (
 FireDamageAvoidance (
 EarthDamageAvoidance (
-AttackDistance („
+AttackDistance (º
 BattleSkillResp_1010003
 Icon (
 Type (
@@ -3832,7 +3860,9 @@ SkillIndex (
 GoldDamageAdd (
 EarthDamageAdd (
 UnitConsume (
-Scope ("C
+Scope (
+PracticeAffix (
+ForgeResonancePercent ("C
 RoleLeaveDungeonReq_8001008
 	DungeonId (	
 	RoleIndex ("?
@@ -4395,7 +4425,7 @@ ReceiveVal (
 Md5 (	
 Location (")
 SpaceGoodsReq_1004002
-Location ("Ê
+Location ("ñ
 SpaceGoodsResp_1004002
 Code (
 	IsSuccess (E
@@ -4403,7 +4433,7 @@ ReceiveVal (
 GoodsInfos (21.xzj.SpaceGoodsResp_1004002.GoodsInfoResp_1004003
 NowCapacity (
 MaxCapacity (
-Location (‹
+Location (²
 GoodsInfoResp_1004003
 GoodsId (	
 Name (	
@@ -4420,7 +4450,9 @@ TemplateId
 ConversionRate (
 Volume (
 IsLock (
-Count ("Œ
+Count (
+BlankId (	
+OfferPending ("Œ
 SuperAirUpResp_9001004
 CurrentSuperAir (
 SuperAir (

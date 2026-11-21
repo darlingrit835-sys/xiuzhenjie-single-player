@@ -6,14 +6,13 @@ import java.util.Map;
 
 /**
  * 1004024 使用物品。
- * 目前支持：功法书（学习并装备）、丹药（增加修为），其它物品返回“暂不可用”。
+ * 功法书收录到参悟书目，丹药增加修为。
  */
 public class GoodsUseHandler implements MsgHandler {
     @Override
     public void handle(PlayerSession session, Xzj.Msg msg) throws Exception {
         Xzj.GoodsUseReq_1004024 req = Xzj.GoodsUseReq_1004024.parseFrom(msg.getData());
         Xzj.GoodsUseResp_1004024.Builder b = Xzj.GoodsUseResp_1004024.newBuilder();
-        boolean questDone = false;
         synchronized (session.role) {
             RoleUtil.ensureDefaults(session.role);
             Map<String, Object> g = GoodsService.find(session.role, req.getGoodsId());
@@ -23,12 +22,21 @@ public class GoodsUseHandler implements MsgHandler {
                 int type = GoodsService.num(g, "Type", 0);
                 boolean ok = false;
                 if (type == 1) {
-                    GameData.GongFaDef def = findGongFa(g);
+                    GameData.GongFaDef def = GoodsService.book(g);
                     if (def != null) {
-                        RoleUtil.addOwned(session.role, def.id);
-                        RoleUtil.equip(session.role, def.type, def.id);
+                        boolean guideRead = GuideRewardService.STARTER_METHOD.equals(def.id) &&
+                                RoleUtil.num(session.role, "PracticeGuideVal") == 1 && !RoleUtil.isRecorded(session.role, def);
+                        int rejection = 0;
+                        if (!RoleUtil.matchesRoot(session.role, def)) rejection = 4961;
+                        else if (!guideRead && (RoleUtil.isRecorded(session.role, def) || RoleUtil.isLearned(session.role, def.id))) rejection = 4963;
+                        if (rejection != 0) {
+                            b.setIsSuccess(false).setCode(rejection).setNowCapacity(GoodsService.capacity(session.role));
+                            session.send(1004024, msg.getMsid(), b.build());
+                            return;
+                        }
+                        RoleUtil.recordBook(session.role, def.id);
                         GoodsService.remove(session.role, req.getGoodsId(), 1);
-                        questDone = QuestService.onGongFa(session.role, def.rank);
+                        if (guideRead) session.role.put("PracticeStarterRead", true);
                         ok = true;
                     }
                 } else if (type == 19) {
@@ -45,23 +53,13 @@ public class GoodsUseHandler implements MsgHandler {
                     session.send(1004024, msg.getMsid(), b.build());
                     return;
                 }
-                b.setIsSuccess(ok).setCode(ok ? 2000 : 4605)
+                int successCode = type == 1 ? 4964 : 2000;
+                b.setIsSuccess(ok).setCode(ok ? successCode : 4605)
                         .setNowCapacity(GoodsService.capacity(session.role));
                 RoleUtil.save(session.role);
             }
         }
         session.send(1004024, msg.getMsid(), b.build());
-        if (questDone) GameServer.notifyTaskComplete(session);
     }
 
-    private static GameData.GongFaDef findGongFa(Map<String, Object> g) {
-        String template = GoodsService.str(g, "TemplateId");
-        GameData.GongFaDef def = GameData.gongFa(template);
-        if (def != null) return def;
-        String name = GoodsService.str(g, "Name");
-        for (GameData.GongFaDef d : GameData.gongFaAll()) {
-            if (d.name.equals(name)) return d;
-        }
-        return null;
-    }
 }

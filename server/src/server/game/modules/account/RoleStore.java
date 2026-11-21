@@ -88,7 +88,7 @@ public class RoleStore {
         r.put("TaskId", 1);
         r.put("TaskStatus", 0);
         RoleUtil.initNewRole(r);
-        store.put((String) r.get("Id"), r);
+        saveWithAcupoints(r);
         return r;
     }
 
@@ -101,7 +101,41 @@ public class RoleStore {
         return false;
     }
 
+    private static final String[] ACUPOINT_FIELDS = {"AcupointValue", "Acupoints"};
+
+    static void copyAcupoints(Map<String, Object> source, Map<String, Object> target) {
+        for (String field : ACUPOINT_FIELDS) {
+            if (source.containsKey(field)) target.put(field, source.get(field));
+            else target.remove(field);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public synchronized void save(Map<String, Object> r) {
-        store.put((String) r.get("Id"), r);
+        Object current = store.get((String) r.get("Id"));
+        if (current instanceof Map) copyAcupoints((Map<String, Object>) current, r);
+        saveWithAcupoints(r);
+    }
+
+    synchronized void saveWithAcupoints(Map<String, Object> r) {
+        store.put((String) r.get("Id"), new HashMap<>(r));
+    }
+
+    @SuppressWarnings("unchecked")
+    synchronized void savePromotion(Map<String, Object> r, int previousLevel, int award) {
+        Object current = store.get((String) r.get("Id"));
+        Map<String, Object> basis;
+        if (current instanceof Map) {
+            basis = (Map<String, Object>) current;
+            copyAcupoints(basis, r);
+        } else {
+            basis = new HashMap<>(r);
+            basis.put("Level", previousLevel);
+        }
+        if (RoleUtil.num(basis, "Level", 1) < RoleUtil.num(r, "Level")) {
+            long balance = Math.max(0, Math.min(Integer.MAX_VALUE, Meridians.balance(basis)));
+            r.put("AcupointValue", (int) Math.min(Integer.MAX_VALUE, balance + Math.max(0, award)));
+        }
+        saveWithAcupoints(r);
     }
 }

@@ -75,6 +75,8 @@ func inferQuest(c string) questRule {
 				return questRule{"LEVEL", int64(i*10) + tier}
 			}
 		}
+	case strings.Contains(c, "天书碑成就"):
+		return questRule{"ACHIEVEMENTS", num}
 	case strings.Contains(c, "击杀"):
 		if containsQuest(c, "领主", "长老", "首领", "兽王") {
 			return questRule{"BOSS_KILL", num}
@@ -166,20 +168,39 @@ func (s *Server) ensureQuest(r Record) {
 	for _, key := range taskCounters {
 		setRoleDefault(r, key, 0)
 	}
-	for _, key := range []string{"QuestGongFaCount", "TaskAutoAt", "QuestTotalKills", "QuestTotalSweeps"} {
+	for _, key := range []string{"QuestGongFaCount", "TaskAutoAt"} {
 		setRoleDefault(r, key, 0)
 	}
-	syncTaskMethods(r)
+	preserveAchievementBattleTotals(r)
+	s.syncTaskMethods(r)
 }
 
-func syncTaskMethods(r Record) {
+func preserveAchievementBattleTotals(r Record) {
+	for _, counter := range [...]string{"Kills", "BossKills", "Sweeps"} {
+		total := "QuestTotal" + counter
+		r[total] = max(roleInt(r, total), roleInt(r, "Quest"+counter))
+	}
+}
+
+func (s *Server) syncTaskMethods(r Record) {
 	rank := roleInt(r, "QuestGongFaRank")
 	for kind := 1; kind <= 3; kind++ {
-		if def := equippedGameMethod(r, kind); def != nil {
+		if def := s.methods().equipped(r, kind); def != nil {
 			rank = max(rank, int64(def.rank))
 		}
 	}
 	r["QuestGongFaRank"] = rank
+	s.syncStudyCount(r)
+}
+
+func (s *Server) syncStudyCount(r Record) {
+	known := make(map[string]bool)
+	for _, id := range ownedGameMethods(r) {
+		if s.methods().byID[id] != nil {
+			known[id] = true
+		}
+	}
+	r["QuestGongFaCount"] = max(roleInt(r, "QuestGongFaCount"), int64(len(known)))
 }
 
 func (s *Server) questRuleFor(r Record) questRule {
@@ -208,6 +229,9 @@ func (s *Server) checkQuest(r Record) bool {
 		case "AUTO":
 			at := roleInt(r, "TaskAutoAt")
 			done = at > 0 && time.Now().UnixMilli() >= at
+		case "ACHIEVEMENTS":
+			earned, _ := achievementSummary(r)
+			done = earned >= target
 		case "CULTIVATE_NAQI":
 			done = roleInt(r, "RunMask")&4 != 0
 		case "CULTIVATE_DUANTI":
@@ -221,6 +245,11 @@ func (s *Server) checkQuest(r Record) bool {
 }
 
 func (s *Server) grantQuestEvent(r Record, event string) bool {
+	// Some legacy saves only kept the ongoing quest's sweep counter. Carry
+	// that known progress forward before crediting this new field clear.
+	if event == "SWEEP" {
+		r["QuestTotalSweeps"] = max(roleInt(r, "QuestTotalSweeps"), roleInt(r, "QuestSweeps"))
+	}
 	counters := map[string][]string{
 		"KILL": {"QuestKills", "QuestTotalKills"}, "BOSS_KILL": {"QuestKills", "QuestTotalKills", "QuestBossKills", "QuestTotalBossKills"},
 		"SWEEP": {"QuestSweeps", "QuestTotalSweeps"}, "CHAT": {"QuestChats"}, "DUNGEON": {"QuestDungeons"},
@@ -237,11 +266,16 @@ func (s *Server) grantQuestEvent(r Record, event string) bool {
 
 func (s *Server) gameMethodQuest(r Record, def *gameMethod) bool {
 	r["QuestGongFaRank"] = max(roleInt(r, "QuestGongFaRank"), int64(def.rank))
+	s.syncStudyCount(r)
 	kind := s.questRuleFor(r).Type
 	return (kind == "GONGFA" || kind == "GONGFA_COUNT") && s.checkQuest(r)
 }
 
 func gameAwardGoods(r Record, name string, itemType, rank, level, count int) {
+	if def := legacyMethods.byName[name]; itemType == 1 && def != nil {
+		addGoods(r, name, itemType, def.rank, def.learningLevel, def.elementFor(r), def.id, count, .5, 5+rank*5)
+		return
+	}
 	addGoods(r, name, itemType, rank, level, primaryGameElement(r), fmt.Sprintf("reward_%d_%d_%d", itemType, max(1, rank), max(1, level)), count, .5, 5+rank*5)
 }
 
@@ -270,6 +304,10 @@ func (s *Server) handleQuest(peer *Peer, msg Message) bool {
 		s.handleGuide(peer, msg)
 	case 1016002:
 		s.claimQuest(peer, msg)
+	case 1016004:
+		s.listAchievements(peer, msg)
+	case 1016006:
+		s.claimAchievement(peer, msg)
 	case 1012001:
 		complete := false
 		err := s.roles.Update(peer.currentRoleID(), func(r Record) error {
@@ -313,10 +351,11 @@ func (s *Server) claimQuest(peer *Peer, msg Message) {
 			return nil
 		}
 		r["TaskId"], r["TaskAutoAt"] = id+1, 0
+		preserveAchievementBattleTotals(r)
 		for _, field := range taskCounters {
 			r[field] = 0
 		}
-		syncTaskMethods(r)
+		s.syncTaskMethods(r)
 		if s.questRuleFor(r).Type == "AUTO" {
 			r["TaskAutoAt"] = time.Now().Add(5 * time.Second).UnixMilli()
 		} else {
@@ -347,6 +386,28 @@ var guideSteps = map[int64]guideStep{
 	6: {"AcupointGuideVal", 3}, 7: {"SignGuideVal", 2}, 8: {"ElixirGuideVal", 2},
 }
 
+// Reading the book and reporting the chapter use separate requests. A login
+// between them must resume at meditation, even if more copies are in the bag.
+func resumePracticeGuide(r Record) {
+	if roleInt(r, "PracticeGuideVal") != 1 || roleInt(r, "StarterKitVersion") < 1 {
+		return
+	}
+	if !roleBool(r, "PracticeStarterRead") {
+		// Older saves only have their starter inventory as a record of the book.
+		for _, item := range goodsList(r) {
+			g, _ := item.(map[string]any)
+			if roleInt(g, "Type") == 1 {
+				if method := legacyMethods.book(g); method != nil && method.id == practiceStarterMethodID {
+					return
+				}
+			}
+		}
+	}
+	r["PracticeStarterRead"] = true
+	r["PracticeGuideVal"] = 2
+	rewardGuide(r, 1, 2)
+}
+
 func (s *Server) handleGuide(peer *Peer, msg Message) {
 	name := "GuideInfoUpdate"
 	if msg.Cmd == 1002014 {
@@ -367,7 +428,7 @@ func (s *Server) handleGuide(peer *Peer, msg Message) {
 			if msg.Msid > 0 && msg.Msid <= peer.lastPracticeGuideID {
 				return nil
 			}
-			if practiceStarterPending(r) {
+			if practiceStarterPending(r) || roleInt(r, "PracticeGuideVal") == 1 && !roleBool(r, "PracticeStarterRead") {
 				statusPB(b, false, 4008)
 				return nil
 			}
